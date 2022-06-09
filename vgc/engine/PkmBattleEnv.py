@@ -8,7 +8,7 @@ from gym import spaces
 
 from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, MAX_HIT_POINTS, STATE_DAMAGE, SPIKES_2, SPIKES_3, \
     TYPE_CHART_MULTIPLIER, DEFAULT_N_ACTIONS
-from vgc.datatypes.Objects import PkmTeam, Pkm, get_game_state_view, GameState, Weather
+from vgc.datatypes.Objects import PkmTeam, Pkm, get_game_state_view, GameState, Weather, PkmTeamPrediction
 from vgc.datatypes.Types import WeatherCondition, PkmEntryHazard, PkmType, PkmStatus, PkmStat, N_HAZARD_STAGES, \
     MIN_STAGE, MAX_STAGE
 from vgc.util.Encoding import GAME_STATE_ENCODE_LEN, partial_encode_game_state
@@ -17,25 +17,25 @@ from vgc.competition.StandardPkmMoves import Struggle
 
 class PkmBattleEnv(gym.Env):
 
-    def __init__(self, teams: Tuple[PkmTeam, PkmTeam] = None, debug: bool = False, team_prediction=None,
+    def __init__(self, teams: Tuple[PkmTeam, PkmTeam] = None, init_weather=Weather(), debug: bool = False,  # team_prediction=None,
                  conn: Client = None):
         # random active pokemon
         self.n_turns_no_clear = None
-        if team_prediction is None:
-            team_prediction = [None, None]
+        # if team_prediction is None:
+        #    team_prediction = [None, None]
         if teams is None:
             self.teams: Tuple[PkmTeam, PkmTeam] = (PkmTeam(), PkmTeam())
         else:
             self.teams: Tuple[PkmTeam, PkmTeam] = teams
-        self.team_prediction = team_prediction
-        self.weather = Weather()
+        # self.team_prediction = team_prediction
+        self.weather = init_weather
         self.switched = [False, False]
         self.turn = 0
         self.move_view = self.__create_pkm_move_view()
         self.game_state = [GameState([self.teams[0], self.teams[1]], self.weather),
                            GameState([self.teams[1], self.teams[0]], self.weather)]
-        self.game_state_view = [get_game_state_view(self.game_state[0], team_prediction=self.team_prediction[0]),
-                                get_game_state_view(self.game_state[1], team_prediction=self.team_prediction[1])]
+        # self.game_state_view = [get_game_state_view(self.game_state[0], team_prediction=self.team_prediction[0]),
+        #                         get_game_state_view(self.game_state[1], team_prediction=self.team_prediction[1])]
         self.debug = debug
         self.log = ''
         self.commands = []
@@ -146,7 +146,7 @@ class PkmBattleEnv(gym.Env):
         e0, e1 = [], []
         partial_encode_game_state(e0, self.game_state[0])
         partial_encode_game_state(e1, self.game_state[1])
-        return [e0, e1], r, finished, self.game_state_view
+        return [e0, e1], r, finished, None  # self.game_state_view
 
     def reset(self):
         self.weather.condition = WeatherCondition.CLEAR
@@ -176,8 +176,10 @@ class PkmBattleEnv(gym.Env):
                                            self.teams[1].active.hp]))
 
         e0, e1 = [], []
-        partial_encode_game_state(e0, self.game_state[0], self.team_prediction[0])
-        partial_encode_game_state(e1, self.game_state[1], self.team_prediction[1])
+        partial_encode_game_state(e0, self.game_state[0]  #, self.team_prediction[0]
+        )
+        partial_encode_game_state(e1, self.game_state[1]  #, self.team_prediction[1]
+        )
         return [e0, e1]
 
     def render(self, mode='console'):
