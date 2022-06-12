@@ -6,7 +6,7 @@ from vgc.balance.meta import MetaData
 from vgc.competition import CompetitorManager
 from vgc.competition.BattleMatch import BattleMatch, RandomTeamsBattleMatch
 from vgc.competition.Competitor import Competitor
-from vgc.datatypes.Objects import PkmRoster, get_pkm_roster_view
+from vgc.datatypes.Objects import PkmRoster
 from vgc.util.generator.PkmTeamGenerators import PkmTeamGenerator
 
 
@@ -90,13 +90,13 @@ class TreeChampionship(Championship):
                  gen: Optional[PkmTeamGenerator] = None):
         self.competitors: List[CompetitorManager] = []
         self.match_tree: Optional[MatchHandlerTree] = None
-        self.roster_view = get_pkm_roster_view(roster)
+        self.roster = roster
         self.meta_data = meta_data
         self.debug = debug
         self.gen = gen
 
     def register(self, cm: CompetitorManager):
-        cm.team = cm.competitor.team_build_policy.get_action((self.meta_data, cm.team, self.roster_view))
+        cm.team = cm.competitor.team_build_policy.get_action((self.meta_data, cm.team, self.roster))
         self.competitors.append(cm)
 
     def new_tournament(self):

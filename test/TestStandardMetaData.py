@@ -1,7 +1,7 @@
 import unittest
 
 
-# TODO
+# TODO finish standard meta game data structure
 
 
 class TestStandardMetaData(unittest.TestCase):

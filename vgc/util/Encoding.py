@@ -164,7 +164,7 @@ def decode_team(e) -> PkmTeam:
 TEAM_ENCODE_LEN = 591
 
 
-def encode_game_state(e, game_state: GameState):
+def encode_game_state(e, game_state: GameState):  # TODO encode over array instead of expanding
     for team in game_state.teams:
         encode_team(e, team)
     e += one_hot(game_state.weather.condition, N_WEATHER)
@@ -178,7 +178,7 @@ def partial_encode_game_state(e, game_state: GameState, prediction: PkmTeam = No
     e += [game_state.weather.n_turns_no_clear / 5]
 
 
-def decode_game_state(e) -> GameState:  # TODO generate only one array instead of expanding
+def decode_game_state(e) -> GameState:
     teams = (decode_team(e[:TEAM_ENCODE_LEN]), decode_team(e[TEAM_ENCODE_LEN:TEAM_ENCODE_LEN * 2]))
     game_state = GameState(teams, Weather())
     _start = TEAM_ENCODE_LEN * 2

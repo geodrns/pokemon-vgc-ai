@@ -1,23 +1,25 @@
 from vgc.behaviour.BattlePolicies import RandomBattlePolicy
+from vgc.datatypes.Objects import PkmTeam
 from vgc.engine.PkmBattleEnv import PkmBattleEnv
 
 
 def main():
-    env = PkmBattleEnv(debug=True)
-    env.reset()
-    t = False
     a0 = RandomBattlePolicy()
     a1 = RandomBattlePolicy()
+    t0 = PkmTeam()
+    t1 = PkmTeam()
+    env = PkmBattleEnv((t0, t1), debug=True, encode=(a0.requires_encode(), a1.requires_encode()))
+    env.reset()
+    t = False
     ep = 0
     n_battles = 3
     while ep < n_battles:
         s = env.reset()
-        v = env.game_state_view
         env.render()
         ep += 1
         while not t:
-            o0 = s[0] if a0.requires_encode() else v[0]
-            o1 = s[1] if a1.requires_encode() else v[1]
+            o0 = s[0]
+            o1 = s[1]
             a = [a0.get_action(o0), a1.get_action(o1)]
             s, _, t, v = env.step(a)
             env.render()

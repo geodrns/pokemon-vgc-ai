@@ -8,15 +8,15 @@ from vgc.behaviour.TeamPredictors import NullTeamPredictor
 from vgc.competition import CompetitorManager
 from vgc.competition.Competitor import Competitor
 from vgc.datatypes.Constants import DEFAULT_MATCH_N_BATTLES, DEFAULT_TEAM_SIZE
-from vgc.datatypes.Objects import PkmFullTeam, get_full_team_view, PkmTeamPrediction, PkmFullTeamView, PkmTeam
+from vgc.datatypes.Objects import PkmFullTeam, PkmTeam
 from vgc.engine.PkmBattleEnv import PkmBattleEnv
 from vgc.util.generator.PkmTeamGenerators import PkmTeamGenerator
 
 
-def team_selection(c: Competitor, full_team: PkmFullTeam, my_team_view: PkmFullTeamView,
-                   opp_team_view: PkmFullTeamView, full_team_size=DEFAULT_TEAM_SIZE) -> PkmTeam:
+def team_selection(c: Competitor, full_team: PkmFullTeam, my_team: PkmFullTeam, opp_team: PkmFullTeam,
+                   full_team_size=DEFAULT_TEAM_SIZE) -> PkmTeam:
     try:
-        team_ids = list(c.team_selection_policy.get_action((my_team_view, opp_team_view)))
+        team_ids = list(c.team_selection_policy.get_action((my_team, opp_team)))
     except:
         team_ids = sample(range(full_team_size), DEFAULT_TEAM_SIZE)
     return full_team.get_battle_team(team_ids)
@@ -44,7 +44,7 @@ class BattleMatch:
         full_team1 = self.cms[1].team
         full_team0.reveal()
         full_team1.reveal()
-        team0_view0 = get_full_team_view(full_team0)
+        team0_view0 = get_full_team_view(full_team0)  # Fix predictions
         team1_view1 = get_full_team_view(full_team1)
         team1_prediction = self.__team_prediction(c0, team1_view1)
         team0_prediction = self.__team_prediction(c1, team0_view0)
@@ -72,7 +72,7 @@ class BattleMatch:
             self.meta_data.update_with_team(full_team1, self.wins[1] > self.wins[0])
         self.finished = True
 
-    def __team_prediction(self, c: Competitor, opp_team_view: PkmFullTeamView) -> PkmTeamPrediction:
+    def __team_prediction(self, c: Competitor, opp_team_view: PkmFullTeam) -> PkmTeam:
         if self.meta_data is None:
             return NullTeamPredictor.null_team_prediction
         else:
@@ -81,23 +81,20 @@ class BattleMatch:
             except:
                 return NullTeamPredictor.null_team_prediction
 
-    def __run_battle(self, a0: BattlePolicy, a1: BattlePolicy, team0: PkmTeam, team1: PkmTeam,
-                     pred0: Optional[PkmTeamPrediction], pred1: Optional[PkmTeamPrediction]) -> int:
-        env = PkmBattleEnv((team0, team1), self.debug, [pred1, pred0])
+    def __run_battle(self, a0: BattlePolicy, a1: BattlePolicy, team0: PkmTeam, team1: PkmTeam, pred0: Optional[PkmTeam],
+                     pred1: Optional[PkmTeam]) -> int:  # TODO add predictions
+        env = PkmBattleEnv((team0, team1), debug=self.debug, encode=(a0.requires_encode(), a1.requires_encode()))
         s = env.reset()
-        v = env.game_state_view
         if self.debug:
             env.render(self.render_mode)
         t = False
         while not t:
-            o0 = s[0] if a0.requires_encode() else v[0]
-            o1 = s[1] if a1.requires_encode() else v[1]
             try:
-                act0 = a0.get_action(o0)
+                act0 = a0.get_action(s[0])
             except:
                 act0 = random.randint(0, 6)
             try:
-                act1 = a1.get_action(o1)
+                act1 = a1.get_action(s[1])
             except:
                 act1 = random.randint(0, 6)
             a = [act0, act1]

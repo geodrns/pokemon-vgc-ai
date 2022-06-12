@@ -40,7 +40,8 @@ def set_pkm(pkm: Pkm, prediction: Pkm):
 
 class PkmBattleEnv(gym.Env, GameState):
 
-    def __init__(self, teams: Tuple[PkmTeam, PkmTeam], weather=Weather(), debug: bool = False, conn: Client = None):
+    def __init__(self, teams: Tuple[PkmTeam, PkmTeam], weather=Weather(), debug: bool = False, conn: Client = None,
+                 encode: Tuple[bool, bool] = (True, True)):
         # random active pokemon
         super().__init__(teams, weather)
         self.__n_turns_no_clear = None
@@ -52,12 +53,13 @@ class PkmBattleEnv(gym.Env, GameState):
         self.__commands = []
         self.__conn = conn
         self.__game_state_view = [GameState((self.teams[0], self.teams[1]), self.weather),
-                                  GameState((self.teams[1], self.teams[0]), self.weather)]  # TODO hide elements from opponent
+                                  GameState((self.teams[1], self.teams[0]), self.weather)]
+        self.__requires_encode = encode
         self.action_space = spaces.Discrete(DEFAULT_N_ACTIONS)
         self.observation_space = spaces.Discrete(GAME_STATE_ENCODE_LEN)
         self.winner = -1
 
-    def __forward(self, player: int, prediction: PkmTeam = None):
+    def __get_forward_env(self, player: int, prediction: PkmTeam = None):
         env = PkmBattleEnv((deepcopy(self.teams[0]), deepcopy(self.teams[1])), deepcopy(self.weather))
         env.__n_turns_no_clear = self.__n_turns_no_clear
         env.__turn = self.__turn
@@ -168,10 +170,17 @@ class PkmBattleEnv(gym.Env, GameState):
                 self.__log += f'Trainer 1 {outcome1}\n'
                 self.__commands.append(('event', ['log', f'Trainer 0 {outcome0}.']))
 
-        e0, e1 = [], []
-        partial_encode_game_state(e0, self.__game_state_view[0])
-        partial_encode_game_state(e1, self.__game_state_view[1])
-        return [e0, e1], r, finished, None  # TODO return game state forward model
+        if self.__requires_encode[0]:
+            s0 = []
+            partial_encode_game_state(s0, self.__game_state_view[0])
+        else:
+            s0 = self.__get_forward_env(0)
+        if self.__requires_encode[1]:
+            s1 = []
+            partial_encode_game_state(s1, self.__game_state_view[1])
+        else:
+            s1 = self.__get_forward_env(1)
+        return [s0, s1], r, finished, None
 
     def reset(self):
         self.weather.condition = WeatherCondition.CLEAR
@@ -200,10 +209,17 @@ class PkmBattleEnv(gym.Env, GameState):
                                              self.teams[1].party[1].type.value,
                                              self.teams[1].active.hp]))
 
-        e0, e1 = [], []
-        partial_encode_game_state(e0, self.__game_state_view[0])
-        partial_encode_game_state(e1, self.__game_state_view[1])
-        return [e0, e1]  # TODO return game state forward model
+        if self.__requires_encode[0]:
+            s0 = []
+            partial_encode_game_state(s0, self.__game_state_view[0])
+        else:
+            s0 = self.__get_forward_env(0)
+        if self.__requires_encode[1]:
+            s1 = []
+            partial_encode_game_state(s1, self.__game_state_view[1])
+        else:
+            s1 = self.__get_forward_env(1)
+        return [s0, s1]
 
     def render(self, mode='console'):
         if mode == 'console':

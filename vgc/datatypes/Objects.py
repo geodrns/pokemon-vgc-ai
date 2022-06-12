@@ -1,5 +1,4 @@
 import random
-from copy import deepcopy
 from math import isclose
 from typing import List, Tuple, Set
 
@@ -149,7 +148,7 @@ class PkmMove:
         return self.public
 
 
-null_pkm_move = PkmMove()  # TODO verify null pkm checking
+null_pkm_move = PkmMove()
 
 PkmMoveRoster = Set[PkmMove]
 
@@ -256,7 +255,7 @@ class Pkm:
         return self.public
 
 
-null_pkm = Pkm()  # TODO verify null pkm checking
+null_pkm = Pkm()
 
 
 class PkmTemplate:
@@ -452,7 +451,7 @@ class PkmFullTeam:
 
     def __init__(self, pkm_list: List[Pkm] = None):
         if pkm_list is None:
-            pkm_list = [deepcopy(null_pkm) for _ in range(6)]
+            pkm_list = [Pkm() for _ in range(6)]
         self.pkm_list = pkm_list[:6]
 
     def __str__(self):
