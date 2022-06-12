@@ -3,12 +3,12 @@ import random
 import unittest
 from copy import deepcopy
 
+from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
 from vgc.datatypes.Constants import BASE_HIT_POINTS, MAX_HIT_POINTS
 from vgc.datatypes.Objects import PkmTemplate, PkmTeam, GameState, Weather
 from vgc.datatypes.Types import PkmType
 from vgc.util.Encoding import decode_move, encode_move, encode_pkm, decode_pkm, encode_team, decode_team, \
     encode_game_state, decode_game_state
-from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
 
 
 class TestEncodingMethods(unittest.TestCase):
@@ -25,7 +25,7 @@ class TestEncodingMethods(unittest.TestCase):
             pkm_type = random.choice(list(PkmType))
             max_hp = random.randint(BASE_HIT_POINTS, MAX_HIT_POINTS)
             move_roster = set(random.sample(deepcopy(STANDARD_MOVE_ROSTER), 10))
-            template = PkmTemplate(pkm_type=pkm_type, max_hp=max_hp, move_roster=move_roster)
+            template = PkmTemplate(pkm_type=pkm_type, max_hp=max_hp, move_roster=move_roster, pkm_id=0)
             move_combinations = itertools.combinations(range(10), 4)
             for idx in random.sample(list(move_combinations), 1):
                 pkm = template.gen_pkm(moves=list(idx))
@@ -39,7 +39,7 @@ class TestEncodingMethods(unittest.TestCase):
             pkm_type = random.choice(list(PkmType))
             max_hp = random.randint(BASE_HIT_POINTS, MAX_HIT_POINTS)
             move_roster = set(random.sample(deepcopy(STANDARD_MOVE_ROSTER), 10))
-            template = PkmTemplate(pkm_type=pkm_type, max_hp=max_hp, move_roster=move_roster)
+            template = PkmTemplate(pkm_type=pkm_type, max_hp=max_hp, move_roster=move_roster, pkm_id=0)
             move_combinations = itertools.combinations(range(10), 4)
             pkms = []
             for idx in random.sample(list(move_combinations), 3):
@@ -61,7 +61,7 @@ class TestEncodingMethods(unittest.TestCase):
             for idx in random.sample(list(move_combinations), 3):
                 pkms.append(template.gen_pkm(moves=list(idx)))
             team = PkmTeam(pkms)
-            game_state = GameState([team, team], Weather())
+            game_state = GameState((team, team), Weather())
             e = []
             encode_game_state(e, game_state)
             d = decode_game_state(e)

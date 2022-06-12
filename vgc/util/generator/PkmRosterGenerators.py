@@ -4,12 +4,12 @@ from copy import deepcopy
 from typing import List
 
 from vgc.competition import STANDARD_TOTAL_POINTS, get_move_points
+from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
 from vgc.datatypes.Constants import BASE_HIT_POINTS, DEFAULT_ROSTER_SIZE, DEFAULT_N_MOVES_PKM, MAX_HIT_POINTS, \
     MIN_HIT_POINTS
 from vgc.datatypes.Objects import PkmMoveRoster, PkmRoster, PkmMove, PkmTemplate
 from vgc.datatypes.Types import PkmType
 from vgc.util.generator.PkmTeamGenerators import LIST_OF_TYPES
-from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
 
 
 class MoveRosterGenerator(ABC):

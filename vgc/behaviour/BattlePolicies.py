@@ -5,7 +5,7 @@ import numpy as np
 
 from vgc.behaviour import BattlePolicy
 from vgc.datatypes.Constants import TYPE_CHART_MULTIPLIER, DEFAULT_PKM_N_MOVES, DEFAULT_PARTY_SIZE
-from vgc.datatypes.Objects import PkmMove, GameStateView
+from vgc.datatypes.Objects import PkmMove, GameState
 from vgc.datatypes.Types import PkmStat, PkmType, WeatherCondition, PkmStatus
 
 
@@ -31,7 +31,7 @@ class SimpleBattlePolicy(BattlePolicy):
     def close(self):
         pass
 
-    def get_action(self, g: GameStateView) -> int:
+    def get_action(self, g: GameState) -> int:
         """
         Decision step.
 
@@ -39,22 +39,22 @@ class SimpleBattlePolicy(BattlePolicy):
         :return: action
         """
         # check weather condition
-        weather = g.weather_condition
+        weather = g.weather.condition
 
         # get my team
-        my_team = g.get_team_view(0)
-        my_active = my_team.active_pkm_view
+        my_team = g.teams[0]
+        my_active = my_team.active
         my_active_type = my_active.type
-        my_party = [my_team.get_party_pkm_view(i) for i in range(my_team.party_size)]
-        my_active_moves = [my_active.get_move_view(i) for i in range(DEFAULT_PKM_N_MOVES)]
-        my_attack_stage = my_team.get_stage(PkmStat.ATTACK)
+        my_party = my_team.party
+        my_active_moves = my_active.moves
+        my_attack_stage = my_team.stage[PkmStat.ATTACK]
 
         # get opp team
-        opp_team = g.get_team_view(1)
-        opp_active = opp_team.active_pkm_view
+        opp_team = g.teams[1]
+        opp_active = opp_team.active
         opp_active_type = opp_active.type
         opp_active_hp = opp_active.hp
-        opp_defense_stage = opp_team.get_stage(PkmStat.DEFENSE)
+        opp_defense_stage = opp_team.stage[PkmStat.DEFENSE]
 
         # get best move
         damage: List[float] = []
@@ -95,7 +95,7 @@ class GUIBattlePolicy(BattlePolicy):
         self.window = sg.Window('Pokemon Battle Engine', layout)
         self.window.Finalize()
 
-    def get_action(self, g: GameStateView) -> int:
+    def get_action(self, g: GameState) -> int:
         """
         Decision step.
 
@@ -103,49 +103,49 @@ class GUIBattlePolicy(BattlePolicy):
         :return: action
         """
         # weather
-        self.weather.Update('Weather: ' + g.weather_condition.name)
+        self.weather.Update('Weather: ' + g.weather.condition.name)
 
         # get opp team
-        opp_team = g.get_team_view(1)
-        opp_active = opp_team.active_pkm_view
+        opp_team = g.teams[1]
+        opp_active = opp_team.active
         opp_active_type = opp_active.type
         opp_active_hp = opp_active.hp
         print(opp_active_hp)
         opp_status = opp_active.status
         opp_text = 'Opp: ' + opp_active_type.name + ' ' + str(opp_active_hp) + ' HP' + (
             '' if opp_status == PkmStatus.NONE else opp_status.name)
-        opp_attack_stage = opp_team.get_stage(PkmStat.ATTACK)
+        opp_attack_stage = opp_team.stage[PkmStat.ATTACK]
         if opp_attack_stage != 0:
             opp_text += ' ATK ' + str(opp_attack_stage)
-        opp_defense_stage = opp_team.get_stage(PkmStat.DEFENSE)
+        opp_defense_stage = opp_team.stage[PkmStat.DEFENSE]
         if opp_defense_stage != 0:
             opp_text += ' DEF ' + str(opp_defense_stage)
-        opp_speed_stage = opp_team.get_stage(PkmStat.SPEED)
+        opp_speed_stage = opp_team.stage[PkmStat.SPEED]
         if opp_speed_stage != 0:
             opp_text += ' SPD ' + str(opp_speed_stage)
         self.opponent.Update(opp_text)
 
         # active
-        my_team = g.get_team_view(0)
-        my_active = my_team.active_pkm_view
+        my_team = g.teams[0]
+        my_active = my_team.active
         my_active_type = my_active.type
         my_active_hp = my_active.hp
         my_status = my_active.status
         active_text = 'You: ' + my_active_type.name + ' ' + str(my_active_hp) + ' HP' + (
             '' if my_status == PkmStatus.NONE else my_status.name)
-        active_attack_stage = my_team.get_stage(PkmStat.ATTACK)
+        active_attack_stage = my_team.stage[PkmStat.ATTACK]
         if active_attack_stage != 0:
             active_text += ' ATK ' + str(active_attack_stage)
-        active_defense_stage = my_team.get_stage(PkmStat.DEFENSE)
+        active_defense_stage = my_team.stage[PkmStat.DEFENSE]
         if active_defense_stage != 0:
             active_text += ' DEF ' + str(active_defense_stage)
-        active_speed_stage = my_team.get_stage(PkmStat.SPEED)
+        active_speed_stage = my_team.stage[PkmStat.SPEED]
         if active_speed_stage != 0:
             active_text += ' SPD ' + str(active_speed_stage)
         self.active.Update(active_text)
 
         # party
-        my_party = [my_team.get_party_pkm_view(0), my_team.get_party_pkm_view(1)]
+        my_party = my_team.party
         for i, pkm in enumerate(my_party):
             party_type = pkm.type
             party_hp = pkm.hp
@@ -155,7 +155,7 @@ class GUIBattlePolicy(BattlePolicy):
             self.party[i][1].Update(party_text)
             self.party[i][0].Update(disabled=(party_hp == 0.0))
         # moves
-        my_active_moves = [my_active.get_move_view(i) for i in range(DEFAULT_PKM_N_MOVES)]
+        my_active_moves = my_active.moves
         for i, move in enumerate(my_active_moves):
             move_power = move.power
             move_type = move.type
@@ -188,7 +188,7 @@ class RandomBattlePolicy(BattlePolicy):
         self.pi: List[float] = ([(1. - switch_probability) / n_moves] * n_moves) + (
                 [switch_probability / n_switches] * n_switches)
 
-    def get_action(self, g: GameStateView) -> int:
+    def get_action(self, g: GameState) -> int:
         """
         Decision step.
 

@@ -1,8 +1,7 @@
 import random
-from abc import ABC, abstractmethod
 from copy import deepcopy
 from math import isclose
-from typing import List, Tuple, Set, Union
+from typing import List, Tuple, Set
 
 import numpy as np
 
@@ -150,236 +149,9 @@ class PkmMove:
         return self.public
 
 
-class MoveView(ABC):
-
-    @property
-    @abstractmethod
-    def power(self) -> float:
-        pass
-
-    @property
-    @abstractmethod
-    def acc(self) -> float:
-        pass
-
-    @property
-    @abstractmethod
-    def pp(self) -> int:
-        pass
-
-    @property
-    @abstractmethod
-    def max_pp(self) -> int:
-        pass
-
-    @property
-    @abstractmethod
-    def type(self) -> PkmType:
-        pass
-
-    @property
-    @abstractmethod
-    def priority(self) -> int:
-        pass
-
-    @property
-    @abstractmethod
-    def prob(self) -> float:
-        pass
-
-    @property
-    @abstractmethod
-    def target(self) -> int:
-        pass
-
-    @property
-    @abstractmethod
-    def recover(self) -> float:
-        pass
-
-    @property
-    @abstractmethod
-    def status(self) -> PkmStatus:
-        pass
-
-    @property
-    @abstractmethod
-    def stat(self) -> PkmStat:
-        pass
-
-    @property
-    @abstractmethod
-    def stage(self) -> int:
-        pass
-
-    @property
-    @abstractmethod
-    def fixed_damage(self) -> float:
-        pass
-
-    @property
-    @abstractmethod
-    def weather(self) -> WeatherCondition:
-        pass
-
-    @property
-    @abstractmethod
-    def hazard(self) -> PkmEntryHazard:
-        pass
-
-
-def get_move_view(move: PkmMove) -> MoveView:
-    class MoveViewImpl(MoveView):
-
-        @property
-        def power(self) -> float:
-            return move.power
-
-        @property
-        def acc(self) -> float:
-            return move.acc
-
-        @property
-        def pp(self) -> int:
-            return move.pp
-
-        @property
-        def max_pp(self) -> int:
-            return move.max_pp
-
-        @property
-        def type(self) -> PkmType:
-            return move.type
-
-        @property
-        def priority(self) -> int:
-            return move.priority
-
-        @property
-        def prob(self) -> float:
-            return move.prob
-
-        @property
-        def target(self) -> int:
-            return move.target
-
-        @property
-        def recover(self) -> float:
-            return move.recover
-
-        @property
-        def status(self) -> PkmStatus:
-            return move.status
-
-        @property
-        def stat(self) -> PkmStat:
-            return move.stat
-
-        @property
-        def stage(self) -> int:
-            return move.stage
-
-        @property
-        def fixed_damage(self) -> float:
-            return move.fixed_damage
-
-        @property
-        def weather(self) -> WeatherCondition:
-            return move.weather
-
-        @property
-        def hazard(self) -> PkmEntryHazard:
-            return move.hazard
-
-        def __eq__(self, other):
-            if self.power != other.power:
-                return False
-            if self.acc != other.acc:
-                return False
-            if self.max_pp != other.max_pp:
-                return False
-            if self.type != other.type:
-                return False
-            if self.priority != other.priority:
-                return False
-            if self.prob > 0.:
-                if self.prob != other.prob:
-                    return False
-                if self.target != self.target:
-                    return False
-                if self.recover != self.recover:
-                    return False
-                if self.status != self.status:
-                    return False
-                if self.stat != self.stat:
-                    return False
-                if self.stage != self.stage:
-                    return False
-                if self.fixed_damage != self.fixed_damage:
-                    return False
-                if self.weather != self.weather:
-                    return False
-                if self.hazard != self.hazard:
-                    return False
-            return True
-
-        def __hash__(self):
-            if self.prob == 0.:
-                return hash((self.power, self.acc, self.max_pp, self.type, self.priority))
-            return hash(
-                (self.power, self.acc, self.max_pp, self.type, self.priority, self.prob, self.target, self.recover,
-                 self.status, self.stat, self.stage, self.fixed_damage, self.weather, self.hazard))
-
-    return MoveViewImpl()
-
-
-null_pkm_move = PkmMove()
-
-
-def get_partial_move_view(move: PkmMove, move_hypothesis: Union[PkmMove, None] = None) -> MoveView:
-    if move.revealed:
-        return get_move_view(move)
-    elif move_hypothesis is not None:
-        return get_move_view(move_hypothesis)
-    return get_move_view(null_pkm_move)
-
+null_pkm_move = PkmMove()  # TODO verify null pkm checking
 
 PkmMoveRoster = Set[PkmMove]
-
-
-class MoveRosterView(ABC):
-
-    @abstractmethod
-    def get_move_view(self, idx: int) -> MoveView:
-        pass
-
-    @property
-    @abstractmethod
-    def n_moves(self) -> int:
-        pass
-
-
-def get_pkm_move_roster_view(move_roster: PkmMoveRoster) -> MoveRosterView:
-    class MoveRosterViewImpl(MoveRosterView):
-
-        def get_move_view(self, idx: int) -> MoveView:
-            return get_move_view(list(move_roster)[idx])
-
-        @property
-        def n_moves(self) -> int:
-            return len(move_roster)
-
-        def __eq__(self, other):
-            for i in range(len(move_roster)):
-                m0, m1 = self.get_move_view(i), other.get_move_view(i)
-                if m0 != m1:
-                    return False
-            return True
-
-        def __hash__(self):
-            return hash(move_roster)
-
-    return MoveRosterViewImpl()
 
 
 class Pkm:
@@ -484,76 +256,7 @@ class Pkm:
         return self.public
 
 
-class PkmView(ABC):
-
-    @abstractmethod
-    def get_move_view(self, idx: int) -> MoveView:
-        pass
-
-    @property
-    @abstractmethod
-    def type(self) -> PkmType:
-        pass
-
-    @property
-    @abstractmethod
-    def hp(self) -> float:
-        pass
-
-    @property
-    @abstractmethod
-    def status(self) -> PkmStatus:
-        pass
-
-    @property
-    @abstractmethod
-    def n_turns_asleep(self) -> int:
-        pass
-
-
-def get_pkm_view(pkm: Pkm, pkm_hypothesis: Union[Pkm, None] = None, partial=False) -> PkmView:
-    class PkmViewImpl(PkmView):
-
-        def get_move_view(self, idx: int) -> MoveView:
-            if partial:
-                # get opponent pokemon move information with an hypothesis
-                if pkm_hypothesis is not None and pkm.moves[idx] is not None:
-                    return get_partial_move_view(pkm.moves[idx], pkm_hypothesis.moves[idx])
-                # get opponent pokemon move information
-                return get_partial_move_view(pkm.moves[idx])
-            # get self pokemon move information
-            return get_move_view(pkm.moves[idx])
-
-        @property
-        def type(self) -> PkmType:
-            if pkm_hypothesis is not None:
-                return pkm_hypothesis.type
-            return pkm.type
-
-        @property
-        def hp(self) -> float:
-            if pkm_hypothesis is not None:
-                return pkm_hypothesis.hp
-            return pkm.hp
-
-        @property
-        def status(self) -> PkmStatus:
-            return pkm.status
-
-        @property
-        def n_turns_asleep(self) -> int:
-            return pkm.n_turns_asleep
-
-    return PkmViewImpl()
-
-
-null_pkm = Pkm()
-
-
-def get_partial_pkm_view(pkm: Pkm, pkm_hypothesis: Pkm = None) -> PkmView:
-    if pkm.revealed:
-        return get_pkm_view(pkm, pkm_hypothesis, partial=True)
-    return get_pkm_view(null_pkm, pkm_hypothesis)
+null_pkm = Pkm()  # TODO verify null pkm checking
 
 
 class PkmTemplate:
@@ -608,82 +311,7 @@ class PkmTemplate:
         return pkm.type == self.type and pkm.max_hp == self.max_hp and set(pkm.moves).issubset(self.move_roster)
 
 
-class PkmTemplateView(ABC):
-
-    @abstractmethod
-    def get_move_roster_view(self) -> MoveRosterView:
-        pass
-
-    @property
-    @abstractmethod
-    def pkm_type(self) -> PkmType:
-        pass
-
-    @property
-    @abstractmethod
-    def max_hp(self) -> float:
-        pass
-
-    @property
-    @abstractmethod
-    def pkm_id(self) -> int:
-        pass
-
-
-def get_pkm_template_view(template: PkmTemplate) -> PkmTemplateView:
-    class PkmTemplateViewImpl(PkmTemplateView):
-
-        def get_move_roster_view(self) -> MoveRosterView:
-            return get_pkm_move_roster_view(template.move_roster)
-
-        @property
-        def pkm_type(self) -> PkmType:
-            return template.type
-
-        @property
-        def max_hp(self) -> float:
-            return template.max_hp
-
-        @property
-        def pkm_id(self) -> int:
-            return template.pkm_id
-
-        def __eq__(self, other):
-            return self.pkm_type == other.pkm_type and self.max_hp == other.max_hp and self.get_move_roster_view() == \
-                   other.get_move_roster_view()
-
-        def __hash__(self):
-            return hash((template.type, template.max_hp) + tuple(template.move_roster))
-
-    return PkmTemplateViewImpl()
-
-
 PkmRoster = Set[PkmTemplate]
-
-
-class PkmRosterView(ABC):
-
-    @abstractmethod
-    def get_pkm_template_view(self, idx: int) -> PkmTemplateView:
-        pass
-
-    @property
-    @abstractmethod
-    def n_pkms(self) -> int:
-        pass
-
-
-def get_pkm_roster_view(pkm_roster: PkmRoster) -> PkmRosterView:
-    class PkmRosterViewImpl(PkmRosterView):
-
-        def get_pkm_template_view(self, idx: int) -> PkmTemplateView:
-            return get_pkm_template_view(list(pkm_roster)[idx])
-
-        @property
-        def n_pkms(self) -> int:
-            return len(pkm_roster)
-
-    return PkmRosterViewImpl()
 
 
 class PkmTeam:
@@ -820,94 +448,6 @@ class PkmTeam:
         return [self.active] + self.party
 
 
-class PkmTeamView(ABC):
-
-    @property
-    @abstractmethod
-    def active_pkm_view(self) -> PkmView:
-        pass
-
-    @abstractmethod
-    def get_party_pkm_view(self, idx: int) -> PkmView:
-        pass
-
-    @abstractmethod
-    def get_stage(self, stat: PkmStat) -> int:
-        pass
-
-    @property
-    @abstractmethod
-    def confused(self) -> bool:
-        pass
-
-    @property
-    @abstractmethod
-    def n_turns_confused(self) -> int:
-        pass
-
-    @property
-    @abstractmethod
-    def party_size(self) -> int:
-        pass
-
-    @abstractmethod
-    def get_entry_hazard(self, hazard: PkmEntryHazard) -> int:
-        pass
-
-
-class PkmTeamPrediction:
-
-    def __init__(self, team_view: PkmTeamView = None):
-        self.team_view = team_view
-        self.active: Union[Pkm, None] = None
-        self.party: List[Union[Pkm, None]] = [None, None]
-
-
-def get_team_view(team: PkmTeam, team_prediction: PkmTeamPrediction = None, partial: bool = False) -> PkmTeamView:
-    class PkmTeamViewImpl(PkmTeamView):
-
-        @property
-        def active_pkm_view(self) -> PkmView:
-            if partial:
-                if team_prediction is None:
-                    # get partial information without any hypothesis
-                    return get_partial_pkm_view(team.active)
-                # get partial information with  hypothesis
-                return get_partial_pkm_view(team.active, team_prediction.active)
-            # get self active pkm information
-            return get_pkm_view(team.active)
-
-        def get_party_pkm_view(self, idx: int) -> PkmView:
-            if partial:
-                if team_prediction is None:
-                    # get partial information without any hypothesis
-                    return get_partial_pkm_view(team.party[idx])
-                # get partial information with a hypothesis
-                return get_partial_pkm_view(team.party[idx], team_prediction.party[idx])
-            # get self party pkm information
-            return get_pkm_view(team.party[idx])
-
-        def get_stage(self, stat: PkmStat) -> int:
-            return team.stage[stat]
-
-        @property
-        def confused(self) -> bool:
-            return team.confused
-
-        @property
-        def n_turns_confused(self) -> int:
-            return team.n_turns_confused
-
-        def get_entry_hazard(self, hazard: PkmEntryHazard) -> int:
-            return team.entry_hazard[hazard]
-
-        @property
-        def party_size(self) -> int:
-            return team.size() - 1
-
-    return PkmTeamViewImpl()
-
-
 class PkmFullTeam:
 
     def __init__(self, pkm_list: List[Pkm] = None):
@@ -920,6 +460,9 @@ class PkmFullTeam:
         for i in range(0, len(self.pkm_list)):
             team += str(self.pkm_list[i]) + '\n'
         return 'Team:\n%s' % team
+
+    def __len__(self):
+        return len(self.pkm_list)
 
     def get_battle_team(self, idx: List[int]) -> PkmTeam:
         return PkmTeam([self.pkm_list[i] for i in idx])
@@ -944,40 +487,6 @@ class PkmFullTeam:
         return PkmFullTeam(self.pkm_list)
 
 
-class PkmFullTeamView(ABC):
-
-    @abstractmethod
-    def get_pkm_view(self, idx: int) -> PkmView:
-        pass
-
-    @property
-    @abstractmethod
-    def n_pkms(self) -> int:
-        pass
-
-
-def get_full_team_view(full_team: PkmFullTeam, team_prediction: PkmTeamPrediction = None,
-                       partial: bool = False) -> PkmFullTeamView:
-    class PkmFullTeamViewImpl(PkmFullTeamView):
-
-        def get_pkm_view(self, idx: int) -> PkmView:
-            pkm = full_team.pkm_list[idx]
-            if partial:
-                if team_prediction is None:
-                    # get partial information without any hypothesis
-                    return get_partial_pkm_view(pkm)
-                # get partial information with a hypothesis
-                return get_partial_pkm_view(pkm, team_prediction.active)
-            # get self active pkm information
-            return get_pkm_view(pkm)
-
-        @property
-        def n_pkms(self) -> int:
-            return len(full_team.pkm_list)
-
-    return PkmFullTeamViewImpl()
-
-
 class Weather:
 
     def __init__(self):
@@ -987,50 +496,15 @@ class Weather:
 
 class GameState:
 
-    def __init__(self, teams: List[PkmTeam], weather: Weather):
-        self.teams = teams
+    def __init__(self, teams: Tuple[PkmTeam, PkmTeam], weather: Weather):
+        if teams is None:
+            self.teams: Tuple[PkmTeam, PkmTeam] = (PkmTeam(), PkmTeam())
+        else:
+            self.teams: Tuple[PkmTeam, PkmTeam] = teams
         self.weather = weather
 
     def __eq__(self, other):
         for i, team in enumerate(self.teams):
             if team != other.teams[i]:
                 return False
-        return self.weather.condition == other.weather.condition and self.weather.n_turns_no_clear == other.weather.n_turns_no_clear
-
-
-class GameStateView(ABC):
-
-    @abstractmethod
-    def get_team_view(self, idx: int) -> PkmTeamView:
-        pass
-
-    @property
-    @abstractmethod
-    def weather_condition(self) -> WeatherCondition:
-        pass
-
-    @property
-    @abstractmethod
-    def n_turns_no_clear(self) -> int:
-        pass
-
-
-def get_game_state_view(game_state: GameState, team_prediction: PkmTeamPrediction = None) -> GameStateView:
-    class GameStateViewImpl(GameStateView):
-
-        def __init__(self):
-            self._teams = [get_team_view(game_state.teams[0]),
-                           get_team_view(game_state.teams[1], team_prediction, partial=True)]
-
-        def get_team_view(self, idx: int) -> PkmTeamView:
-            return self._teams[idx]
-
-        @property
-        def weather_condition(self) -> WeatherCondition:
-            return game_state.weather.condition
-
-        @property
-        def n_turns_no_clear(self) -> int:
-            return game_state.weather.n_turns_no_clear
-
-    return GameStateViewImpl()
+        return self.weather.condition == other.weather.condition and self.weather.n_turns_no_clear == other.weather.__n_turns_no_clear

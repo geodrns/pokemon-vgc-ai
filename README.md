@@ -28,7 +28,7 @@ In this section we present a set of introductory tutorials.
 
 ### Set a Pokémon  Battle in the Pokémon  Battle Env (OpenAI Gym)
 
-Set Pokémon  battles is just to set a simple OpenAI Gym environment loop. The `PkmBattleEnv` is parametrized
+Set Pokémon battles is just to set a simple OpenAI Gym environment loop. The `PkmBattleEnv` is parametrized
 by two `PkmTeam`, each will be piloted by its respective `BattlePolicy` agent.
 
 ```python
@@ -57,7 +57,7 @@ To create custom `PkmTeam` you can just input an array of `Pkm`.
 team = PkmTeam([Pkm(), Pkm(), Pkm()])  # up to three!
 ```
 
-The `PkmTeam` represents a in battle team, which is a subset of a `PkmFullTeam`. The later is used for team building 
+The `PkmTeam` represents a in battle team, which is a subset of a `PkmFullTeam`. The later is used for team building
 settings. You can obtain a battle team from a full team by providing the team indexes.
 
 ```python
@@ -67,9 +67,9 @@ team = full_team.get_battle_team([1, 4, 5])
 
 ### Create a Pokémon  Roster and Meta
 
-A `PkmRoster` represents the entirety of unit selection for a team build competition. It is defined as 
-`set[PkmTemplate]`. A `PkmTemplate` represents a Pokémon  species. It defines the legal stats combinations and moveset
-for that Pokémon  species. To create a roster you jsut need to convert a list of `PkmTemplate`.
+A `PkmRoster` represents the entirety of unit selection for a team build competition. It is defined as
+`set[PkmTemplate]`. A `PkmTemplate` represents a Pokémon species. It defines the legal stats combinations and moveset
+for that Pokémon species. To create a roster you jsut need to convert a list of `PkmTemplate`.
 
 ```python
 roster = set([PkmTemplate(), PkmTemplate(), PkmTemplate()])
@@ -118,8 +118,8 @@ The battle policy must inherit from `BattlePolicy` and the team build policy mus
 
 ### Set Competition Managers and a Tree Championship
 
-A `CompetitorManager` binds and manages a `Competitor` with its current `PkmFullTeam` and respective performance (ELO 
-rating). These can be used in the context of a `TreeChampionship` or any full Ecosystem track. 
+A `CompetitorManager` binds and manages a `Competitor` with its current `PkmFullTeam` and respective performance (ELO
+rating). These can be used in the context of a `TreeChampionship` or any full Ecosystem track.
 
 ```python
 roster = RandomPkmRosterGenerator().gen_roster()
@@ -136,8 +136,8 @@ The `TeamBuildPolicy` from the `Competitor` is called to request the agent to ch
 
 ### Run Your own Full Competitions
 
-The `ChampionshipEcosystem` is used to simulate a Championship Competition Track. You just need to instantiate a 
-`PkmRoster`, `MetaData`, and register the competitors wrapped under their `CompetitorManager`. You must set both the 
+The `ChampionshipEcosystem` is used to simulate a Championship Competition Track. You just need to instantiate a
+`PkmRoster`, `MetaData`, and register the competitors wrapped under their `CompetitorManager`. You must set both the
 number of championship epochs and how many battle epochs run inside each championship epoch.
 
 ```python
@@ -155,7 +155,7 @@ print(ce.strongest.name) # determine winner by checking the highest ELO rating!
 
 ### How to use Views for Team Building Agents
 
-View objects are objects that helps in both access control to information about the gamne state or the roster 
+View objects are objects that helps in both access control to information about the gamne state or the roster
 information. For the game state battle they help to discriminate public or hidden information state if the
 `GameStateView` is used instead of a deep encoding in the `info` parameter of the OpenAI Gym API. For team building it
 has the same purposes but a more direct manipulation has to be made when developing a team builder agent. We show bellow
@@ -180,12 +180,12 @@ class RandomTeamBuildPolicy(TeamBuildPolicy):
 
 ### Visualize Battles
 
-See and use examples provided in `vgc/ux`. Run `vgc/ux/PkmBattleClientTest.py` and `vgc/ux/PkmBattleUX.py` in that 
+See and use examples provided in `vgc/ux`. Run `vgc/ux/PkmBattleClientTest.py` and `vgc/ux/PkmBattleUX.py` in that
 order.
 
 ### More
 
-In the `/example` folder it can be found multiple examples for how to use the framework, to train or test isolated 
+In the `/example` folder it can be found multiple examples for how to use the framework, to train or test isolated
 agents or behaviours or run full ecosystems with independent processes controlling each agent.
 
 In the `/organization` folder it can be found the multiple entry points for the main ecosystem layers in the VGC AI

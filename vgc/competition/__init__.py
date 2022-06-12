@@ -7,7 +7,6 @@ from vgc.datatypes.Constants import BASE_HIT_POINTS
 from vgc.datatypes.Objects import PkmRoster, Pkm, PkmTemplate, PkmFullTeam, PkmMove
 from vgc.datatypes.Types import PkmStatus, PkmEntryHazard, WeatherCondition
 
-
 STANDARD_TOTAL_POINTS = 11
 
 

@@ -5,7 +5,7 @@ import PySimpleGUI as sg
 
 from vgc.behaviour import TeamSelectionPolicy
 from vgc.datatypes.Constants import DEFAULT_TEAM_SIZE, MAX_TEAM_SIZE
-from vgc.datatypes.Objects import PkmFullTeamView
+from vgc.datatypes.Objects import PkmFullTeam
 
 
 class GUITeamSelectionPolicy(TeamSelectionPolicy):
@@ -25,7 +25,7 @@ class GUITeamSelectionPolicy(TeamSelectionPolicy):
         self.window.Finalize()
         self.select.Update(disabled=True)
 
-    def get_action(self, d: Tuple[PkmFullTeamView, PkmFullTeamView]) -> Set[int]:
+    def get_action(self, d: Tuple[PkmFullTeam, PkmFullTeam]) -> Set[int]:
         """
 
         :param d: (self, opponent)
@@ -36,13 +36,13 @@ class GUITeamSelectionPolicy(TeamSelectionPolicy):
             item[1].Update(value=False)
         # opponent party
         opp_team = d[1]
-        for i in range(opp_team.n_pkms):
-            pkm = opp_team.get_pkm_view(i)
+        for i in range(len(opp_team)):
+            pkm = opp_team.pkm_list[i]
             self.opp[i][0].Update(pkm.type.name + ' ' + str(pkm.hp) + ' HP')
         # my party
         my_team = d[0]
-        for i in range(my_team.n_pkms):
-            pkm = my_team.get_pkm_view(i)
+        for i in range(len(my_team)):
+            pkm = my_team.pkm_list[i]
             self.team[i][0].Update(pkm.type.name + ' ' + str(pkm.hp) + ' HP')
         event, values = self.window.read()
         while event != self.select.get_text():
@@ -64,7 +64,7 @@ class RandomTeamSelectionPolicy(TeamSelectionPolicy):
         self.teams_size = teams_size
         self.selection_size = selection_size
 
-    def get_action(self, d: Tuple[PkmFullTeamView, PkmFullTeamView]) -> Set[int]:
+    def get_action(self, d: Tuple[PkmFullTeam, PkmFullTeam]) -> Set[int]:
         """
 
         :param d: (self, opponent)
@@ -80,7 +80,7 @@ class RandomTeamSelectionPolicy(TeamSelectionPolicy):
 
 class FirstEditionTeamSelectionPolicy(TeamSelectionPolicy):
 
-    def get_action(self, d: Tuple[PkmFullTeamView, PkmFullTeamView]) -> Set[int]:
+    def get_action(self, d: Tuple[PkmFullTeam, PkmFullTeam]) -> Set[int]:
         """
         Teams are selected as they are.
 
