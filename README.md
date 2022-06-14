@@ -96,11 +96,11 @@ Example:
 
 ```python
 class Competitor(ABC):
-    
+
     def __init__(self):
         self.my_battle_policy = RandomBattlePolicy()
         self.my_team_build_policy = MyVGCBuildPolicy()
-        
+
     @property
     def battle_policy(self) -> BattlePolicy:
         return self.my_battle_policy
@@ -150,7 +150,7 @@ for i in range(N_PLAYERS):
     cm = CompetitorManager(ExampleCompetitor("Player %d" % i))
     ce.register(cm)
 ce.run(n_epochs=battle_epochs, n_league_epochs=championship_epochs)
-print(ce.strongest.name) # determine winner by checking the highest ELO rating!
+print(ce.strongest.name)  # determine winner by checking the highest ELO rating!
 ```
 
 ### Visualize Battles

@@ -54,6 +54,8 @@ class RandomPkmRosterGenerator(PkmRosterGenerator):
         if base_move_roster is None:
             base_move_roster = set(STANDARD_MOVE_ROSTER)
         self.base_move_roster: PkmMoveRoster = base_move_roster
+        for i, move in enumerate(self.base_move_roster):
+            move.move_id = i
         self.n_moves_pkm = n_moves_pkm
         self.roster_size = roster_size
 

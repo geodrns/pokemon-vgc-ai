@@ -1,4 +1,5 @@
 import random
+from copy import deepcopy
 from math import isclose
 from typing import List, Tuple, Set
 
@@ -52,6 +53,7 @@ class PkmMove:
         self.hazard = hazard
         self.public = False
         self.owner = None
+        self.move_id = -1
 
     def __eq__(self, other):
         if self.power != other.power:
@@ -477,7 +479,7 @@ class PkmFullTeam:
             pkm.reveal_pkm()
 
     def get_copy(self):
-        return PkmFullTeam(self.pkm_list)
+        return deepcopy(self)
 
 
 class Weather:
@@ -500,4 +502,4 @@ class GameState:
         for i, team in enumerate(self.teams):
             if team != other.teams[i]:
                 return False
-        return self.weather.condition == other.weather.condition and self.weather.n_turns_no_clear == other.weather.__n_turns_no_clear
+        return self.weather.condition == other.weather.condition and self.weather.n_turns_no_clear == other.weather.n_turns_no_clear

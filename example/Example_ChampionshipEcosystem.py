@@ -8,9 +8,11 @@ N_PLAYERS = 16
 
 
 def main():
-    roster = RandomPkmRosterGenerator().gen_roster()
+    generator = RandomPkmRosterGenerator()
+    roster = generator.gen_roster()
+    move_roster = generator.base_move_roster
     meta_data = StandardMetaData()
-    meta_data.set_moves_and_pkm(roster)
+    meta_data.set_moves_and_pkm(roster, move_roster)
     ce = ChampionshipEcosystem(roster, meta_data, debug=True)
     for i in range(N_PLAYERS):
         cm = CompetitorManager(ExampleCompetitor("Player %d" % i))

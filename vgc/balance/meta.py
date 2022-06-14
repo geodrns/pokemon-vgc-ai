@@ -5,7 +5,10 @@ from typing import Dict, Tuple, List
 
 from vgc.balance import DeltaRoster
 from vgc.balance.archtype import std_move_dist, std_pkm_dist, std_team_dist
-from vgc.datatypes.Objects import PkmTemplate, PkmMove, PkmFullTeam, PkmRoster
+from vgc.datatypes.Objects import PkmTemplate, PkmMove, PkmFullTeam, PkmRoster, PkmMoveRoster
+
+PkmId = int
+MoveId = int
 
 
 class MetaData(ABC):
@@ -19,11 +22,11 @@ class MetaData(ABC):
         pass
 
     @abstractmethod
-    def get_global_pkm_usage(self, pkm_id: int) -> float:
+    def get_global_pkm_usage(self, pkm_id: PkmId) -> float:
         pass
 
     @abstractmethod
-    def get_global_pkm_winrate(self, pkm_id: int) -> float:
+    def get_global_pkm_winrate(self, pkm_id: PkmId) -> float:
         pass
 
     @abstractmethod
@@ -35,7 +38,7 @@ class MetaData(ABC):
         pass
 
     @abstractmethod
-    def get_pair_usage(self, pkm_ids: Tuple[int, int]) -> float:
+    def get_pair_usage(self, pkm_ids: Tuple[PkmId, PkmId]) -> float:
         pass
 
     @abstractmethod
@@ -51,9 +54,6 @@ class MetaData(ABC):
         pass
 
 
-PkmId = int
-
-
 class StandardMetaData(MetaData):
 
     def __init__(self, _max_history_size: int = 1e5, unlimited: bool = False):
@@ -61,13 +61,13 @@ class StandardMetaData(MetaData):
         self._moves: List[PkmMove] = []
         self._pkm: List[PkmTemplate] = []
         # global usage rate - moves, pkm
-        self._move_usage: Dict[PkmMove, int] = {}
+        self._move_usage: Dict[MoveId, int] = {}
         self._pkm_usage: Dict[PkmId, int] = {}
         # global win rate - moves, pkm
-        self._move_wins: Dict[PkmMove, int] = {}
+        self._move_wins: Dict[MoveId, int] = {}
         self._pkm_wins: Dict[PkmId, int] = {}
         # similarity matrix - moves, pkm
-        self._d_move: Dict[Tuple[PkmMove, PkmMove], float] = {}
+        self._d_move: Dict[Tuple[MoveId, MoveId], float] = {}
         self._d_pkm: Dict[Tuple[PkmId, PkmId], float] = {}
         self._d_overall_team = 0.0
         # history buffer - moves, pkm, teams
@@ -84,27 +84,28 @@ class StandardMetaData(MetaData):
         self._max_team_history_size: int = _max_history_size
         self._unlimited = unlimited
 
-    def set_moves_and_pkm(self, roster: PkmRoster):
+    def set_moves_and_pkm(self, roster: PkmRoster, move_roster: PkmMoveRoster):
         self._pkm = list(roster)
-        self._moves = []
+        self._moves = list(move_roster)
         for pkm in self._pkm:
-            self._moves += list(pkm.move_roster)
             self._pkm_usage[pkm.pkm_id] = 0
             self._pkm_wins[pkm.pkm_id] = 0
         for move in self._moves:
-            self._move_usage[move] = 0
-            self._move_wins[move] = 0
+            self._move_usage[move.move_id] = 0
+            self._move_wins[move.move_id] = 0
         for m0, m1 in itertools.product(self._moves, self._moves):
-            self._d_move[(m0, m1)] = std_move_dist(m0, m1)
+            self._d_move[(m0.move_id, m1.move_id)] = std_move_dist(m0, m1)
         for p0, p1 in itertools.product(self._pkm, self._pkm):
-            self._d_pkm[(p0.pkm_id, p1.pkm_id)] = std_pkm_dist(p0, p1, move_distance=lambda x, y: self._d_move[x, y])
+            self._d_pkm[(p0.pkm_id, p1.pkm_id)] = std_pkm_dist(p0, p1, move_distance=lambda x, y: self._d_move[
+                x.move_id, y.move_id])
 
     def update_with_delta_roster(self, delta: DeltaRoster):
         for idx in delta.dp.keys():
             for m_idx in delta.dp[idx].dpm.keys():
                 for move_pair in self._d_move.keys():
                     if self._moves[idx * 4 + m_idx] in move_pair:
-                        self._d_move[(move_pair[0], move_pair[1])] = std_move_dist(move_pair[0], move_pair[1])
+                        self._d_move[(move_pair[0], move_pair[1])] = std_move_dist(self._moves[move_pair[0]],
+                                                                                   self._moves[move_pair[1]])
             for pkm_pair in self._d_pkm.keys():
                 if self._pkm[idx] in pkm_pair:
                     self._d_pkm[(pkm_pair[0], pkm_pair[1])] = std_pkm_dist(self._pkm[pkm_pair[0]],
@@ -122,9 +123,9 @@ class StandardMetaData(MetaData):
             if won:
                 self._pkm_wins[pkm.pkm_id] += 1
             for move in pkm.moves:
-                self._move_usage[move] += 1
+                self._move_usage[move.move_id] += 1
                 if won:
-                    self._move_wins[move] += 1
+                    self._move_wins[move.move_id] += 1
         for pkm0, pkm1 in itertools.product(team.pkm_list, team.pkm_list):
             if pkm0 != pkm1:
                 pair = (pkm0.pkm_id, pkm1.pkm_id)
@@ -142,7 +143,7 @@ class StandardMetaData(MetaData):
                 for pkm in team.pkm_list:
                     self._pkm_wins[pkm.pkm_id] -= 1
                     for move in pkm.moves:
-                        self._move_wins[move] -= 1
+                        self._move_wins[move.move_id] -= 1
             for pkm0, pkm1 in itertools.product(team.pkm_list, team.pkm_list):
                 if pkm0 != pkm1:
                     self._teammates_history[(pkm0.pkm_id, pkm1.pkm_id)] -= 1
@@ -156,7 +157,7 @@ class StandardMetaData(MetaData):
         if len(self._move_history) > self._max_move_history_size and not self._unlimited:
             for _ in range(12):
                 old_move = self._move_history.pop(0)
-                self._move_usage[old_move] -= 1
+                self._move_usage[old_move.move_id] -= 1
             self._total_move_usage -= 12
 
     def get_global_pkm_usage(self, pkm_id: PkmId) -> float:
@@ -166,10 +167,10 @@ class StandardMetaData(MetaData):
         return self._pkm_wins[pkm_id] / self._pkm_usage[pkm_id]
 
     def get_global_move_usage(self, move: PkmMove) -> float:
-        return self._move_usage[move] / self._total_move_usage
+        return self._move_usage[move.move_id] / self._total_move_usage
 
     def get_global_move_winrate(self, move: PkmMove) -> float:
-        return self._move_wins[move] / self._move_usage[move]
+        return self._move_wins[move.move_id] / self._move_usage[move.move_id]
 
     def get_pair_usage(self, pair: Tuple[PkmId, PkmId]) -> float:
         if pair not in self._teammates_history.keys():
@@ -190,7 +191,7 @@ class StandardMetaData(MetaData):
         d[0] /= 2
         # Overall number of different Pkm moves.
         for move0, move1 in itertools.product(self._moves, self._moves):
-            d[1] += - self._move_usage[move1] * exp(-self._d_move[(move0, move1)]) + 1
+            d[1] += - self._move_usage[move1.move_id] * exp(-self._d_move[(move0.move_id, move1.move_id)]) + 1
         d[1] /= 2
         # Overall number of different Pkm teams.
         d[2] = self._d_overall_team
@@ -200,7 +201,7 @@ class StandardMetaData(MetaData):
             for pkm in team.pkm_list:
                 moves.extend(pkm.moves)
             for move0, move1 in itertools.product(moves, moves):
-                d[3] += - exp(-self._d_move[(move0, move1)]) + 1
+                d[3] += - exp(-self._d_move[(move0.move_id, move1.move_id)]) + 1
             # Difference over Pkm on same team.
             for pkm0, pkm1 in itertools.product(team.pkm_list, team.pkm_list):
                 d[4] += - exp(-self._d_pkm[(pkm0.pkm_id, pkm1.pkm_id)]) + 1

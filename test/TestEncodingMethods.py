@@ -55,7 +55,7 @@ class TestEncodingMethods(unittest.TestCase):
             pkm_type = random.choice(list(PkmType))
             max_hp = random.randint(BASE_HIT_POINTS, MAX_HIT_POINTS)
             move_roster = set(random.sample(deepcopy(STANDARD_MOVE_ROSTER), 10))
-            template = PkmTemplate(pkm_type=pkm_type, max_hp=max_hp, move_roster=move_roster)
+            template = PkmTemplate(pkm_type=pkm_type, max_hp=max_hp, move_roster=move_roster, pkm_id=0)
             move_combinations = itertools.combinations(range(10), 4)
             pkms = []
             for idx in random.sample(list(move_combinations), 3):

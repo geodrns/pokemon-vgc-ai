@@ -23,35 +23,35 @@ class PkmBattleEnv(gym.Env, GameState):
                  encode: Tuple[bool, bool] = (True, True)):
         # random active pokemon
         super().__init__(teams, weather)
-        self.__n_turns_no_clear = None
-        self.__switched = [False, False]
-        self.__turn = 0
-        self.__move_view = self.__create_pkm_move_view()
-        self.__debug = debug
-        self.__log = ''
-        self.__commands = []
-        self.__conn = conn
-        self.__game_state_view = [GameState((self.teams[0], self.teams[1]), self.weather),
-                                  GameState((self.teams[1], self.teams[0]), self.weather)]
-        self.__requires_encode = encode
-        self.__predictions = [PkmTeam(), PkmTeam()]
+        self.n_turns_no_clear = None
+        self.switched = [False, False]
+        self.turn = 0
+        self.move_view = self.__create_pkm_move_view()
+        self.debug = debug
+        self.log = ''
+        self.commands = []
+        self.conn = conn
+        self.game_state_view = [GameState((self.teams[0], self.teams[1]), self.weather),
+                                GameState((self.teams[1], self.teams[0]), self.weather)]
+        self.requires_encode = encode
+        self.predictions = [PkmTeam(), PkmTeam()]
         self.action_space = spaces.Discrete(DEFAULT_N_ACTIONS)
         self.observation_space = spaces.Discrete(GAME_STATE_ENCODE_LEN)
         self.winner = -1
 
     def set_predictions(self, team1_p: PkmTeam, team0_p: PkmTeam):
-        self.__predictions = [team1_p, team0_p]
+        self.predictions = [team1_p, team0_p]
 
     def __get_forward_env(self, player: int):
         env = PkmBattleEnv((deepcopy(self.teams[0]), deepcopy(self.teams[1])), deepcopy(self.weather))
-        env.__n_turns_no_clear = self.__n_turns_no_clear
-        env.__turn = self.__turn
+        env.n_turns_no_clear = self.n_turns_no_clear
+        env.turn = self.turn
         env.winner = self.winner
         # hidde information and replace with prediction information
-        opp_team: PkmTeam = env.__game_state_view[player].teams[1]
-        set_pkm(opp_team.active, self.__predictions[player].active)
+        opp_team: PkmTeam = env.game_state_view[player].teams[1]
+        set_pkm(opp_team.active, self.predictions[player].active)
         for i in range(len(opp_team.party)):
-            set_pkm(opp_team.party[i], self.__predictions[player].party[i])
+            set_pkm(opp_team.party[i], self.predictions[player].party[i])
         return env
 
     def step(self, actions):
@@ -59,10 +59,10 @@ class PkmBattleEnv(gym.Env, GameState):
         # Reset variables
         r = [0., 0.]
         t = [False, False]
-        if self.__debug:
-            self.__turn += 1
-            self.__log = f'TURN {self.__turn}\n\n'
-            self.__commands.append(('event', ['log', f'Turn {self.__turn}.']))
+        if self.debug:
+            self.turn += 1
+            self.log = f'TURN {self.turn}\n\n'
+            self.commands.append(('event', ['log', f'Turn {self.turn}.']))
 
         # switch pkm
         self.__process_switch_pkms(actions)
@@ -101,18 +101,18 @@ class PkmBattleEnv(gym.Env, GameState):
         # battle
         first_can_attack = active_not_fainted and not first_pkm.paralyzed() and not first_pkm.asleep() and not \
             first_confusion_damage
-        if self.__debug and not first_can_attack:
-            self.__log += f'CANNOT MOVE: Trainer {first} cannot move\n'
-            self.__commands.append(('event', ['log', f'Trainer {first} cannot move.']))
+        if self.debug and not first_can_attack:
+            self.log += f'CANNOT MOVE: Trainer {first} cannot move\n'
+            self.commands.append(('event', ['log', f'Trainer {first} cannot move.']))
         dmg_2_second, hp_2_first = self.__perform_pkm_attack(first, actions[first]) if first_can_attack else (0., 0.)
 
         active_not_fainted = not (first_pkm.fainted() or second_pkm.fainted())
 
         second_can_attack = active_not_fainted and not second_pkm.paralyzed() and not second_pkm.asleep() and not \
             second_confusion_damage
-        if self.__debug and not second_can_attack:
-            self.__log += f'CANNOT MOVE: Trainer {second} cannot move\n'
-            self.__commands.append(('event', ['log', f'Trainer {second} cannot move.']))
+        if self.debug and not second_can_attack:
+            self.log += f'CANNOT MOVE: Trainer {second} cannot move\n'
+            self.commands.append(('event', ['log', f'Trainer {second} cannot move.']))
         dmg_2_first, hp_2_second = self.__perform_pkm_attack(second, actions[second]) if second_can_attack else (0., 0.)
 
         r[first] += (dmg_2_second + hp_2_first - dmg_2_first) / MAX_HIT_POINTS + float(second_pkm.fainted())
@@ -146,21 +146,21 @@ class PkmBattleEnv(gym.Env, GameState):
         if finished:
             self.winner = 1 if t[0] else 0
 
-            if self.__debug:
+            if self.debug:
                 outcome0 = 'Lost' if self.teams[0].fainted() else 'Won'
                 outcome1 = 'Lost' if self.teams[1].fainted() else 'Won'
-                self.__log += f'\nTrainer 0 {outcome0}\n'
-                self.__log += f'Trainer 1 {outcome1}\n'
-                self.__commands.append(('event', ['log', f'Trainer 0 {outcome0}.']))
+                self.log += f'\nTrainer 0 {outcome0}\n'
+                self.log += f'Trainer 1 {outcome1}\n'
+                self.commands.append(('event', ['log', f'Trainer 0 {outcome0}.']))
 
-        if self.__requires_encode[0]:
+        if self.requires_encode[0]:
             s0 = []
-            partial_encode_game_state(s0, self.__game_state_view[0])
+            partial_encode_game_state(s0, self.game_state_view[0])
         else:
             s0 = self.__get_forward_env(0)
-        if self.__requires_encode[1]:
+        if self.requires_encode[1]:
             s1 = []
-            partial_encode_game_state(s1, self.__game_state_view[1])
+            partial_encode_game_state(s1, self.game_state_view[1])
         else:
             s1 = self.__get_forward_env(1)
         return [s0, s1], r, finished, None
@@ -168,49 +168,49 @@ class PkmBattleEnv(gym.Env, GameState):
     def reset(self):
         self.weather.condition = WeatherCondition.CLEAR
         self.weather.n_turns_no_clear = 0
-        self.__turn = 0
+        self.turn = 0
         self.winner = -1
-        self.__switched = [False, False]
+        self.switched = [False, False]
 
         for team in self.teams:
             team.reset()
             team.active.reveal_pkm()
 
-        if self.__debug:
-            self.__log = 'Trainer 0\n' + str(self.teams[0])
-            self.__log += '\nTrainer 1\n' + str(self.teams[1])
-            del self.__commands[:]
-            self.__commands.append(('init', [self.teams[0].active.type.value,
-                                             self.teams[0].party[0].type.value,
-                                             self.teams[0].party[1].type.value,
-                                             self.teams[0].active.hp,
-                                             self.teams[0].active.moves[0].power,
-                                             self.teams[0].active.moves[1].power,
-                                             self.teams[0].active.moves[2].power,
-                                             self.teams[0].active.moves[3].power,
-                                             self.teams[1].active.type.value,
-                                             self.teams[1].party[0].type.value,
-                                             self.teams[1].party[1].type.value,
-                                             self.teams[1].active.hp]))
+        if self.debug:
+            self.log = 'Trainer 0\n' + str(self.teams[0])
+            self.log += '\nTrainer 1\n' + str(self.teams[1])
+            del self.commands[:]
+            self.commands.append(('init', [self.teams[0].active.type.value,
+                                           self.teams[0].party[0].type.value,
+                                           self.teams[0].party[1].type.value,
+                                           self.teams[0].active.hp,
+                                           self.teams[0].active.moves[0].power,
+                                           self.teams[0].active.moves[1].power,
+                                           self.teams[0].active.moves[2].power,
+                                           self.teams[0].active.moves[3].power,
+                                           self.teams[1].active.type.value,
+                                           self.teams[1].party[0].type.value,
+                                           self.teams[1].party[1].type.value,
+                                           self.teams[1].active.hp]))
 
-        if self.__requires_encode[0]:
+        if self.requires_encode[0]:
             s0 = []
-            partial_encode_game_state(s0, self.__game_state_view[0])
+            partial_encode_game_state(s0, self.game_state_view[0])
         else:
             s0 = self.__get_forward_env(0)
-        if self.__requires_encode[1]:
+        if self.requires_encode[1]:
             s1 = []
-            partial_encode_game_state(s1, self.__game_state_view[1])
+            partial_encode_game_state(s1, self.game_state_view[1])
         else:
             s1 = self.__get_forward_env(1)
         return [s0, s1]
 
     def render(self, mode='console'):
         if mode == 'console':
-            print(self.__log)
-        elif mode == 'ux' and self.__conn is not None:
-            while len(self.__commands) > 0:
-                self.__conn.send(self.__commands.pop(0))
+            print(self.log)
+        elif mode == 'ux' and self.conn is not None:
+            while len(self.commands) > 0:
+                self.conn.send(self.commands.pop(0))
 
     def __process_switch_pkms(self, actions: List[int]):
         """
@@ -224,20 +224,20 @@ class PkmBattleEnv(gym.Env, GameState):
             if 0 <= pos < (team.size() - 1):
                 if not team.party[pos].fainted():
                     new_active, old_active, _ = team.switch(pos)
-                    self.__switched[i] = True
-                    if self.__debug:
-                        self.__log += f'SWITCH: Trainer {i} switches {old_active} with {new_active} in party\n'
-                        self.__commands.append(('switch', [i, pos, new_active.hp,
-                                                           new_active.moves[0].power,
-                                                           new_active.moves[1].power,
-                                                           new_active.moves[2].power,
-                                                           new_active.moves[3].power]))
-                elif self.__debug:
-                    self.__log += f'SWITCH FAILED: Trainer {i} fails to switch\n'
-                    self.__commands.append(('event', ['log', f'Trainer {i} fails to switch.']))
-            elif self.__debug and pos >= (team.size() - 1):
-                self.__log += f'INVALID SWITCH: Trainer {i} fails to switch\n'
-                self.__commands.append(('event', ['log', f'Trainer {i} fails to switch.']))
+                    self.switched[i] = True
+                    if self.debug:
+                        self.log += f'SWITCH: Trainer {i} switches {old_active} with {new_active} in party\n'
+                        self.commands.append(('switch', [i, pos, new_active.hp,
+                                                         new_active.moves[0].power,
+                                                         new_active.moves[1].power,
+                                                         new_active.moves[2].power,
+                                                         new_active.moves[3].power]))
+                elif self.debug:
+                    self.log += f'SWITCH FAILED: Trainer {i} fails to switch\n'
+                    self.commands.append(('event', ['log', f'Trainer {i} fails to switch.']))
+            elif self.debug and pos >= (team.size() - 1):
+                self.log += f'INVALID SWITCH: Trainer {i} fails to switch\n'
+                self.commands.append(('event', ['log', f'Trainer {i} fails to switch.']))
 
     def __get_entry_hazard_damage(self, t_id: int) -> float:
         """
@@ -252,17 +252,17 @@ class PkmBattleEnv(gym.Env, GameState):
         spikes = team.entry_hazard[PkmEntryHazard.SPIKES]
 
         # Spikes damage
-        if spikes and pkm.type != PkmType.FLYING and self.__switched[t_id]:
+        if spikes and pkm.type != PkmType.FLYING and self.switched[t_id]:
             before_hp = pkm.hp
             pkm.hp -= STATE_DAMAGE if spikes <= 1 else SPIKES_2 if spikes == 2 else SPIKES_3
             pkm.hp = 0. if pkm.hp < 0. else pkm.hp
             damage = before_hp - pkm.hp
-            self.__switched[t_id] = False
-            if self.__debug and damage > 0.:
-                self.__log += f'ENTRY HAZARD DAMAGE: {str(pkm)} takes {damage} entry hazard damage from spikes, ' \
+            self.switched[t_id] = False
+            if self.debug and damage > 0.:
+                self.log += f'ENTRY HAZARD DAMAGE: {str(pkm)} takes {damage} entry hazard damage from spikes, ' \
                               f'hp reduces from {before_hp} to {pkm.hp}\n '
-                self.__commands.append(('event', ['log', f'Trainer {team} takes {damage} damage from spikes.']))
-                self.__commands.append(('event', ['hp', team, pkm.hp]))
+                self.commands.append(('event', ['log', f'Trainer {team} takes {damage} damage from spikes.']))
+                self.commands.append(('event', ['hp', team, pkm.hp]))
 
         return damage
 
@@ -283,9 +283,9 @@ class PkmBattleEnv(gym.Env, GameState):
                 if random.uniform(0, 1) <= 0.5 or team.n_turns_confused == 4:
                     team.confused = False
                     team.n_turns_confused = 0
-                    if self.__debug:
-                        self.__log += f'STATUS: Trainer {i}\'s {str(pkm)} is no longer confused\n'
-                        self.__commands.append(('event', ['log', f'Trainer {i} active is no longer confused.']))
+                    if self.debug:
+                        self.log += f'STATUS: Trainer {i}\'s {str(pkm)} is no longer confused\n'
+                        self.commands.append(('event', ['log', f'Trainer {i} active is no longer confused.']))
 
             # check if active pkm should be no more asleep
             if pkm.asleep():
@@ -293,9 +293,9 @@ class PkmBattleEnv(gym.Env, GameState):
                 if random.uniform(0, 1) <= 0.5 or pkm.n_turns_asleep == 4:
                     pkm.status = PkmStatus.NONE
                     pkm.n_turns_asleep = 0
-                    if self.__debug:
-                        self.__log += f'STATUS: Trainer {i}\'s {str(pkm)} is no longer asleep\n'
-                        self.__commands.append(('event', ['log', f'Trainer {i} active is no longer asleep.']))
+                    if self.debug:
+                        self.log += f'STATUS: Trainer {i}\'s {str(pkm)} is no longer asleep\n'
+                        self.commands.append(('event', ['log', f'Trainer {i} active is no longer asleep.']))
 
     def __process_post_battle_effects(self):
         """
@@ -303,15 +303,15 @@ class PkmBattleEnv(gym.Env, GameState):
 
         """
         if self.weather.condition != WeatherCondition.CLEAR:
-            self.__n_turns_no_clear += 1
+            self.n_turns_no_clear += 1
 
             # clear weather if appropriated
-            if self.__n_turns_no_clear > 5:
+            if self.n_turns_no_clear > 5:
                 self.weather.condition = WeatherCondition.CLEAR
-                self.__n_turns_no_clear = 0
-                if self.__debug:
-                    self.__log += 'STATE: The weather is clear\n'
-                    self.__commands.append(('event', ['log', f'The weather is clear.']))
+                self.n_turns_no_clear = 0
+                if self.debug:
+                    self.log += 'STATE: The weather is clear\n'
+                    self.commands.append(('event', ['log', f'The weather is clear.']))
 
     def __get_post_battle_damage(self, t_id: int) -> float:
         """
@@ -334,11 +334,11 @@ class PkmBattleEnv(gym.Env, GameState):
         pkm.hp = 0. if pkm.hp < 0. else pkm.hp
         damage = before_hp - pkm.hp
 
-        if self.__debug and state_damage > 0.:
-            self.__log += 'STATE DAMAGE: %s takes %s weather damage from sandstorm/hail hp reduces from %s to %s\n' % (
+        if self.debug and state_damage > 0.:
+            self.log += 'STATE DAMAGE: %s takes %s weather damage from sandstorm/hail hp reduces from %s to %s\n' % (
                 str(pkm), damage, before_hp, pkm.hp)
-            self.__commands.append(('event', ['log', f'Trainer {t_id} takes {damage} damage from sandstorm/hail.']))
-            self.__commands.append(('event', ['hp', t_id, pkm.hp]))
+            self.commands.append(('event', ['log', f'Trainer {t_id} takes {damage} damage from sandstorm/hail.']))
+            self.commands.append(('event', ['hp', t_id, pkm.hp]))
 
         if pkm.status == PkmStatus.POISONED or pkm.status == PkmStatus.BURNED:
             state_damage = STATE_DAMAGE
@@ -348,11 +348,11 @@ class PkmBattleEnv(gym.Env, GameState):
             pkm.hp = 0. if pkm.hp < 0. else pkm.hp
             damage = before_hp - pkm.hp
 
-            if self.__debug and damage > 0.:
-                self.__log += 'STATE DAMAGE: %s takes %s state damage from %s, hp reduces from %s to %s\n' % (
+            if self.debug and damage > 0.:
+                self.log += 'STATE DAMAGE: %s takes %s state damage from %s, hp reduces from %s to %s\n' % (
                     str(pkm), damage, 'poison' if pkm.status == PkmStatus.POISONED else 'burn', before_hp, pkm.hp)
-                self.__commands.append(('event', ['log', f'Trainer {t_id} takes {damage} damage from poison/burn.']))
-                self.__commands.append(('event', ['hp', t_id, pkm.hp]))
+                self.commands.append(('event', ['log', f'Trainer {t_id} takes {damage} damage from poison/burn.']))
+                self.commands.append(('event', ['hp', t_id, pkm.hp]))
 
         return damage
 
@@ -391,10 +391,10 @@ class PkmBattleEnv(gym.Env, GameState):
         def set_weather(self, weather: WeatherCondition):
             if weather != self.__engine.weather.condition:
                 self.__engine.weather.condition = weather
-                self.__engine.__n_turns_no_clear = 0
-                if self.__engine.__debug:
-                    self.__engine.__log += f'STATE: The weather is now {weather.name}\n'
-                    self.__engine.__commands.append(('event', ['log', f'The weather is now {weather.name}.']))
+                self.__engine.n_turns_no_clear = 0
+                if self.__engine.debug:
+                    self.__engine.log += f'STATE: The weather is now {weather.name}\n'
+                    self.__engine.commands.append(('event', ['log', f'The weather is now {weather.name}.']))
 
         def set_fixed_damage(self, damage: float):
             self._damage = damage
@@ -408,26 +408,26 @@ class PkmBattleEnv(gym.Env, GameState):
             if status == PkmStatus.PARALYZED and pkm.type != PkmType.ELECTRIC and pkm.type != PkmType.GROUND and \
                     pkm.status != PkmStatus.PARALYZED:
                 pkm.status = PkmStatus.PARALYZED
-                if self.__engine.__debug:
-                    self.__engine.__log += f'STATUS: {str(pkm)} was paralyzed\n'
-                    self.__engine.__commands.append(('event', ['log', f'Trainer {t_id} is now paralyzed.']))
+                if self.__engine.debug:
+                    self.__engine.log += f'STATUS: {str(pkm)} was paralyzed\n'
+                    self.__engine.commands.append(('event', ['log', f'Trainer {t_id} is now paralyzed.']))
             elif status == PkmStatus.POISONED and pkm.type != PkmType.POISON and pkm.type != PkmType.STEEL and \
                     pkm.status != PkmStatus.POISONED:
                 pkm.status = PkmStatus.POISONED
-                if self.__engine.__debug:
-                    self.__engine.__log += f'STATUS: {str(pkm)} was poisoned\n'
-                    self.__engine.__commands.append(('event', ['log', f'Trainer {t_id} is now poisoned.']))
+                if self.__engine.debug:
+                    self.__engine.log += f'STATUS: {str(pkm)} was poisoned\n'
+                    self.__engine.commands.append(('event', ['log', f'Trainer {t_id} is now poisoned.']))
             elif status == PkmStatus.SLEEP and pkm.status != PkmStatus.SLEEP:
                 pkm.status = PkmStatus.SLEEP
                 pkm.n_turns_asleep = 0
-                if self.__engine.__debug:
-                    self.__engine.__log += f'STATUS: {str(pkm)} is now asleep\n'
-                    self.__engine.__commands.append(('event', ['log', f'Trainer {t_id} is now asleep.']))
+                if self.__engine.debug:
+                    self.__engine.log += f'STATUS: {str(pkm)} is now asleep\n'
+                    self.__engine.commands.append(('event', ['log', f'Trainer {t_id} is now asleep.']))
             elif not team.confused:
                 team.confused = True
-                if self.__engine.__debug:
-                    self.__engine.__log += f'STATUS: {str(pkm)} is now confused\n'
-                    self.__engine.__commands.append(('event', ['log', f'Trainer {t_id} is now confused.']))
+                if self.__engine.debug:
+                    self.__engine.log += f'STATUS: {str(pkm)} is now confused\n'
+                    self.__engine.commands.append(('event', ['log', f'Trainer {t_id} is now confused.']))
 
         def set_stage(self, stat: PkmStat = PkmStat.ATTACK, delta_stage: int = 1, t_id: int = 1):
             if delta_stage != 0:
@@ -438,19 +438,19 @@ class PkmBattleEnv(gym.Env, GameState):
                         team.stage[stat] = MIN_STAGE
                     elif team.stage[stat] > MAX_STAGE:
                         team.stage[stat] = MAX_STAGE
-                    if self.__engine.__debug:
-                        self.__engine.__log += 'STAGE: %s %s %s\n' % (
+                    if self.__engine.debug:
+                        self.__engine.log += 'STAGE: %s %s %s\n' % (
                             str(team.active), stat.name, 'increased' if delta_stage > 0 else 'decreased')
-                        self.__engine.__commands.append(('event', [stat.name, t_id, team.stage[stat]]))
+                        self.__engine.commands.append(('event', [stat.name, t_id, team.stage[stat]]))
 
         def set_entry_hazard(self, hazard: PkmEntryHazard = PkmEntryHazard.SPIKES, t_id: int = 1):
             team = self.__engine.teams[t_id]
             team.entry_hazard[hazard] += 1
             if team.entry_hazard[hazard] >= N_HAZARD_STAGES:
                 team.entry_hazard[hazard] = N_HAZARD_STAGES - 1
-            elif self.__engine.__debug:
-                self.__engine.__log += f'ENTRY HAZARD: Trainer {t_id} gets spikes\n'
-                self.__engine.__commands.append(('event', ['log', f'Trainer {t_id} gets spikes.']))
+            elif self.__engine.debug:
+                self.__engine.log += f'ENTRY HAZARD: Trainer {t_id} gets spikes\n'
+                self.__engine.commands.append(('event', ['log', f'Trainer {t_id} gets spikes.']))
 
         @property
         def recover(self):
@@ -461,13 +461,13 @@ class PkmBattleEnv(gym.Env, GameState):
             return self._damage
 
     def __get_fixed_damage(self) -> float:
-        damage = self.__move_view.damage
-        self.__move_view._damage = 0.
+        damage = self.move_view.damage
+        self.move_view._damage = 0.
         return damage
 
     def __get_recover(self) -> float:
-        recover = self.__move_view.recover
-        self.__move_view._recover = 0.
+        recover = self.move_view.recover
+        self.move_view._recover = 0.
         return recover
 
     def __create_pkm_move_view(self):
@@ -492,22 +492,22 @@ class PkmBattleEnv(gym.Env, GameState):
             move = Struggle
 
         if move.acc <= random.random():
-            if self.__debug:
-                self.__log += 'MOVE FAILS: Trainer %s with %s fails %s\n' % (t_id, str(pkm), str(move))
-                self.__commands.append(('event', ['log', f'Trainer {t_id} active fails its move.']))
+            if self.debug:
+                self.log += 'MOVE FAILS: Trainer %s with %s fails %s\n' % (t_id, str(pkm), str(move))
+                self.commands.append(('event', ['log', f'Trainer {t_id} active fails its move.']))
             return 0., 0.
 
         opp = not t_id
         opp_team = self.teams[opp]
         opp_pkm = opp_team.active
 
-        if self.__debug:
-            self.__log += 'MOVE: Trainer %s with %s uses %s\n' % (t_id, str(pkm), str(move))
-            self.__commands.append(('attack', [t_id, move.type.value, move.power > 0.]))
+        if self.debug:
+            self.log += 'MOVE: Trainer %s with %s uses %s\n' % (t_id, str(pkm), str(move))
+            self.commands.append(('attack', [t_id, move.type.value, move.power > 0.]))
 
-        self.__move_view._team = [team, opp_team]
-        self.__move_view._active = [pkm, opp_pkm]
-        move.effect(self.__move_view)
+        self.move_view._team = [team, opp_team]
+        self.move_view._active = [pkm, opp_pkm]
+        move.effect(self.move_view)
 
         # set recover
         recover = self.__get_recover()
@@ -557,24 +557,24 @@ class PkmBattleEnv(gym.Env, GameState):
             pkm.hp += health_2_recover
             pkm.hp = MAX_HIT_POINTS if pkm.hp > MAX_HIT_POINTS else pkm.hp
             recover = pkm.hp - before_hp
-            if self.__debug and recover > 0.:
-                self.__log += f'RECOVER: recovers {recover}\n'
-                self.__commands.append(('event', ['log', f'Trainer {t_id} active recovers.']))
-                self.__commands.append(('event', ['hp', t_id, pkm.hp]))
-            elif self.__debug and recover < 0.:
-                self.__log += f'RECOIL DAMAGE: gets {-recover} recoil damage\n'
-                self.__commands.append(('event', ['log', f'Trainer {t_id} active takes recoil damage.']))
-                self.__commands.append(('event', ['hp', t_id, pkm.hp]))
+            if self.debug and recover > 0.:
+                self.log += f'RECOVER: recovers {recover}\n'
+                self.commands.append(('event', ['log', f'Trainer {t_id} active recovers.']))
+                self.commands.append(('event', ['hp', t_id, pkm.hp]))
+            elif self.debug and recover < 0.:
+                self.log += f'RECOIL DAMAGE: gets {-recover} recoil damage\n'
+                self.commands.append(('event', ['log', f'Trainer {t_id} active takes recoil damage.']))
+                self.commands.append(('event', ['hp', t_id, pkm.hp]))
 
             # perform damage
             opp_pkm.hp -= damage_2_deal
             opp_pkm.hp = 0. if opp_pkm.hp < 0. else opp_pkm.hp
             damage = before_opp_hp - opp_pkm.hp
-            if self.__debug and damage > 0.:
-                self.__log += 'DAMAGE: deals %s damage, hp reduces from %s to %s for %s\n' % (
+            if self.debug and damage > 0.:
+                self.log += 'DAMAGE: deals %s damage, hp reduces from %s to %s for %s\n' % (
                     damage, before_opp_hp, opp_pkm.hp, str(opp_pkm))
-                self.__commands.append(('event', ['log', f'Trainer {1 if opponent else 0} active takes damage.']))
-                self.__commands.append(('event', ['hp', 1 if opponent else 0, opp_pkm.hp]))
+                self.commands.append(('event', ['log', f'Trainer {1 if opponent else 0} active takes damage.']))
+                self.commands.append(('event', ['hp', 1 if opponent else 0, opp_pkm.hp]))
 
         return damage, recover
 
@@ -594,31 +594,31 @@ class PkmBattleEnv(gym.Env, GameState):
         :return: damage to pkm 0, damage to pkm 1
         """
         damage0, damage1 = 0., 0.
-        self.__switched = [False, False]
+        self.switched = [False, False]
         team0 = self.teams[0]
         team1 = self.teams[1]
         pkm0 = self.teams[0].active
         pkm1 = self.teams[1].active
         if pkm0.fainted():
-            if self.__debug:
-                self.__log += 'FAINTED: %s\n' % (str(pkm0))
-                self.__commands.append(('event', ['log', f'Trainer 0 active fainted.']))
+            if self.debug:
+                self.log += 'FAINTED: %s\n' % (str(pkm0))
+                self.commands.append(('event', ['log', f'Trainer 0 active fainted.']))
             new_active, _, pos = team0.switch(-1)
-            if self.__debug:
+            if self.debug:
                 if pos != -1:
-                    self.__commands.append(('switch', [0, pos, new_active.hp,
-                                                       new_active.moves[0].power,
-                                                       new_active.moves[1].power,
-                                                       new_active.moves[2].power,
-                                                       new_active.moves[3].power]))
+                    self.commands.append(('switch', [0, pos, new_active.hp,
+                                                     new_active.moves[0].power,
+                                                     new_active.moves[1].power,
+                                                     new_active.moves[2].power,
+                                                     new_active.moves[3].power]))
         if pkm1.fainted():
-            if self.__debug:
-                self.__log += 'FAINTED: %s\n' % (str(pkm1))
-                self.__commands.append(('event', ['log', f'Trainer 1 active fainted.']))
+            if self.debug:
+                self.log += 'FAINTED: %s\n' % (str(pkm1))
+                self.commands.append(('event', ['log', f'Trainer 1 active fainted.']))
             new_active, _, pos = team1.switch(-1)
-            if self.__debug:
+            if self.debug:
                 if pos != -1:
-                    self.__commands.append(('switch', [1, pos, new_active.hp]))
+                    self.commands.append(('switch', [1, pos, new_active.hp]))
         if not pkm0.fainted():
             damage0 = self.__get_entry_hazard_damage(0)
         if not pkm1.fainted():
@@ -629,5 +629,5 @@ class PkmBattleEnv(gym.Env, GameState):
         return damage0 + d0, damage1 + d1
 
     def close(self):
-        if self.__conn is not None:
-            self.__conn.close()
+        if self.conn is not None:
+            self.conn.close()
