@@ -1,9 +1,10 @@
 from typing import List, Union
 
 from vgc.datatypes.Constants import MAX_HIT_POINTS, MOVE_MAX_PP, DEFAULT_TEAM_SIZE
-from vgc.datatypes.Objects import PkmMove, Pkm, PkmTeam, GameState, null_pkm_move, null_pkm, Weather
+from vgc.datatypes.Objects import PkmMove, Pkm, PkmTeam, GameState, Weather
 from vgc.datatypes.Types import N_TYPES, N_STATUS, N_STATS, N_ENTRY_HAZARD, N_WEATHER, PkmStat, PkmType, \
     PkmStatus, WeatherCondition, PkmEntryHazard
+from vgc.engine.HiddenInformation import null_pkm, null_pkm_move
 
 
 def one_hot(p, n):

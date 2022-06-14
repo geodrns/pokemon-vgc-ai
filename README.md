@@ -49,7 +49,7 @@ while battle < n_battles:
 print(env.winner)  # tuple with the victories of agent0 and agent1
 ```
 
-`s` is a duple with the game state view encoding for each agent. `r` is a duple with the reward for each agent.
+`s` is a duple with the game state encoding for each agent. `r` is a duple with the reward for each agent.
 
 To create custom `PkmTeam` you can just input an array of `Pkm`.
 
@@ -151,31 +151,6 @@ for i in range(N_PLAYERS):
     ce.register(cm)
 ce.run(n_epochs=battle_epochs, n_league_epochs=championship_epochs)
 print(ce.strongest.name) # determine winner by checking the highest ELO rating!
-```
-
-### How to use Views for Team Building Agents
-
-View objects are objects that helps in both access control to information about the gamne state or the roster
-information. For the game state battle they help to discriminate public or hidden information state if the
-`GameStateView` is used instead of a deep encoding in the `info` parameter of the OpenAI Gym API. For team building it
-has the same purposes but a more direct manipulation has to be made when developing a team builder agent. We show bellow
-an example where we use a pre build function to extract a `PkmTemplate` from a `PkmTemplateView` and then generate a
-`Pkm` instance from the `PkmTemplate`. A method is also available to extract a `PkmMove` from a `MoveView`.
-
-```python
-def move_template_from_view(mv: MoveView) -> PkmMove
-def pkm_template_from_view(ptv: PkmTemplateView) -> PkmTemplate
-
-class RandomTeamBuildPolicy(TeamBuildPolicy):
-
-    def get_action(self, d: Tuple[MetaData, Optional[PkmFullTeam], PkmRosterView]) -> PkmFullTeam:
-        r_view: PkmRosterView = d[2]
-        pre_selection: List[PkmTemplate] = [pkm_template_from_view(r_view.get_pkm_template_view(i)) for i in
-                                            random.sample(range(r_view.n_pkms), DEFAULT_TEAM_SIZE)]
-        team: List[Pkm] = []
-        for pt in pre_selection:
-            team.append(pt.gen_pkm(random.sample(range(len(pt.move_roster)), DEFAULT_PKM_N_MOVES)))
-        return PkmFullTeam(team)
 ```
 
 ### Visualize Battles

@@ -6,7 +6,7 @@ from vgc.balance.restriction import VGCDesignConstraints
 from vgc.competition import CompetitorManager
 from vgc.competition.Competition import Competitor
 from vgc.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
-from vgc.datatypes.Objects import PkmRoster, get_pkm_roster_view
+from vgc.datatypes.Objects import PkmRoster
 from vgc.ecosystem.BattleEcosystem import Strategy
 from vgc.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
 
@@ -30,8 +30,7 @@ class GameBalanceEcosystem:
         while epoch < n_epochs:
             self.vgc.run(n_vgc_epochs, n_league_epochs)
             self.accumulated_points += self.meta_data.evaluate()
-            delta_roster = self.c.balance_policy.get_action((get_pkm_roster_view(self.vgc.roster), self.meta_data,
-                                                             self.constraints))
+            delta_roster = self.c.balance_policy.get_action((self.vgc.roster, self.meta_data, self.constraints))
             copy_roster = deepcopy(self.vgc.roster)
             delta_roster.apply(copy_roster)
             violated_rules = self.constraints.check_every_rule(copy_roster)

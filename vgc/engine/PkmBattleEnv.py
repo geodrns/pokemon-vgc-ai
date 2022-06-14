@@ -10,32 +10,11 @@ from gym import spaces
 from vgc.competition.StandardPkmMoves import Struggle
 from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, MAX_HIT_POINTS, STATE_DAMAGE, SPIKES_2, SPIKES_3, \
     TYPE_CHART_MULTIPLIER, DEFAULT_N_ACTIONS
-from vgc.datatypes.Objects import PkmTeam, Pkm, GameState, Weather, null_pkm
+from vgc.datatypes.Objects import PkmTeam, Pkm, GameState, Weather
 from vgc.datatypes.Types import WeatherCondition, PkmEntryHazard, PkmType, PkmStatus, PkmStat, N_HAZARD_STAGES, \
     MIN_STAGE, MAX_STAGE
+from vgc.engine.HiddenInformation import set_pkm
 from vgc.util.Encoding import GAME_STATE_ENCODE_LEN, partial_encode_game_state
-
-
-def set_moves(pkm: Pkm, prediction: Pkm):
-    for i in range(len(pkm.moves)):
-        if not pkm.moves[i].revealed:
-            if prediction is not None:
-                pkm.moves[i] = prediction.moves[i]
-            else:
-                pkm.moves[i] = null_pkm.moves[i]
-
-
-def set_pkm(pkm: Pkm, prediction: Pkm):
-    if pkm.revealed:
-        set_moves(pkm, prediction)
-    elif prediction is not None:
-        pkm.type = prediction.type
-        pkm.hp = prediction.hp
-        set_moves(pkm, prediction)
-    else:
-        pkm.type = null_pkm.type
-        pkm.hp = null_pkm.hp
-        set_moves(pkm, null_pkm)
 
 
 class PkmBattleEnv(gym.Env, GameState):
@@ -55,20 +34,24 @@ class PkmBattleEnv(gym.Env, GameState):
         self.__game_state_view = [GameState((self.teams[0], self.teams[1]), self.weather),
                                   GameState((self.teams[1], self.teams[0]), self.weather)]
         self.__requires_encode = encode
+        self.__predictions = [PkmTeam(), PkmTeam()]
         self.action_space = spaces.Discrete(DEFAULT_N_ACTIONS)
         self.observation_space = spaces.Discrete(GAME_STATE_ENCODE_LEN)
         self.winner = -1
 
-    def __get_forward_env(self, player: int, prediction: PkmTeam = None):
+    def set_predictions(self, team1_p: PkmTeam, team0_p: PkmTeam):
+        self.__predictions = [team1_p, team0_p]
+
+    def __get_forward_env(self, player: int):
         env = PkmBattleEnv((deepcopy(self.teams[0]), deepcopy(self.teams[1])), deepcopy(self.weather))
         env.__n_turns_no_clear = self.__n_turns_no_clear
         env.__turn = self.__turn
         env.winner = self.winner
         # hidde information and replace with prediction information
         opp_team: PkmTeam = env.__game_state_view[player].teams[1]
-        set_pkm(opp_team.active, prediction.active)
+        set_pkm(opp_team.active, self.__predictions[player].active)
         for i in range(len(opp_team.party)):
-            set_pkm(opp_team.party[i], prediction.party[i])
+            set_pkm(opp_team.party[i], self.__predictions[player].party[i])
         return env
 
     def step(self, actions):
@@ -191,6 +174,7 @@ class PkmBattleEnv(gym.Env, GameState):
 
         for team in self.teams:
             team.reset()
+            team.active.reveal_pkm()
 
         if self.__debug:
             self.__log = 'Trainer 0\n' + str(self.teams[0])

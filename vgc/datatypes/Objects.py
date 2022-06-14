@@ -148,8 +148,6 @@ class PkmMove:
         return self.public
 
 
-null_pkm_move = PkmMove()
-
 PkmMoveRoster = Set[PkmMove]
 
 
@@ -239,7 +237,7 @@ class Pkm:
         """
         return self.status == PkmStatus.FROZEN
 
-    def reveal(self):
+    def reveal_pkm(self):
         self.public = True
 
     def hide_pkm(self):
@@ -253,9 +251,6 @@ class Pkm:
     @property
     def revealed(self):
         return self.public
-
-
-null_pkm = Pkm()
 
 
 class PkmTemplate:
@@ -324,7 +319,6 @@ class PkmTeam:
         if pkms is None or pkms == []:
             pkms = [Pkm(), Pkm(), Pkm()]
         self.active: Pkm = pkms.pop(0)
-        self.active.reveal()
         self.party: List[Pkm] = pkms
         self.stage: List[int] = [0] * N_STATS
         self.confused: bool = False
@@ -439,7 +433,7 @@ class PkmTeam:
                 self.stage = [0] * N_STATS
                 self.confused = False
 
-                self.active.reveal()
+                self.active.reveal_pkm()
 
         return self.active, self.party[pos], pos
 
@@ -470,17 +464,17 @@ class PkmFullTeam:
         for pkm in self.pkm_list:
             pkm.reset()
 
+    def hide_pkm(self):
+        for pkm in self.pkm_list:
+            pkm.hide_pkm()
+
     def hide(self):
         for pkm in self.pkm_list:
             pkm.hide()
 
-    def hide_pkms(self):
+    def reveal_pkm(self):
         for pkm in self.pkm_list:
-            pkm.hide_pkm()
-
-    def reveal(self):
-        for pkm in self.pkm_list:
-            pkm.reveal()
+            pkm.reveal_pkm()
 
     def get_copy(self):
         return PkmFullTeam(self.pkm_list)
