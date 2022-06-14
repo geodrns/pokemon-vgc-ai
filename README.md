@@ -34,7 +34,7 @@ by two `PkmTeam`, each will be piloted by its respective `BattlePolicy` agent.
 ```python
 team0, team1 = PkmTeam(), PkmTeam()
 agent0, agent1 = RandomBattlePolicy(), RandomBattlePolicy()
-env = PkmBattleEnv((team0, team1))  # set new environment with teams
+env = PkmBattleEnv((team0, team1), encode=(agent0.requires_encode(), agent1.requires_encode())  # set new environment with teams
 n_battles = 3  # total number of battles
 t = False
 battle = 0
@@ -52,6 +52,9 @@ print(env.winner)  # tuple with the victories of agent0 and agent1
 `s` is a duple with the game state encoding for each agent. `r` is a duple with the reward for each agent.
 
 To create custom `PkmTeam` you can just input an array of `Pkm`.
+
+Agents may require the standard game state encoding for their observations. Agents' `BattlePolicy` encode such 
+information in the `requires_encode()` method. We pass the required encoding protocol to the environment.
 
 ```python
 team = PkmTeam([Pkm(), Pkm(), Pkm()])  # up to three!
@@ -86,7 +89,12 @@ To create a meta is as simple as initializing.
 
 ```python
 meta_data = StandardMetaData()
+meta_data.set_moves_and_pkm(self, roster: PkmRoster, move_roster: PkmMoveRoster)
 ```
+
+The `StandardMetaData` assumes that the `move_roster` contains `PkmMove` that have the field `move_id` ordered and with
+values from 0 to n-1, where n is the number of moves. All existing `PkmMove` in `PkmTemplate`s in the `roster` should
+also be present in the `move_roster`.
 
 ### Create My VGC AI Agent
 
@@ -141,8 +149,11 @@ The `ChampionshipEcosystem` is used to simulate a Championship Competition Track
 number of championship epochs and how many battle epochs run inside each championship epoch.
 
 ```python
-roster = RandomPkmRosterGenerator().gen_roster()
+generator = RandomPkmRosterGenerator()
+roster = generator.gen_roster()
+move_roster = generator.base_move_roster
 meta_data = StandardMetaData()
+meta_data.set_moves_and_pkm(roster, move_roster)
 ce = ChampionshipEcosystem(roster, meta_data, debug=True)
 battle_epochs = 10
 championship_epochs = 10
