@@ -2,14 +2,19 @@
 
 [[_TOC_]]
 
+## Changelog
+
+### Version 2.0.0 (June 2022)
+
+1. Removed views data structure, game state can now be queried directly instead.
+2. Minor bugs fixed.
+3. Added more baseline agents.
+
 ## Installation
 
 1. Install Python 3.6.8 or higher.
-
 2. Clone this project.
-
 3. Install the requirements.txt
-
 4. Use you preferred Interactive Development Environment.
 
 Alternatively you may use the Dockerfile to create a ready to run container. All dependencies are installed in the venv
@@ -96,6 +101,22 @@ meta_data.set_moves_and_pkm(self, roster: PkmRoster, move_roster: PkmMoveRoster)
 The `StandardMetaData` assumes that the `move_roster` contains `PkmMove` that have the field `move_id` ordered and with
 values from 0 to n-1, where n is the number of moves. All existing `PkmMove` in `PkmTemplate`s in the `roster` should
 also be present in the `move_roster`.
+
+### Query Meta
+
+```python
+class MetaData(ABC):
+    ...
+    def get_global_pkm_usage(self, pkm_id: PkmId) -> float
+    def get_global_pkm_winrate(self, pkm_id: PkmId) -> float
+    def get_global_move_usage(self, move: PkmMove) -> float
+    def get_global_move_winrate(self, move: PkmMove) -> float
+    def get_pair_usage(self, pkm_ids: Tuple[PkmId, PkmId]) -> float
+    def get_team(self, t) -> Tuple[PkmFullTeam, bool]
+    def get_n_teams(self) -> int
+```
+
+Several standard methods can be used to query uusage and winrate information of isolated moves, pokemon and teams.
 
 ### Create My VGC AI Agent
 
