@@ -120,7 +120,7 @@ Several standard methods can be used to query uusage and winrate information of 
 
 ### Create My VGC AI Agent
 
-The battle policy must inherit from `BattlePolicy` (example bellow). the team build policy must inherit from 
+The battle policy must inherit from `BattlePolicy` (example bellow). The team build policy must inherit from 
 `TeamBuildPolicy`.
 
 ```python
