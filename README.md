@@ -53,7 +53,7 @@ print(env.winner)  # tuple with the victories of agent0 and agent1
 
 To create custom `PkmTeam` you can just input an array of `Pkm`.
 
-Agents may require the standard game state encoding for their observations. Agents' `BattlePolicy` encode such 
+Agents may require the standard game state encoding for their observations. Agents' `BattlePolicy` encode such
 information in the `requires_encode()` method. We pass the required encoding protocol to the environment.
 
 ```python

@@ -25,6 +25,8 @@ def set_pkm(pkm: Pkm, prediction: Optional[Pkm]):
     else:
         pkm.type = null_pkm.type
         pkm.hp = null_pkm.hp
+        for move in pkm.moves:
+            move.hide()
         set_moves(pkm, null_pkm)
 
 

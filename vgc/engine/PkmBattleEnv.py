@@ -260,7 +260,7 @@ class PkmBattleEnv(gym.Env, GameState):
             self.switched[t_id] = False
             if self.debug and damage > 0.:
                 self.log += f'ENTRY HAZARD DAMAGE: {str(pkm)} takes {damage} entry hazard damage from spikes, ' \
-                              f'hp reduces from {before_hp} to {pkm.hp}\n '
+                            f'hp reduces from {before_hp} to {pkm.hp}\n '
                 self.commands.append(('event', ['log', f'Trainer {team} takes {damage} damage from spikes.']))
                 self.commands.append(('event', ['hp', team, pkm.hp]))
 
