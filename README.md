@@ -120,6 +120,42 @@ Several standard methods can be used to query uusage and winrate information of 
 
 ### Create My VGC AI Agent
 
+The battle policy must inherit from `BattlePolicy` (example bellow). the team build policy must inherit from 
+`TeamBuildPolicy`.
+
+```python
+class MyVGCBattlePolicy(BattlePolicy):
+
+    def close(self):
+        pass
+    
+    def requires_encode(self):
+        return False
+
+    def get_action(self, g: GameState) -> int:
+        # get my team
+        my_team = g.teams[0]
+        my_active = my_team.active
+        my_active_type = my_active.type
+        my_active_moves = my_active.moves
+
+        # get opp team
+        opp_team = g.teams[1]
+        opp_active = opp_team.active
+        opp_active_type = opp_active.type
+
+        # get best move
+        damage: List[float] = []
+        for move in my_active_moves:
+            damage.append(estimate_damage(move.type, my_active_type, move.power, opp_active_type))
+        move_id = int(np.argmax(damage))
+        return move_id
+```
+
+If you want to receive the `GameState` then your `BattlePolicy.requires_encode` must return `False`. If you want to
+receive automatically the standard encoded game state as `get_action(self, s: List[float])` your
+`BattlePolicy.requires_encode` must return `True`.
+
 To implement a VGC competitor agent you need to create an implementation of the class `Competitor` and override its
 multiple methods that return the various types of behaviours that will be called during an ecosystem simulation.
 Example:
@@ -128,7 +164,7 @@ Example:
 class Competitor(ABC):
 
     def __init__(self):
-        self.my_battle_policy = RandomBattlePolicy()
+        self.my_battle_policy = MyVGCBattlePolicy()
         self.my_team_build_policy = MyVGCBuildPolicy()
 
     @property
@@ -143,8 +179,6 @@ class Competitor(ABC):
     def name(self) -> str:
         return "My VGC AI agent"
 ```
-
-The battle policy must inherit from `BattlePolicy` and the team build policy must inherit from `TeamBuildPolicy`.
 
 ### Set Competition Managers and a Tree Championship
 
