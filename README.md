@@ -34,7 +34,8 @@ by two `PkmTeam`, each will be piloted by its respective `BattlePolicy` agent.
 ```python
 team0, team1 = PkmTeam(), PkmTeam()
 agent0, agent1 = RandomBattlePolicy(), RandomBattlePolicy()
-env = PkmBattleEnv((team0, team1), encode=(agent0.requires_encode(), agent1.requires_encode())  # set new environment with teams
+env = PkmBattleEnv((team0, team1),
+                   encode=(agent0.requires_encode(), agent1.requires_encode())  # set new environment with teams
 n_battles = 3  # total number of battles
 t = False
 battle = 0
