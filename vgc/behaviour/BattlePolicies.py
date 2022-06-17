@@ -48,14 +48,6 @@ def estimate_damage(move_type: PkmType, pkm_type: PkmType, move_power: float, op
     return damage
 
 
-def evaluate_matchup(pkm_type: PkmType, opp_pkm_type: PkmType, moves_type: List[PkmType]) -> float:
-    # determine defensive matchup
-    defensive_matchup = 0.0
-    for mtype in moves_type + [opp_pkm_type]:
-        defensive_matchup = min(TYPE_CHART_MULTIPLIER[mtype][pkm_type], defensive_matchup)
-    return defensive_matchup
-
-
 class OneTurnLookahead(BattlePolicy):
     """
     Greedy heuristic based agent designed to encapsulate a greedy strategy that prioritizes damage output.
@@ -104,6 +96,14 @@ class OneTurnLookahead(BattlePolicy):
             return 4  # switch to first party pkm
         else:
             return 5  # switch to second party pkm
+
+
+def evaluate_matchup(pkm_type: PkmType, opp_pkm_type: PkmType, moves_type: List[PkmType]) -> float:
+    # determine defensive matchup
+    defensive_matchup = 0.0
+    for mtype in moves_type + [opp_pkm_type]:
+        defensive_matchup = min(TYPE_CHART_MULTIPLIER[mtype][pkm_type], defensive_matchup)
+    return defensive_matchup
 
 
 class TypeSelector(BattlePolicy):
