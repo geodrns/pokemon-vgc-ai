@@ -4,83 +4,116 @@ import PySimpleGUI as sg
 import numpy as np
 
 from vgc.behaviour import BattlePolicy
-from vgc.datatypes.Constants import TYPE_CHART_MULTIPLIER, DEFAULT_PKM_N_MOVES, DEFAULT_PARTY_SIZE
+from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, DEFAULT_PARTY_SIZE
 from vgc.datatypes.Objects import PkmMove, GameState
-from vgc.datatypes.Types import PkmStat, PkmType, WeatherCondition, PkmStatus
+from vgc.datatypes.Types import PkmStat, PkmStatus
 
 
-def estimate_damage(move_type: PkmType, pkm_type: PkmType, move_power: float, opp_pkm_type: PkmType,
-                    attack_stage: int, defense_stage: int, weather: WeatherCondition) -> float:
-    stab = 1.5 if move_type == pkm_type else 1.
-    if (move_type == PkmType.WATER and weather == WeatherCondition.RAIN) or (
-            move_type == PkmType.FIRE and weather == WeatherCondition.SUNNY):
-        weather = 1.5
-    elif (move_type == PkmType.WATER and weather == WeatherCondition.SUNNY) or (
-            move_type == PkmType.FIRE and weather == WeatherCondition.RAIN):
-        weather = .5
-    else:
-        weather = 1.
-    stage_level = attack_stage - defense_stage
-    stage = (stage_level + 2.) / 2 if stage_level >= 0. else 2. / (np.abs(stage_level) + 2.)
-    damage = TYPE_CHART_MULTIPLIER[move_type][opp_pkm_type] * stab * weather * stage * move_power
-    return damage
+class RandomPlayer(BattlePolicy):
+    """
+    Agent that selects actions randomly.
+    """
 
+    def __init__(self, switch_probability: float = .15, n_moves: int = DEFAULT_PKM_N_MOVES,
+                 n_switches: int = DEFAULT_PARTY_SIZE):
+        super().__init__()
+        self.n_actions: int = n_moves + n_switches
+        self.pi: List[float] = ([(1. - switch_probability) / n_moves] * n_moves) + (
+                [switch_probability / n_switches] * n_switches)
 
-class SimpleBattlePolicy(BattlePolicy):
+    def requires_encode(self) -> bool:
+        return False
 
     def close(self):
         pass
 
     def get_action(self, g: GameState) -> int:
-        """
-        Decision step.
-
-        :param g: game state
-        :return: action
-        """
-        # check weather condition
-        weather = g.weather.condition
-
-        # get my team
-        my_team = g.teams[0]
-        my_active = my_team.active
-        my_active_type = my_active.type
-        my_party = my_team.party
-        my_active_moves = my_active.moves
-        my_attack_stage = my_team.stage[PkmStat.ATTACK]
-
-        # get opp team
-        opp_team = g.teams[1]
-        opp_active = opp_team.active
-        opp_active_type = opp_active.type
-        opp_active_hp = opp_active.hp
-        opp_defense_stage = opp_team.stage[PkmStat.DEFENSE]
-
-        # get best move
-        damage: List[float] = []
-        for move in my_active_moves:
-            damage.append(
-                estimate_damage(move.type, my_active_type, move.power, opp_active_type, my_attack_stage,
-                                opp_defense_stage, weather))
-        move_id = int(np.argmax(damage))
-
-        # switch decision
-        best_pkm = 0
-        if opp_active_hp > damage[move_id]:
-            effectiveness_to_stay = TYPE_CHART_MULTIPLIER[my_active_type][opp_active_type]
-            for i, pkm in enumerate(my_party):
-                effectiveness_party = TYPE_CHART_MULTIPLIER[pkm.type][opp_active_type]
-                if effectiveness_party > effectiveness_to_stay and pkm.hp != 0.0:
-                    effectiveness_to_stay = effectiveness_party
-                    best_pkm = i
-        if best_pkm > 0:
-            if np.random.uniform() > 0.5:
-                move_id = DEFAULT_PKM_N_MOVES + best_pkm
-
-        return move_id
+        return np.random.choice(self.n_actions, p=self.pi)
 
 
-class GUIBattlePolicy(BattlePolicy):
+class OneTurnLookahead(BattlePolicy):
+    """
+    Greedy heuristic based agent designed to encapsulate a greedy strategy that prioritizes damage output.
+    Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
+    """
+
+    def requires_encode(self) -> bool:
+        return False
+
+    def close(self):
+        pass
+
+    def get_action(self, g: GameState) -> int:
+        pass
+
+
+class TypeSelector(BattlePolicy):
+    """
+    Type Selector is a variation upon the One Turn Lookahead agent that utilizes a short series of if-else statements in
+    its decision making
+    Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
+    """
+
+    def requires_encode(self) -> bool:
+        return False
+
+    def close(self):
+        pass
+
+    def get_action(self, g: GameState) -> int:
+        pass
+
+
+class BreadthFirstSearch(BattlePolicy):
+    """
+    Basic tree search algorithm that traverses nodes in level order until it finds a state in which the current opponent
+    Pokemon is fainted.
+    Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
+    """
+
+    def requires_encode(self) -> bool:
+        return False
+
+    def close(self):
+        pass
+
+    def get_action(self, g: GameState) -> int:
+        pass
+
+
+class Minimax(BattlePolicy):
+    """
+    Tree search algorithm that deals with adversarial paradigms by assuming the opponent acts in their best interest.
+    Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
+    """
+
+    def requires_encode(self) -> bool:
+        return False
+
+    def close(self):
+        pass
+
+    def get_action(self, g: GameState) -> int:
+        pass
+
+
+class PrunedBFS(BattlePolicy):
+    """
+    Utilize domain knowledge as a cost-cutting measure by making modifications to the Breadth First Search agent.
+    Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
+    """
+
+    def requires_encode(self) -> bool:
+        return False
+
+    def close(self):
+        pass
+
+    def get_action(self, g: GameState) -> int:
+        pass
+
+
+class GUIPlayer(BattlePolicy):
 
     def __init__(self, n_party: int = DEFAULT_PARTY_SIZE, n_moves: int = DEFAULT_PKM_N_MOVES):
         print(n_party)
@@ -174,28 +207,3 @@ class GUIBattlePolicy(BattlePolicy):
 
     def close(self):
         self.window.close()
-
-
-SWITCH_PROBABILITY = .15
-
-
-class RandomBattlePolicy(BattlePolicy):
-
-    def __init__(self, switch_probability: float = SWITCH_PROBABILITY, n_moves: int = DEFAULT_PKM_N_MOVES,
-                 n_switches: int = DEFAULT_PARTY_SIZE):
-        super().__init__()
-        self.n_actions: int = n_moves + n_switches
-        self.pi: List[float] = ([(1. - switch_probability) / n_moves] * n_moves) + (
-                [switch_probability / n_switches] * n_switches)
-
-    def get_action(self, g: GameState) -> int:
-        """
-        Decision step.
-
-        :param g: game state
-        :return: action
-        """
-        return np.random.choice(self.n_actions, p=self.pi)
-
-    def close(self):
-        pass

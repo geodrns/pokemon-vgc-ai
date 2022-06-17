@@ -1,11 +1,11 @@
-from vgc.behaviour.BattlePolicies import RandomBattlePolicy
+from vgc.behaviour.BattlePolicies import RandomPlayer
 from vgc.datatypes.Objects import PkmTeam
 from vgc.engine.PkmBattleEnv import PkmBattleEnv
 
 
 def main():
-    a0 = RandomBattlePolicy()
-    a1 = RandomBattlePolicy()
+    a0 = RandomPlayer()
+    a1 = RandomPlayer()
     t0 = PkmTeam()
     t1 = PkmTeam()
     env = PkmBattleEnv((t0, t1), debug=True, encode=(a0.requires_encode(), a1.requires_encode()))

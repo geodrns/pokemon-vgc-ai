@@ -107,20 +107,27 @@ also be present in the `move_roster`.
 ```python
 class MetaData(ABC):
     ...
+
     def get_global_pkm_usage(self, pkm_id: PkmId) -> float
-    def get_global_pkm_winrate(self, pkm_id: PkmId) -> float
-    def get_global_move_usage(self, move: PkmMove) -> float
-    def get_global_move_winrate(self, move: PkmMove) -> float
-    def get_pair_usage(self, pkm_ids: Tuple[PkmId, PkmId]) -> float
-    def get_team(self, t) -> Tuple[PkmFullTeam, bool]
-    def get_n_teams(self) -> int
+
+        def get_global_pkm_winrate(self, pkm_id: PkmId) -> float
+
+        def get_global_move_usage(self, move: PkmMove) -> float
+
+        def get_global_move_winrate(self, move: PkmMove) -> float
+
+        def get_pair_usage(self, pkm_ids: Tuple[PkmId, PkmId]) -> float
+
+        def get_team(self, t) -> Tuple[PkmFullTeam, bool]
+
+        def get_n_teams(self) -> int
 ```
 
 Several standard methods can be used to query uusage and winrate information of isolated moves, pokemon and teams.
 
 ### Create My VGC AI Agent
 
-The battle policy must inherit from `BattlePolicy` (example bellow). The team build policy must inherit from 
+The battle policy must inherit from `BattlePolicy` (example bellow). The team build policy must inherit from
 `TeamBuildPolicy`.
 
 ```python
@@ -128,7 +135,7 @@ class MyVGCBattlePolicy(BattlePolicy):
 
     def close(self):
         pass
-    
+
     def requires_encode(self):
         return False
 
@@ -264,7 +271,6 @@ Please cite this work if used.
 
 ## TODO
 
-* Add Baseline Agents.
-* Improve Framework Performance.
-* More detailed documentation.
-* Support point distribution with templates of any size.
+* Add baseline team building agents.
+* Complete the balance track implementation.
+* Improve game state encoding performance.

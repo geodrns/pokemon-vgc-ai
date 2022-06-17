@@ -10,6 +10,9 @@ from vgc.datatypes.Objects import PkmFullTeam
 
 class GUITeamSelectionPolicy(TeamSelectionPolicy):
 
+    def requires_encode(self) -> bool:
+        return False
+
     def __init__(self, selected_team_size: int = DEFAULT_TEAM_SIZE, full_team_size: int = MAX_TEAM_SIZE):
         self.selected_team_size = selected_team_size
         self.opp_title = sg.Text('Opponent Team:')
@@ -60,6 +63,9 @@ class GUITeamSelectionPolicy(TeamSelectionPolicy):
 
 class RandomTeamSelectionPolicy(TeamSelectionPolicy):
 
+    def requires_encode(self) -> bool:
+        return False
+
     def __init__(self, teams_size: int = DEFAULT_TEAM_SIZE, selection_size: int = DEFAULT_TEAM_SIZE):
         self.teams_size = teams_size
         self.selection_size = selection_size
@@ -79,6 +85,9 @@ class RandomTeamSelectionPolicy(TeamSelectionPolicy):
 
 
 class FirstEditionTeamSelectionPolicy(TeamSelectionPolicy):
+
+    def requires_encode(self) -> bool:
+        return False
 
     def get_action(self, d: Tuple[PkmFullTeam, PkmFullTeam]) -> Set[int]:
         """

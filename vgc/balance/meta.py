@@ -176,7 +176,7 @@ class StandardMetaData(MetaData):
         if pair not in self._teammates_history.keys():
             return 0.0
         return self._teammates_history[pair] / (
-                    self._pkm_usage[pair[0]] + self._pkm_usage[pair[1]] - self._teammates_history[pair])
+                self._pkm_usage[pair[0]] + self._pkm_usage[pair[1]] - self._teammates_history[pair])
 
     def get_team(self, t) -> Tuple[PkmFullTeam, bool]:
         return self._team_history[t][0], self._team_history[t][1]

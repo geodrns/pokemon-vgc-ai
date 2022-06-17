@@ -43,16 +43,30 @@ class PkmBattleEnv(gym.Env, GameState):
         self.predictions = [team1_p, team0_p]
 
     def __get_forward_env(self, player: int):
-        env = PkmBattleEnv((deepcopy(self.teams[0]), deepcopy(self.teams[1])), deepcopy(self.weather))
+        env = PkmBattleEnv((deepcopy(self.teams[player]), deepcopy(self.teams[not player])), deepcopy(self.weather))
         env.n_turns_no_clear = self.n_turns_no_clear
         env.turn = self.turn
         env.winner = self.winner
         # hidde information and replace with prediction information
-        opp_team: PkmTeam = env.game_state_view[player].teams[1]
+        opp_team: PkmTeam = env.teams[1]
         set_pkm(opp_team.active, self.predictions[player].active)
         for i in range(len(opp_team.party)):
             set_pkm(opp_team.party[i], self.predictions[player].party[i])
+        env.game_state_view = []
         return env
+
+    def __get_states(self):
+        if self.requires_encode[0]:
+            s0 = []
+            partial_encode_game_state(s0, self.game_state_view[0])
+        else:
+            s0 = self.__get_forward_env(0)
+        if self.requires_encode[1]:
+            s1 = []
+            partial_encode_game_state(s1, self.game_state_view[1])
+        else:
+            s1 = self.__get_forward_env(1)
+        return s0, s1
 
     def step(self, actions):
 
@@ -153,17 +167,7 @@ class PkmBattleEnv(gym.Env, GameState):
                 self.log += f'Trainer 1 {outcome1}\n'
                 self.commands.append(('event', ['log', f'Trainer 0 {outcome0}.']))
 
-        if self.requires_encode[0]:
-            s0 = []
-            partial_encode_game_state(s0, self.game_state_view[0])
-        else:
-            s0 = self.__get_forward_env(0)
-        if self.requires_encode[1]:
-            s1 = []
-            partial_encode_game_state(s1, self.game_state_view[1])
-        else:
-            s1 = self.__get_forward_env(1)
-        return [s0, s1], r, finished, None
+        return self.__get_states(), r, finished, None
 
     def reset(self):
         self.weather.condition = WeatherCondition.CLEAR
@@ -193,17 +197,7 @@ class PkmBattleEnv(gym.Env, GameState):
                                            self.teams[1].party[1].type.value,
                                            self.teams[1].active.hp]))
 
-        if self.requires_encode[0]:
-            s0 = []
-            partial_encode_game_state(s0, self.game_state_view[0])
-        else:
-            s0 = self.__get_forward_env(0)
-        if self.requires_encode[1]:
-            s1 = []
-            partial_encode_game_state(s1, self.game_state_view[1])
-        else:
-            s1 = self.__get_forward_env(1)
-        return [s0, s1]
+        return self.__get_states()
 
     def render(self, mode='console'):
         if mode == 'console':

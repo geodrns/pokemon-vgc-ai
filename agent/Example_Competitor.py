@@ -1,5 +1,5 @@
 from vgc.behaviour import BattlePolicy, TeamSelectionPolicy
-from vgc.behaviour.BattlePolicies import GUIBattlePolicy, RandomBattlePolicy
+from vgc.behaviour.BattlePolicies import GUIPlayer, RandomPlayer
 from vgc.behaviour.TeamSelectionPolicies import GUITeamSelectionPolicy
 from vgc.competition.Competitor import Competitor
 
@@ -8,7 +8,7 @@ class ExampleCompetitor(Competitor):
 
     def __init__(self, name: str = "Example"):
         self._name = name
-        self._battle_policy = RandomBattlePolicy()
+        self._battle_policy = RandomPlayer()
 
     @property
     def name(self):
@@ -30,4 +30,4 @@ class GUIExampleCompetitor(ExampleCompetitor):
 
     @property
     def battle_policy(self) -> BattlePolicy:
-        return GUIBattlePolicy()
+        return GUIPlayer()
