@@ -4,9 +4,9 @@ import PySimpleGUI as sg
 import numpy as np
 
 from vgc.behaviour import BattlePolicy
-from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, DEFAULT_PARTY_SIZE
+from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, DEFAULT_PARTY_SIZE, TYPE_CHART_MULTIPLIER
 from vgc.datatypes.Objects import PkmMove, GameState
-from vgc.datatypes.Types import PkmStat, PkmStatus
+from vgc.datatypes.Types import PkmStat, PkmStatus, PkmType, WeatherCondition
 
 
 class RandomPlayer(BattlePolicy):
@@ -31,6 +31,31 @@ class RandomPlayer(BattlePolicy):
         return np.random.choice(self.n_actions, p=self.pi)
 
 
+def estimate_damage(move_type: PkmType, pkm_type: PkmType, move_power: float, opp_pkm_type: PkmType,
+                    attack_stage: int, defense_stage: int, weather: WeatherCondition) -> float:
+    stab = 1.5 if move_type == pkm_type else 1.
+    if (move_type == PkmType.WATER and weather == WeatherCondition.RAIN) or (
+            move_type == PkmType.FIRE and weather == WeatherCondition.SUNNY):
+        weather = 1.5
+    elif (move_type == PkmType.WATER and weather == WeatherCondition.SUNNY) or (
+            move_type == PkmType.FIRE and weather == WeatherCondition.RAIN):
+        weather = .5
+    else:
+        weather = 1.
+    stage_level = attack_stage - defense_stage
+    stage = (stage_level + 2.) / 2 if stage_level >= 0. else 2. / (np.abs(stage_level) + 2.)
+    damage = TYPE_CHART_MULTIPLIER[move_type][opp_pkm_type] * stab * weather * stage * move_power
+    return damage
+
+
+def evaluate_matchup(pkm_type: PkmType, opp_pkm_type: PkmType, moves_type: List[PkmType]) -> float:
+    # determine defensive matchup
+    defensive_matchup = 0.0
+    for mtype in moves_type + [opp_pkm_type]:
+        defensive_matchup = min(TYPE_CHART_MULTIPLIER[mtype][pkm_type], defensive_matchup)
+    return defensive_matchup
+
+
 class OneTurnLookahead(BattlePolicy):
     """
     Greedy heuristic based agent designed to encapsulate a greedy strategy that prioritizes damage output.
@@ -43,14 +68,48 @@ class OneTurnLookahead(BattlePolicy):
     def close(self):
         pass
 
-    def get_action(self, g: GameState) -> int:
-        pass
+    def get_action(self, g: GameState):
+        # get weather condition
+        weather = g.weather.condition
+
+        # get my pkms
+        my_team = g.teams[0]
+        my_pkms = [my_team.active] + my_team.party
+
+        # get opp team
+        opp_team = g.teams[1]
+        opp_active = opp_team.active
+        opp_active_type = opp_active.type
+        opp_defense_stage = opp_team.stage[PkmStat.DEFENSE]
+
+        # get most damaging move from all my pkms
+        damage: List[float] = []
+        for i, pkm in enumerate(my_pkms):
+            if i == 0:
+                my_attack_stage = my_team.stage[PkmStat.ATTACK]
+            else:
+                my_attack_stage = 0
+            for move in pkm.moves:
+                if pkm.hp == 0.0:
+                    damage.append(0.0)
+                else:
+                    damage.append(estimate_damage(move.type, pkm.type, move.power, opp_active_type, my_attack_stage,
+                                                  opp_defense_stage, weather))
+        move_id = int(np.argmax(damage))
+
+        # decide between using an active pkm move or switching
+        if move_id < 4:
+            return move_id  # use current active pkm best damaging move
+        if 4 <= move_id < 8:
+            return 4  # switch to first party pkm
+        else:
+            return 5  # switch to second party pkm
 
 
 class TypeSelector(BattlePolicy):
     """
     Type Selector is a variation upon the One Turn Lookahead agent that utilizes a short series of if-else statements in
-    its decision making
+    its decision making.
     Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
     """
 
@@ -60,11 +119,56 @@ class TypeSelector(BattlePolicy):
     def close(self):
         pass
 
-    def get_action(self, g: GameState) -> int:
-        pass
+    def get_action(self, g: GameState):
+        # get weather condition
+        weather = g.weather.condition
+
+        # get my pkms
+        my_team = g.teams[0]
+        my_active = my_team.active
+        my_party = my_team.party
+        my_attack_stage = my_team.stage[PkmStat.ATTACK]
+
+        # get opp team
+        opp_team = g.teams[1]
+        opp_active = opp_team.active
+        opp_defense_stage = opp_team.stage[PkmStat.DEFENSE]
+
+        # estimate damage my active pkm moves
+        damage: List[float] = []
+        for move in my_active.moves:
+            damage.append(estimate_damage(move.type, my_active.type, move.power, opp_active.type, my_attack_stage,
+                                          opp_defense_stage, weather))
+
+        # get most damaging move
+        move_id = int(np.argmax(damage))
+
+        #  If this damage is greater than the opponents current health we knock it out
+        if damage[move_id] >= opp_active.hp:
+            return move_id
+
+        # If not, check if are a favorable match. If we are lets give maximum possible damage.
+        if evaluate_matchup(my_active.type, opp_active.type, list(map(lambda m: m.type, opp_active.moves))) >= 1.0:
+            return move_id
+
+        # If we are not switch to the most favorable matchup
+        matchup: List[float] = []
+        not_fainted = False
+        for pkm in my_party:
+            if pkm.hp == 0.0:
+                matchup.append(0.0)
+            else:
+                not_fainted = True
+                matchup.append(evaluate_matchup(my_active.type, opp_active.type, list(map(lambda m: m.type, opp_active.moves))))
+
+        if not_fainted:
+            return int(np.argmax(matchup)) + 4
+
+        # If our party has no non fainted pkm, lets give maximum possible damage with current active
+        return move_id
 
 
-class BreadthFirstSearch(BattlePolicy):
+class BreadthFirstSearch(BattlePolicy):  # TODO BreadthFirstSearch
     """
     Basic tree search algorithm that traverses nodes in level order until it finds a state in which the current opponent
     Pokemon is fainted.
@@ -81,7 +185,7 @@ class BreadthFirstSearch(BattlePolicy):
         pass
 
 
-class Minimax(BattlePolicy):
+class Minimax(BattlePolicy):  # TODO Minimax
     """
     Tree search algorithm that deals with adversarial paradigms by assuming the opponent acts in their best interest.
     Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
@@ -97,7 +201,7 @@ class Minimax(BattlePolicy):
         pass
 
 
-class PrunedBFS(BattlePolicy):
+class PrunedBFS(BattlePolicy):  # TODO PrunedBFS
     """
     Utilize domain knowledge as a cost-cutting measure by making modifications to the Breadth First Search agent.
     Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
