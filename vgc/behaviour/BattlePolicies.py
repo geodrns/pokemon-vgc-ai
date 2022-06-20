@@ -8,7 +8,6 @@ from vgc.behaviour import BattlePolicy
 from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, DEFAULT_PARTY_SIZE, TYPE_CHART_MULTIPLIER, DEFAULT_N_ACTIONS
 from vgc.datatypes.Objects import PkmMove, GameState
 from vgc.datatypes.Types import PkmStat, PkmStatus, PkmType, WeatherCondition
-from vgc.engine.PkmBattleEnv import PkmBattleEnv
 
 
 class RandomPlayer(BattlePolicy):
@@ -199,7 +198,7 @@ class BreadthFirstSearch(BattlePolicy):
     def close(self):
         pass
 
-    def get_action(self, g: PkmBattleEnv) -> int:
+    def get_action(self, g) -> int:  # g: PkmBattleEnv
         self.root.g = g
         while len(self.node_queue) > 0:
             current_parent = self.node_queue.pop()
@@ -248,7 +247,7 @@ class Minimax(BattlePolicy):
     def close(self):
         pass
 
-    def get_action(self, g: PkmBattleEnv) -> int:
+    def get_action(self, g) -> int:  # g: PkmBattleEnv
         self.root.g = g
         while len(self.node_queue) > 0:
             current_parent = self.node_queue.pop()
@@ -299,7 +298,7 @@ class PrunedBFS(BattlePolicy):
     def close(self):
         pass
 
-    def get_action(self, g: PkmBattleEnv) -> int:
+    def get_action(self, g) -> int:  # g: PkmBattleEnv
         self.root.g = g
         while len(self.node_queue) > 0:
             current_parent = self.node_queue.pop()

@@ -9,7 +9,7 @@ from vgc.competition.Competitor import Competitor
 from vgc.datatypes.Constants import DEFAULT_MATCH_N_BATTLES, DEFAULT_TEAM_SIZE
 from vgc.datatypes.Objects import PkmFullTeam, PkmTeam
 from vgc.engine.HiddenInformation import hide_team
-from vgc.engine.PkmBattleEnv import PkmBattleEnv
+from vgc.engine.PkmBattleEngine import PkmBattleEnv
 from vgc.util.generator.PkmTeamGenerators import PkmTeamGenerator
 
 

@@ -27,7 +27,7 @@ class TestEncodingMethods(unittest.TestCase):
             self.assertFalse(legal_move_set(pkm, template_2))
 
     def test_legal_team(self):
-        pkm_roster_generator = RandomPkmRosterGenerator()
+        pkm_roster_generator = RandomPkmRosterGenerator(n_moves_pkm=10)
         roster = pkm_roster_generator.gen_roster()
         for _ in range(10):
             pkms: List[Pkm] = [template.gen_pkm(sample(range(pkm_roster_generator.n_moves_pkm), 6)) for template in
