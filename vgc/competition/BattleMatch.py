@@ -95,14 +95,12 @@ class BattleMatch:
     def __run_battle(self, a0: BattlePolicy, a1: BattlePolicy, team0: PkmTeam, team1: PkmTeam,
                      team1_p: Optional[PkmTeam], team0_p: Optional[PkmTeam]) -> int:
         env = PkmBattleEnv((team0, team1), debug=self.debug, encode=(a0.requires_encode(), a1.requires_encode()))
-        print(env.requires_encode)
         env.set_predictions(team1_p, team0_p)
         s = env.reset()
         if self.debug:
             env.render(self.render_mode)
         t = False
         while not t:
-            act0 = a0.get_action(s[0])
             try:
                 act0 = a0.get_action(s[0])
             except:

@@ -1,5 +1,5 @@
 from agent.Example_Competitor import ExampleCompetitor
-from vgc.behaviour.BattlePolicies import TypeSelector, OneTurnLookahead, BreadthFirstSearch, Minimax, PrunedBFS
+from vgc.behaviour.BattlePolicies import OneTurnLookahead, TypeSelector, BreadthFirstSearch, Minimax, PrunedBFS
 from vgc.competition import CompetitorManager
 from vgc.competition.BattleMatch import BattleMatch
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
@@ -10,7 +10,7 @@ def main():
     roster = RandomPkmRosterGenerator().gen_roster()
     tg = RandomTeamFromRoster(roster)
     c0 = ExampleCompetitor("Player 1")
-    c0._battle_policy = TypeSelector()
+    c0._battle_policy = PrunedBFS()  # switch agent to test
     cm0 = CompetitorManager(c0)
     cm0.team = tg.get_team()
     c1 = ExampleCompetitor("Player 2")

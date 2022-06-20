@@ -201,7 +201,7 @@ class BreadthFirstSearch(BattlePolicy):
     def get_action(self, g) -> int:  # g: PkmBattleEnv
         self.root.g = g
         while len(self.node_queue) > 0:
-            current_parent = self.node_queue.pop()
+            current_parent = self.node_queue.pop(0)
             # expand nodes of current parent
             for i in range(DEFAULT_N_ACTIONS):
                 s, _, _, _ = current_parent.g.step([i, 99])  # opponent select an invalid switch action
@@ -250,7 +250,7 @@ class Minimax(BattlePolicy):
     def get_action(self, g) -> int:  # g: PkmBattleEnv
         self.root.g = g
         while len(self.node_queue) > 0:
-            current_parent = self.node_queue.pop()
+            current_parent = self.node_queue.pop(0)
             # expand nodes of current parent
             for i in range(DEFAULT_N_ACTIONS):
                 s, _, _, _ = current_parent.g.step([i, 99])  # opponent select an invalid switch action
@@ -301,7 +301,7 @@ class PrunedBFS(BattlePolicy):
     def get_action(self, g) -> int:  # g: PkmBattleEnv
         self.root.g = g
         while len(self.node_queue) > 0:
-            current_parent = self.node_queue.pop()
+            current_parent = self.node_queue.pop(0)
             # expand nodes of current parent
             for i in range(DEFAULT_N_ACTIONS):
                 teams = current_parent.g.teams
