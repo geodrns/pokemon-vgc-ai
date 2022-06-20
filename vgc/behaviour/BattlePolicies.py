@@ -1,12 +1,14 @@
+from copy import deepcopy
 from typing import List
 
 import PySimpleGUI as sg
 import numpy as np
 
 from vgc.behaviour import BattlePolicy
-from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, DEFAULT_PARTY_SIZE, TYPE_CHART_MULTIPLIER
+from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, DEFAULT_PARTY_SIZE, TYPE_CHART_MULTIPLIER, DEFAULT_N_ACTIONS
 from vgc.datatypes.Objects import PkmMove, GameState
 from vgc.datatypes.Types import PkmStat, PkmStatus, PkmType, WeatherCondition
+from vgc.engine.PkmBattleEnv import PkmBattleEnv
 
 
 class RandomPlayer(BattlePolicy):
@@ -159,7 +161,8 @@ class TypeSelector(BattlePolicy):
                 matchup.append(0.0)
             else:
                 not_fainted = True
-                matchup.append(evaluate_matchup(my_active.type, opp_active.type, list(map(lambda m: m.type, opp_active.moves))))
+                matchup.append(
+                    evaluate_matchup(my_active.type, opp_active.type, list(map(lambda m: m.type, opp_active.moves))))
 
         if not_fainted:
             return int(np.argmax(matchup)) + 4
@@ -168,12 +171,25 @@ class TypeSelector(BattlePolicy):
         return move_id
 
 
-class BreadthFirstSearch(BattlePolicy):  # TODO BreadthFirstSearch
+class BFSNode:
+
+    def __init__(self):
+        self.a = None
+        self.g = None
+        self.parent = None
+
+
+class BreadthFirstSearch(BattlePolicy):
     """
     Basic tree search algorithm that traverses nodes in level order until it finds a state in which the current opponent
-    Pokemon is fainted.
+    Pokemon is fainted. As a non-adversarial algorithm, the agent selfishly assumes that the opponent uses ”forceskip”
+    by selecting an invalid switch action.
     Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
     """
+
+    def __int__(self):
+        self.root = BFSNode
+        self.node_queue: List = [self.root]
 
     def requires_encode(self) -> bool:
         return False
@@ -181,8 +197,29 @@ class BreadthFirstSearch(BattlePolicy):  # TODO BreadthFirstSearch
     def close(self):
         pass
 
-    def get_action(self, g: GameState) -> int:
-        pass
+    def get_action(self, g: PkmBattleEnv) -> int:
+        self.root.g = g
+        while len(self.node_queue) > 0:
+            current_parent = self.node_queue.pop()
+            # expand nodes of current parent
+            for i in range(DEFAULT_N_ACTIONS):
+                s = current_parent.g.step([i, 99])  # opponent select an invalid switch action
+                if s.teams[0].active.hp == 0:
+                    continue
+                elif s.teams[1].active.hp == 0:
+                    a = i
+                    while current_parent != self.root:
+                        a = current_parent.a
+                        current_parent = current_parent.parent
+                    return a
+                else:
+                    node = BFSNode()
+                    node.parent = current_parent
+                    node.a = i
+                    node.g = deepcopy(s)
+                    self.node_queue.append(node)
+        # if victory is not possible return arbitrary action
+        return 0
 
 
 class Minimax(BattlePolicy):  # TODO Minimax
@@ -197,7 +234,7 @@ class Minimax(BattlePolicy):  # TODO Minimax
     def close(self):
         pass
 
-    def get_action(self, g: GameState) -> int:
+    def get_action(self, g: PkmBattleEnv) -> int:
         pass
 
 
@@ -213,7 +250,7 @@ class PrunedBFS(BattlePolicy):  # TODO PrunedBFS
     def close(self):
         pass
 
-    def get_action(self, g: GameState) -> int:
+    def get_action(self, g: PkmBattleEnv) -> int:
         pass
 
 
