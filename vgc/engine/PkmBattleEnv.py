@@ -1,4 +1,5 @@
 import random
+from copy import deepcopy
 from multiprocessing.connection import Client
 from typing import List, Tuple
 
@@ -6,43 +7,67 @@ import gym
 import numpy as np
 from gym import spaces
 
+from vgc.competition.StandardPkmMoves import Struggle
 from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, MAX_HIT_POINTS, STATE_DAMAGE, SPIKES_2, SPIKES_3, \
     TYPE_CHART_MULTIPLIER, DEFAULT_N_ACTIONS
-from vgc.datatypes.Objects import PkmTeam, Pkm, get_game_state_view, GameState, Weather
+from vgc.datatypes.Objects import PkmTeam, Pkm, GameState, Weather
 from vgc.datatypes.Types import WeatherCondition, PkmEntryHazard, PkmType, PkmStatus, PkmStat, N_HAZARD_STAGES, \
     MIN_STAGE, MAX_STAGE
+from vgc.engine.HiddenInformation import set_pkm
 from vgc.util.Encoding import GAME_STATE_ENCODE_LEN, partial_encode_game_state
-from vgc.competition.StandardPkmMoves import Struggle
 
 
-class PkmBattleEnv(gym.Env):
+class PkmBattleEnv(gym.Env, GameState):
 
-    def __init__(self, teams: Tuple[PkmTeam, PkmTeam] = None, debug: bool = False, team_prediction=None,
-                 conn: Client = None):
+    def __init__(self, teams: Tuple[PkmTeam, PkmTeam], weather=Weather(), debug: bool = False, conn: Client = None,
+                 encode: Tuple[bool, bool] = (True, True)):
         # random active pokemon
+        super().__init__(teams, weather)
         self.n_turns_no_clear = None
-        if team_prediction is None:
-            team_prediction = [None, None]
-        if teams is None:
-            self.teams: Tuple[PkmTeam, PkmTeam] = (PkmTeam(), PkmTeam())
-        else:
-            self.teams: Tuple[PkmTeam, PkmTeam] = teams
-        self.team_prediction = team_prediction
-        self.weather = Weather()
         self.switched = [False, False]
         self.turn = 0
         self.move_view = self.__create_pkm_move_view()
-        self.game_state = [GameState([self.teams[0], self.teams[1]], self.weather),
-                           GameState([self.teams[1], self.teams[0]], self.weather)]
-        self.game_state_view = [get_game_state_view(self.game_state[0], team_prediction=self.team_prediction[0]),
-                                get_game_state_view(self.game_state[1], team_prediction=self.team_prediction[1])]
         self.debug = debug
         self.log = ''
         self.commands = []
         self.conn = conn
+        self.game_state_view = [GameState((self.teams[0], self.teams[1]), self.weather),
+                                GameState((self.teams[1], self.teams[0]), self.weather)]
+        self.requires_encode = encode
+        self.predictions = [PkmTeam(), PkmTeam()]
         self.action_space = spaces.Discrete(DEFAULT_N_ACTIONS)
         self.observation_space = spaces.Discrete(GAME_STATE_ENCODE_LEN)
         self.winner = -1
+
+    def set_predictions(self, team1_p: PkmTeam, team0_p: PkmTeam):
+        self.predictions = [team1_p, team0_p]
+
+    def __get_forward_env(self, player: int):
+        env = PkmBattleEnv((deepcopy(self.teams[player]), deepcopy(self.teams[not player])), deepcopy(self.weather),
+                           encode=self.requires_encode)
+        env.n_turns_no_clear = self.n_turns_no_clear
+        env.turn = self.turn
+        env.winner = self.winner
+        # hidde information and replace with prediction information
+        opp_team: PkmTeam = env.teams[1]
+        set_pkm(opp_team.active, self.predictions[player].active)
+        for i in range(len(opp_team.party)):
+            set_pkm(opp_team.party[i], self.predictions[player].party[i])
+        env.game_state_view = []
+        return env
+
+    def __get_states(self):
+        if self.requires_encode[0]:
+            s0 = []
+            partial_encode_game_state(s0, self.game_state_view[0])
+        else:
+            s0 = self.__get_forward_env(0)
+        if self.requires_encode[1]:
+            s1 = []
+            partial_encode_game_state(s1, self.game_state_view[1])
+        else:
+            s1 = self.__get_forward_env(1)
+        return s0, s1
 
     def step(self, actions):
 
@@ -143,10 +168,7 @@ class PkmBattleEnv(gym.Env):
                 self.log += f'Trainer 1 {outcome1}\n'
                 self.commands.append(('event', ['log', f'Trainer 0 {outcome0}.']))
 
-        e0, e1 = [], []
-        partial_encode_game_state(e0, self.game_state[0])
-        partial_encode_game_state(e1, self.game_state[1])
-        return [e0, e1], r, finished, self.game_state_view
+        return self.__get_states(), r, finished, None
 
     def reset(self):
         self.weather.condition = WeatherCondition.CLEAR
@@ -157,6 +179,7 @@ class PkmBattleEnv(gym.Env):
 
         for team in self.teams:
             team.reset()
+            team.active.reveal_pkm()
 
         if self.debug:
             self.log = 'Trainer 0\n' + str(self.teams[0])
@@ -175,10 +198,7 @@ class PkmBattleEnv(gym.Env):
                                            self.teams[1].party[1].type.value,
                                            self.teams[1].active.hp]))
 
-        e0, e1 = [], []
-        partial_encode_game_state(e0, self.game_state[0], self.team_prediction[0])
-        partial_encode_game_state(e1, self.game_state[1], self.team_prediction[1])
-        return [e0, e1]
+        return self.__get_states()
 
     def render(self, mode='console'):
         if mode == 'console':
@@ -352,7 +372,6 @@ class PkmBattleEnv(gym.Env):
             # random attack order
             order = [0, 1]
             np.random.shuffle(order)
-
         return order[0], order[1]
 
     class PkmMoveView:

@@ -11,7 +11,5 @@ class TestEncodingMethods(unittest.TestCase):
         roster = gen.gen_roster()
         for tmpl in roster:
             pkm = tmpl.gen_pkm([0, 1, 2, 3])
-            print(pkm)
             points = get_pkm_points(pkm)
-            print(points)
             self.assertLess(points, STANDARD_TOTAL_POINTS + 1)

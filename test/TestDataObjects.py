@@ -6,10 +6,10 @@ from random import sample
 
 import numpy as np
 
+from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
 from vgc.datatypes.Constants import BASE_HIT_POINTS, MAX_HIT_POINTS
 from vgc.datatypes.Objects import PkmTemplate
 from vgc.datatypes.Types import PkmType
-from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
 
 
 class TestEncodingMethods(unittest.TestCase):
@@ -95,11 +95,11 @@ class TestEncodingMethods(unittest.TestCase):
             pkm_type = random.choice(list(PkmType))
             max_hp = np.random.uniform(BASE_HIT_POINTS, MAX_HIT_POINTS, 1)[0]
             move_roster = set(sample(deepcopy(STANDARD_MOVE_ROSTER), 10))
-            template = PkmTemplate(pkm_type=pkm_type, max_hp=max_hp, move_roster=move_roster)
+            template = PkmTemplate(pkm_type=pkm_type, max_hp=max_hp, move_roster=move_roster, pkm_id=0)
             pkm_type = random.choice(list(PkmType))
             max_hp = np.random.uniform(BASE_HIT_POINTS, MAX_HIT_POINTS, 1)[0]
             move_roster = set(sample(deepcopy(STANDARD_MOVE_ROSTER), 10))
-            template2 = PkmTemplate(pkm_type=pkm_type, max_hp=max_hp, move_roster=move_roster)
+            template2 = PkmTemplate(pkm_type=pkm_type, max_hp=max_hp, move_roster=move_roster, pkm_id=1)
             move_combinations = itertools.combinations(range(10), 4)
             for idx in sample(list(move_combinations), 1):
                 pkm = template.gen_pkm(moves=list(idx))

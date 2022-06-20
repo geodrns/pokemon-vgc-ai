@@ -15,9 +15,11 @@ def main(args):
     n_epochs = args.n_epochs
     n_league_epochs = args.n_league_epochs
     base_port = args.base_port
-    roster = RandomPkmRosterGenerator().gen_roster()
+    generator = RandomPkmRosterGenerator()
+    roster = generator.gen_roster()
+    move_roster = generator.base_move_roster
     meta_data = StandardMetaData()
-    meta_data.set_moves_and_pkm(roster)
+    meta_data.set_moves_and_pkm(roster, move_roster)
     conns = []
     ce = ChampionshipEcosystem(roster, meta_data, debug=True)  # , store_teams=True)
     for i in range(n_agents):

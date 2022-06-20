@@ -5,8 +5,7 @@ from typing import Set
 from vgc.balance import DeltaRoster
 from vgc.behaviour import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, BalancePolicy
 from vgc.competition.Competition import Competitor
-from vgc.datatypes.Objects import PkmFullTeam, PkmTeamPrediction, GameStateView
-from vgc.network.Serialization import SerializedGameState, SerializedPkmRoster, SerializedPkmFullTeam
+from vgc.datatypes.Objects import PkmFullTeam, PkmTeam
 
 ENCODE_TIMEOUT = 1.0
 CLOSE_TIMEOUT = 1.0
@@ -19,8 +18,6 @@ class ProxyBattlePolicy(BattlePolicy):
         self.timeout: float = timeout
 
     def get_action(self, s) -> int:
-        if isinstance(s, GameStateView):
-            s = SerializedGameState(s)
         # self.conn.settimeout(self.timeout)
         self.conn.send(('BattlePolicy', 'get_action', s))
         action: int = self.conn.recv()
@@ -44,10 +41,8 @@ class ProxyTeamSelectionPolicy(TeamSelectionPolicy):
         self.timeout: float = timeout
 
     def get_action(self, s) -> Set[int]:
-        ptv0, ptv1 = s
         # self.conn.settimeout(self.timeout)
-        self.conn.send(
-            ('TeamSelectionPolicy', 'get_action', (SerializedPkmFullTeam(ptv0), SerializedPkmFullTeam(ptv1))))
+        self.conn.send(('TeamSelectionPolicy', 'get_action', s))
         action: Set[int] = self.conn.recv()
         return action
 
@@ -69,9 +64,8 @@ class ProxyTeamBuildPolicy(TeamBuildPolicy):
         self.timeout: float = timeout
 
     def get_action(self, s) -> PkmFullTeam:
-        md, pft, prv = s
         # self.conn.settimeout(self.timeout)
-        self.conn.send(('TeamBuildPolicy', 'get_action', (md, pft, SerializedPkmRoster(prv))))
+        self.conn.send(('TeamBuildPolicy', 'get_action', s))
         action: PkmFullTeam = self.conn.recv()
         return action
 
@@ -92,11 +86,10 @@ class ProxyTeamPredictor(TeamPredictor):
         self.conn: Client = conn
         self.timeout: float = timeout
 
-    def get_action(self, s) -> PkmTeamPrediction:
-        pftv, md = s
+    def get_action(self, s) -> PkmTeam:
         # self.conn.settimeout(self.timeout)
-        self.conn.send(('TeamPredictor', 'get_action', (SerializedPkmFullTeam(pftv), md)))
-        action: PkmTeamPrediction = self.conn.recv()[0]
+        self.conn.send(('TeamPredictor', 'get_action', s))
+        action: PkmTeam = self.conn.recv()[0]
         return action
 
     def requires_encode(self) -> bool:
@@ -117,9 +110,8 @@ class ProxyBalancePolicy(BalancePolicy):
         self.timeout: float = timeout
 
     def get_action(self, s) -> DeltaRoster:
-        prv, md, dc = s
         # self.conn.settimeout(self.timeout)
-        self.conn.send(('BalancePolicy', 'get_action', (SerializedPkmRoster(prv), md, dc)))
+        self.conn.send(('BalancePolicy', 'get_action', s))
         action: DeltaRoster = self.conn.recv()
         return action
 
