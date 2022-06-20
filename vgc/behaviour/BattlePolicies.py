@@ -253,26 +253,27 @@ class Minimax(BattlePolicy):
             current_parent = self.node_queue.pop(0)
             # expand nodes of current parent
             for i in range(DEFAULT_N_ACTIONS):
-                s, _, _, _ = current_parent.g.step([i, 99])  # opponent select an invalid switch action
-                # gnore any node in which any of the agent's Pokemon faints
-                if s[0].teams[0].active.hp == 0:
-                    continue
-                elif s[0].teams[1].active.hp == 0:
-                    a = i
-                    while current_parent != self.root:
-                        a = current_parent.a
-                        current_parent = current_parent.parent
-                    return a
-                else:
-                    node = BFSNode()
-                    node.parent = current_parent
-                    node.depth = node.parent.depth + 1
-                    node.a = i
-                    node.g = deepcopy(s[0])
-                    node.eval = minimax_eval(s[0], node.depth)
-                    self.node_queue.append(node)
-                    # this could be improved by inserting with order
-                    self.node_queue.sort(key=lambda n: n.eval, reverse=True)
+                for j in range(DEFAULT_N_ACTIONS):  # opponent acts with his best interest, we iterate all joint actions
+                    s, _, _, _ = current_parent.g.step([i, j])  # opponent select an invalid switch action
+                    # gnore any node in which any of the agent's Pokemon faints
+                    if s[0].teams[0].active.hp == 0:
+                        continue
+                    elif s[0].teams[1].active.hp == 0:
+                        a = i
+                        while current_parent != self.root:
+                            a = current_parent.a
+                            current_parent = current_parent.parent
+                        return a
+                    else:
+                        node = BFSNode()
+                        node.parent = current_parent
+                        node.depth = node.parent.depth + 1
+                        node.a = i
+                        node.g = deepcopy(s[0])
+                        node.eval = minimax_eval(s[0], node.depth)
+                        self.node_queue.append(node)
+                        # this could be improved by inserting with order
+                        self.node_queue.sort(key=lambda n: n.eval, reverse=True)
         # if victory is not possible return arbitrary action
         return 0
 

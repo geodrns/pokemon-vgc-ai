@@ -10,7 +10,7 @@ def main():
     roster = RandomPkmRosterGenerator().gen_roster()
     tg = RandomTeamFromRoster(roster)
     c0 = ExampleCompetitor("Player 1")
-    c0._battle_policy = PrunedBFS()  # switch agent to test
+    c0._battle_policy = Minimax()  # switch agent to test
     cm0 = CompetitorManager(c0)
     cm0.team = tg.get_team()
     c1 = ExampleCompetitor("Player 2")
