@@ -123,9 +123,9 @@ class MetaData(ABC):
         def get_n_teams(self) -> int
 ```
 
-Several standard methods can be used to query uusage and winrate information of isolated moves, pokemon and teams.
+Several standard methods can be used to query usage and winrate information of isolated moves, pokemon and teams.
 
-### Create My VGC AI Agent
+### Create My Battle Policy
 
 The battle policy must inherit from `BattlePolicy` (example bellow). The team build policy must inherit from
 `TeamBuildPolicy`.
@@ -162,6 +162,27 @@ class MyVGCBattlePolicy(BattlePolicy):
 If you want to receive the `GameState` then your `BattlePolicy.requires_encode` must return `False`. If you want to
 receive automatically the standard encoded game state as `get_action(self, s: List[float])` your
 `BattlePolicy.requires_encode` must return `True`.
+
+### Forward Model
+
+The `GameState` provided to you is in reality a `PkmBattleEnv` object (which inherits from `GameState`), so you can 
+forward the game state using the openAI gym method `step` providing the joint action. Note that only public or predicted
+information will be available (if a move is unknown it will be replaced by a normal type `PkmMove`, and same for the 
+`Pkm`), with no effects and a base move power and hp.
+
+```python
+ def get_action(self, g) -> int:  # g: PkmBattleEnv
+    my_action = 0
+    opp_action = 0
+    s, _, _, _ = g.step([my_action, opp_action])
+    g = s[0]  # my game state view (first iteration)
+    my_action = 1
+    opp_action = 1
+    s, _, _, _ = g.step([my_action, opp_action])
+    g = s[0]  # my game state view (second iteration)
+```
+
+### Create My VGC AI Agent
 
 To implement a VGC competitor agent you need to create an implementation of the class `Competitor` and override its
 multiple methods that return the various types of behaviours that will be called during an ecosystem simulation.
