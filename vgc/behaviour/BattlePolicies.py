@@ -302,6 +302,7 @@ class PrunedBFS(BattlePolicy):
                     for move in teams[1].active.moves:
                         if move.power > 40.0 and TYPE_CHART_MULTIPLIER[move.type][teams[0].active.type] > 1.0:
                             continue
+                # assume opponent follows OneTurnLookahead strategy
                 j = self.opp.get_action(GameState((teams[1], teams[0]), current_parent.g.weather))
                 s = current_parent.g.step([i, j])
                 if s.teams[0].active.hp == 0:
