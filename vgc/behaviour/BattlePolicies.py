@@ -177,18 +177,19 @@ class BFSNode:
         self.a = None
         self.g = None
         self.parent = None
+        self.depth = 0
 
 
 class BreadthFirstSearch(BattlePolicy):
     """
     Basic tree search algorithm that traverses nodes in level order until it finds a state in which the current opponent
     Pokemon is fainted. As a non-adversarial algorithm, the agent selfishly assumes that the opponent uses ”forceskip”
-    by selecting an invalid switch action.
+    (by selecting an invalid switch action).
     Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
     """
 
     def __int__(self):
-        self.root = BFSNode
+        self.root = BFSNode()
         self.node_queue: List = [self.root]
 
     def requires_encode(self) -> bool:
@@ -225,8 +226,14 @@ class BreadthFirstSearch(BattlePolicy):
 class Minimax(BattlePolicy):  # TODO Minimax
     """
     Tree search algorithm that deals with adversarial paradigms by assuming the opponent acts in their best interest.
+    Each node in this tree represents the worst case scenario that would occur if the player had chosen a specific
+    choice.
     Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
     """
+
+    def __int__(self):
+        self.root = BFSNode()
+        self.node_queue: List = [self.root]
 
     def requires_encode(self) -> bool:
         return False
@@ -235,14 +242,44 @@ class Minimax(BattlePolicy):  # TODO Minimax
         pass
 
     def get_action(self, g: PkmBattleEnv) -> int:
-        pass
+        self.root.g = g
+        while len(self.node_queue) > 0:
+            current_parent = self.node_queue.pop()
+            # expand nodes of current parent
+            for i in range(DEFAULT_N_ACTIONS):
+                s = current_parent.g.step([i, 99])  # opponent select an invalid switch action
+                if s.teams[0].active.hp == 0:
+                    continue
+                elif s.teams[1].active.hp == 0:
+                    a = i
+                    while current_parent != self.root:
+                        a = current_parent.a
+                        current_parent = current_parent.parent
+                    return a
+                else:
+                    node = BFSNode()
+                    node.parent = current_parent
+                    node.a = i
+                    node.g = deepcopy(s)
+                    self.node_queue.append(node)
+        # if victory is not possible return arbitrary action
+        return 0
 
 
-class PrunedBFS(BattlePolicy):  # TODO PrunedBFS
+class PrunedBFS(BattlePolicy):
     """
     Utilize domain knowledge as a cost-cutting measure by making modifications to the Breadth First Search agent.
+    We do not simulate any actions that involve using a damaging move with a resisted type, nor does it simulate any
+    actions that involve switching to a Pokemon with a subpar type matchup. Additionally, rather than selfishly
+    assuming the opponent skips their turn in each simulation, the agent assumes its opponent is a One Turn Lookahead
+    agent.
     Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
     """
+
+    def __int__(self):
+        self.root = BFSNode()
+        self.node_queue: List = [self.root]
+        self.opp = OneTurnLookahead()
 
     def requires_encode(self) -> bool:
         return False
@@ -251,7 +288,38 @@ class PrunedBFS(BattlePolicy):  # TODO PrunedBFS
         pass
 
     def get_action(self, g: PkmBattleEnv) -> int:
-        pass
+        self.root.g = g
+        while len(self.node_queue) > 0:
+            current_parent = self.node_queue.pop()
+            # expand nodes of current parent
+            for i in range(DEFAULT_N_ACTIONS):
+                teams = current_parent.g.teams
+                # skip traversing tree with non very effective moves
+                if i < 4 and TYPE_CHART_MULTIPLIER[teams[0].active.moves[i].type][teams[1].active.type] < 0.5:
+                    continue
+                # skip traversing tree with switches to pokemons that are a bad type matchup against opponent active
+                if i >= 4:
+                    for move in teams[1].active.moves:
+                        if move.power > 40.0 and TYPE_CHART_MULTIPLIER[move.type][teams[0].active.type] > 1.0:
+                            continue
+                j = self.opp.get_action(GameState((teams[1], teams[0]), current_parent.g.weather))
+                s = current_parent.g.step([i, j])
+                if s.teams[0].active.hp == 0:
+                    continue
+                elif s.teams[1].active.hp == 0:
+                    a = i
+                    while current_parent != self.root:
+                        a = current_parent.a
+                        current_parent = current_parent.parent
+                    return a
+                else:
+                    node = BFSNode()
+                    node.parent = current_parent
+                    node.a = i
+                    node.g = deepcopy(s)
+                    self.node_queue.append(node)
+        # if victory is not possible return arbitrary action
+        return 0
 
 
 class GUIPlayer(BattlePolicy):
@@ -268,6 +336,9 @@ class GUIPlayer(BattlePolicy):
         layout = [[self.weather], [self.opponent], [self.active], self.moves] + self.party
         self.window = sg.Window('Pokemon Battle Engine', layout)
         self.window.Finalize()
+
+    def requires_encode(self) -> bool:
+        return False
 
     def get_action(self, g: GameState) -> int:
         """
