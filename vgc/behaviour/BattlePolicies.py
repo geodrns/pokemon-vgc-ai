@@ -178,6 +178,7 @@ class BFSNode:
         self.g = None
         self.parent = None
         self.depth = 0
+        self.eval = 0.0
 
 
 class BreadthFirstSearch(BattlePolicy):
@@ -223,7 +224,13 @@ class BreadthFirstSearch(BattlePolicy):
         return 0
 
 
-class Minimax(BattlePolicy):  # TODO Minimax
+def minimax_eval(s: GameState, depth):
+    mine = s.teams[0].active
+    opp = s.teams[1].active
+    return mine.hp / mine.max_hp - 3 * opp.hp / opp.max_hp - 0.3 * depth
+
+
+class Minimax(BattlePolicy):
     """
     Tree search algorithm that deals with adversarial paradigms by assuming the opponent acts in their best interest.
     Each node in this tree represents the worst case scenario that would occur if the player had chosen a specific
@@ -248,6 +255,7 @@ class Minimax(BattlePolicy):  # TODO Minimax
             # expand nodes of current parent
             for i in range(DEFAULT_N_ACTIONS):
                 s = current_parent.g.step([i, 99])  # opponent select an invalid switch action
+                # gnore any node in which any of the agent's Pokemon faints
                 if s.teams[0].active.hp == 0:
                     continue
                 elif s.teams[1].active.hp == 0:
@@ -259,9 +267,13 @@ class Minimax(BattlePolicy):  # TODO Minimax
                 else:
                     node = BFSNode()
                     node.parent = current_parent
+                    node.depth = node.parent.depth + 1
                     node.a = i
                     node.g = deepcopy(s)
+                    node.eval = minimax_eval(s, node.depth)
                     self.node_queue.append(node)
+                    # this could be improved by inserting with order
+                    self.node_queue.sort(key=lambda n: n.eval, reverse=True)
         # if victory is not possible return arbitrary action
         return 0
 
@@ -300,7 +312,7 @@ class PrunedBFS(BattlePolicy):
                 # skip traversing tree with switches to pokemons that are a bad type matchup against opponent active
                 if i >= 4:
                     for move in teams[1].active.moves:
-                        if move.power > 40.0 and TYPE_CHART_MULTIPLIER[move.type][teams[0].active.type] > 1.0:
+                        if move.power > 0.0 and TYPE_CHART_MULTIPLIER[move.type][teams[0].active.type] > 1.0:
                             continue
                 # assume opponent follows OneTurnLookahead strategy
                 j = self.opp.get_action(GameState((teams[1], teams[0]), current_parent.g.weather))
