@@ -43,7 +43,8 @@ class PkmBattleEnv(gym.Env, GameState):
         self.predictions = [team1_p, team0_p]
 
     def __get_forward_env(self, player: int):
-        env = PkmBattleEnv((deepcopy(self.teams[player]), deepcopy(self.teams[not player])), deepcopy(self.weather))
+        env = PkmBattleEnv((deepcopy(self.teams[player]), deepcopy(self.teams[not player])), deepcopy(self.weather),
+                           encode=self.requires_encode)
         env.n_turns_no_clear = self.n_turns_no_clear
         env.turn = self.turn
         env.winner = self.winner

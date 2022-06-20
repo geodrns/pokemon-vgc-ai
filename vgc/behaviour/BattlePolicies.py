@@ -188,7 +188,7 @@ class BreadthFirstSearch(BattlePolicy):
     Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
     """
 
-    def __int__(self):
+    def __init__(self):
         self.root = BFSNode()
         self.node_queue: List = [self.root]
 
@@ -204,10 +204,10 @@ class BreadthFirstSearch(BattlePolicy):
             current_parent = self.node_queue.pop()
             # expand nodes of current parent
             for i in range(DEFAULT_N_ACTIONS):
-                s = current_parent.g.step([i, 99])  # opponent select an invalid switch action
-                if s.teams[0].active.hp == 0:
+                s, _, _, _ = current_parent.g.step([i, 99])  # opponent select an invalid switch action
+                if s[0].teams[0].active.hp == 0:
                     continue
-                elif s.teams[1].active.hp == 0:
+                elif s[0].teams[1].active.hp == 0:
                     a = i
                     while current_parent != self.root:
                         a = current_parent.a
@@ -217,7 +217,7 @@ class BreadthFirstSearch(BattlePolicy):
                     node = BFSNode()
                     node.parent = current_parent
                     node.a = i
-                    node.g = deepcopy(s)
+                    node.g = deepcopy(s[0])
                     self.node_queue.append(node)
         # if victory is not possible return arbitrary action
         return 0
@@ -237,7 +237,7 @@ class Minimax(BattlePolicy):
     Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
     """
 
-    def __int__(self):
+    def __init__(self):
         self.root = BFSNode()
         self.node_queue: List = [self.root]
 
@@ -253,11 +253,11 @@ class Minimax(BattlePolicy):
             current_parent = self.node_queue.pop()
             # expand nodes of current parent
             for i in range(DEFAULT_N_ACTIONS):
-                s = current_parent.g.step([i, 99])  # opponent select an invalid switch action
+                s, _, _, _ = current_parent.g.step([i, 99])  # opponent select an invalid switch action
                 # gnore any node in which any of the agent's Pokemon faints
-                if s.teams[0].active.hp == 0:
+                if s[0].teams[0].active.hp == 0:
                     continue
-                elif s.teams[1].active.hp == 0:
+                elif s[0].teams[1].active.hp == 0:
                     a = i
                     while current_parent != self.root:
                         a = current_parent.a
@@ -268,8 +268,8 @@ class Minimax(BattlePolicy):
                     node.parent = current_parent
                     node.depth = node.parent.depth + 1
                     node.a = i
-                    node.g = deepcopy(s)
-                    node.eval = minimax_eval(s, node.depth)
+                    node.g = deepcopy(s[0])
+                    node.eval = minimax_eval(s[0], node.depth)
                     self.node_queue.append(node)
                     # this could be improved by inserting with order
                     self.node_queue.sort(key=lambda n: n.eval, reverse=True)
@@ -287,7 +287,7 @@ class PrunedBFS(BattlePolicy):
     Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
     """
 
-    def __int__(self):
+    def __init__(self):
         self.root = BFSNode()
         self.node_queue: List = [self.root]
         self.opp = OneTurnLookahead()
@@ -315,10 +315,10 @@ class PrunedBFS(BattlePolicy):
                             continue
                 # assume opponent follows OneTurnLookahead strategy
                 j = self.opp.get_action(GameState((teams[1], teams[0]), current_parent.g.weather))
-                s = current_parent.g.step([i, j])
-                if s.teams[0].active.hp == 0:
+                s, _, _, _ = current_parent.g.step([i, j])
+                if s[0].teams[0].active.hp == 0:
                     continue
-                elif s.teams[1].active.hp == 0:
+                elif s[0].teams[1].active.hp == 0:
                     a = i
                     while current_parent != self.root:
                         a = current_parent.a
@@ -328,7 +328,7 @@ class PrunedBFS(BattlePolicy):
                     node = BFSNode()
                     node.parent = current_parent
                     node.a = i
-                    node.g = deepcopy(s)
+                    node.g = deepcopy(s[0])
                     self.node_queue.append(node)
         # if victory is not possible return arbitrary action
         return 0
