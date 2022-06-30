@@ -71,6 +71,6 @@ def legal_team(team: PkmFullTeam, roster: PkmRoster) -> bool:
 class CompetitorManager:
 
     def __init__(self, c: Competitor):
-        self.competitor = c
+        self.competitor: Competitor = c
         self.team: Optional[PkmFullTeam] = None
         self.elo: float = INITIAL

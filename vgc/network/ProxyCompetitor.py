@@ -5,7 +5,7 @@ from typing import Set
 from vgc.balance import DeltaRoster
 from vgc.behaviour import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, BalancePolicy
 from vgc.competition.Competition import Competitor
-from vgc.datatypes.Objects import PkmFullTeam, PkmTeam
+from vgc.datatypes.Objects import PkmFullTeam, PkmTeam, PkmRoster
 
 ENCODE_TIMEOUT = 1.0
 CLOSE_TIMEOUT = 1.0
@@ -62,6 +62,10 @@ class ProxyTeamBuildPolicy(TeamBuildPolicy):
     def __init__(self, conn: Client, timeout: float):
         self.conn: Client = conn
         self.timeout: float = timeout
+
+    def set_roster(self, roster: PkmRoster):
+        # self.conn.settimeout(self.timeout)
+        self.conn.send(('TeamBuildPolicy', 'set_roster', roster))
 
     def get_action(self, s) -> PkmFullTeam:
         # self.conn.settimeout(self.timeout)

@@ -63,6 +63,8 @@ def softmax(x):
 def select_next(matchup_table, opp_policy, n_pkms, members):
     policy = softmax(np.cross(matchup_table, opp_policy))
     p = np.random.choice(n_pkms, p=policy)
+    while p in members:
+        p = np.random.choice(n_pkms, p=policy)
     members.append(p)
     if len(members) < 3:
         for i in range(n_pkms):
