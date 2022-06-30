@@ -1,6 +1,6 @@
 import random
 from copy import deepcopy
-from typing import List, Tuple
+from typing import List
 
 import numpy as np
 
@@ -12,10 +12,13 @@ from vgc.datatypes.Objects import Pkm, PkmTemplate, PkmFullTeam, PkmRoster, PkmT
 from vgc.engine.PkmBattleEnv import PkmBattleEnv
 
 
-class RandomTeamBuildPolicy(TeamBuildPolicy):
+class RandomTeamBuilder(TeamBuildPolicy):
     """
     Agents that selects teams randomly.
     """
+
+    def __init__(self):
+        self.roster = None
 
     def requires_encode(self) -> bool:
         return False
@@ -23,11 +26,11 @@ class RandomTeamBuildPolicy(TeamBuildPolicy):
     def close(self):
         pass
 
-    def pre_processing(self, roster: PkmRoster):
-        pass
+    def set_roster(self, roster: PkmRoster):
+        self.roster = roster
 
-    def get_action(self, d: Tuple[MetaData, PkmRoster]) -> PkmFullTeam:
-        roster = list(d[1])
+    def get_action(self, meta: MetaData) -> PkmFullTeam:
+        roster = list(self.roster)
         pre_selection: List[PkmTemplate] = [roster[i] for i in random.sample(range(len(roster)), DEFAULT_TEAM_SIZE)]
         team: List[Pkm] = []
         for pt in pre_selection:
@@ -35,10 +38,36 @@ class RandomTeamBuildPolicy(TeamBuildPolicy):
         return PkmFullTeam(team)
 
 
+def run_battles(pkm0, pkm1, agent0, agent1):
+    wins = [0, 0]
+    t0 = PkmTeam([pkm0])
+    t1 = PkmTeam([pkm1])
+    env = PkmBattleEnv((t0, t1), encode=(agent0.requires_encode(), agent1.requires_encode()))
+    for _ in range(10):
+        s = env.reset()
+        t = False
+        while not t:
+            a0 = agent0.get_action(s[0])
+            a1 = agent1.get_action(s[1])
+            s, _, t, _ = env.step([a0, a1])
+        wins[env.winner] += 1
+    return wins
+
+
 def softmax(x):
     """Compute softmax values for each sets of scores in x."""
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum(axis=0)
+
+
+def select_next(matchup_table, opp_policy, n_pkms, members):
+    policy = softmax(np.cross(matchup_table, opp_policy))
+    p = np.random.choice(n_pkms, p=policy)
+    members.append(p)
+    if len(members) < 3:
+        for i in range(n_pkms):
+            matchup_table[p][i] = 0.
+        select_next(matchup_table, opp_policy, n_pkms, members)
 
 
 class IndividualPkmCounter(TeamBuildPolicy):
@@ -63,49 +92,25 @@ class IndividualPkmCounter(TeamBuildPolicy):
     def close(self):
         pass
 
-    def pre_processing(self, roster: PkmRoster):
+    def set_roster(self, roster: PkmRoster):
         self.pkms = []
         for pt in roster:
             self.pkms.append(pt.gen_pkm([0, 1, 2, 3]))
         n_pkms = len(roster)
         self.matchup_table = np.zeros((n_pkms, n_pkms))
-        for i, p0 in enumerate(self.pkms):
-            for j, p1 in enumerate(self.pkms[i:]):
+        for i, pkm0 in enumerate(self.pkms):
+            for j, pkm1 in enumerate(self.pkms[i:]):
                 if j == 0:  # p0 == p1
                     self.matchup_table[i][i] = 0.5
                 else:
-                    wins = [0, 0]
-                    t0 = PkmTeam([p0])
-                    t1 = PkmTeam([p1])
-                    env = PkmBattleEnv((t0, t1), encode=(self.agent0.requires_encode(), self.agent1.requires_encode()))
-                    for _ in range(10):
-                        s = env.reset()
-                        t = False
-                        while not t:
-                            a0 = self.agent0.get_action(s[0])
-                            a1 = self.agent1.get_action(s[1])
-                            s, _, t, _ = env.step([a0, a1])
-                        wins[env.winner] += 1
-                    w0 = wins[0] / 10.0
-                    self.matchup_table[i][i + j] = w0
-                    self.matchup_table[i + j][i] = 1.0 - w0
+                    wins = run_battles(pkm0, pkm1, self.agent0, self.agent1)
+                    self.matchup_table[i][i + j] = wins[0] / 10.0
+                    self.matchup_table[i + j][i] = wins[1] / 10.0
 
-    def get_action(self, d: Tuple[MetaData, PkmRoster]) -> PkmFullTeam:
-        selected: List[int] = []
+    def get_action(self, meta: MetaData) -> PkmFullTeam:
+        members: List[int] = []
         n_pkms = len(self.pkms)
         matchup_table = deepcopy(self.matchup_table)
-        meta = np.array([1.0] * n_pkms)
-        policy = softmax(np.cross(matchup_table, meta))
-        p0 = np.random.choice(n_pkms, p=policy)
-        selected.append(p0)
-        for i in range(n_pkms):
-            matchup_table[p0][i] = 0.
-        policy = softmax(np.cross(matchup_table, meta))
-        p1 = np.random.choice(n_pkms, p=policy)
-        selected.append(p1)
-        for i in range(n_pkms):
-            matchup_table[p1][i] = 0.
-        policy = softmax(np.cross(matchup_table, meta))
-        p2 = np.random.choice(n_pkms, p=policy)
-        selected.append(p2)
-        return PkmFullTeam([self.pkms[selected[0]], self.pkms[selected[1]], self.pkms[selected[2]]])
+        opp_policy = np.array([1.0] * n_pkms)
+        select_next(matchup_table, opp_policy, n_pkms, members)
+        return PkmFullTeam([self.pkms[members[0]], self.pkms[members[1]], self.pkms[members[2]]])
