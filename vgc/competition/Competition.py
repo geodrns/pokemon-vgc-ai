@@ -96,7 +96,7 @@ class TreeChampionship(Championship):
         self.gen = gen
 
     def register(self, cm: CompetitorManager):
-        cm.team = cm.competitor.team_build_policy.get_action((self.meta_data, cm.team, self.roster))
+        cm.team = cm.competitor.team_build_policy.get_action((self.meta_data, self.roster))
         self.competitors.append(cm)
 
     def new_tournament(self):
