@@ -5,8 +5,8 @@ from typing import List, Tuple
 from elo import rate_1vs1
 
 from vgc.balance.meta import MetaData
-from vgc.competition.Competitor import CompetitorManager
 from vgc.competition.BattleMatch import BattleMatch
+from vgc.competition.Competitor import CompetitorManager
 from vgc.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
 
 

@@ -165,9 +165,9 @@ receive automatically the standard encoded game state as `get_action(self, s: Li
 
 ### Forward Model
 
-The `GameState` provided to you is in reality a `PkmBattleEnv` object (which inherits from `GameState`), so you can 
+The `GameState` provided to you is in reality a `PkmBattleEnv` object (which inherits from `GameState`), so you can
 forward the game state using the openAI gym method `step` providing the joint action. Note that only public or predicted
-information will be available (if a move is unknown it will be replaced by a normal type `PkmMove`, and same for the 
+information will be available (if a move is unknown it will be replaced by a normal type `PkmMove`, and same for the
 `Pkm`), with no effects and a base move power and hp.
 
 ```python

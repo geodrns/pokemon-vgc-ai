@@ -1,4 +1,4 @@
-from vgc.behaviour import BattlePolicy, TeamSelectionPolicy, BalancePolicy, TeamPredictor, TeamBuildPolicy
+from vgc.behaviour import BattlePolicy, TeamSelectionPolicy
 from vgc.behaviour.BattlePolicies import GUIPlayer, RandomPlayer
 from vgc.behaviour.TeamSelectionPolicies import GUITeamSelectionPolicy
 from vgc.competition.Competitor import Competitor
