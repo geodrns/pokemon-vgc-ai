@@ -183,6 +183,39 @@ information will be available (if a move is unknown it will be replaced by a nor
     g = s[0]  # my game state view (second iteration)
 ```
 
+### Create My Team Build Policy
+
+At the beginning of a championship, or during a meta-game balance competition, `set_roster` is called providing the
+information about the available roster. You can use that opportunity to store the roster or to make some preprocessing
+about the `Pkm` win rates.
+
+```python
+class MyVGCBuildPolicy(TeamBuildPolicy):
+    """
+    Agents that selects teams randomly.
+    """
+
+    def __init__(self):
+        self.roster = None
+
+    def requires_encode(self) -> bool:
+        return False
+
+    def close(self):
+        pass
+
+    def set_roster(self, roster: PkmRoster):
+        self.roster = roster
+
+    def get_action(self, meta: MetaData) -> PkmFullTeam:
+        roster = list(self.roster)
+        pre_selection: List[PkmTemplate] = [roster[i] for i in random.sample(range(len(roster)), DEFAULT_TEAM_SIZE)]
+        team: List[Pkm] = []
+        for pt in pre_selection:
+            team.append(pt.gen_pkm(random.sample(range(len(pt.move_roster)), DEFAULT_PKM_N_MOVES)))
+        return PkmFullTeam(team)
+```
+
 ### Create My VGC AI Agent
 
 To implement a VGC competitor agent you need to create an implementation of the class `Competitor` and override its
