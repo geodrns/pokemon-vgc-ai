@@ -1,40 +1,34 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from vgc.behaviour import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, BalancePolicy
-from vgc.behaviour.BalancePolicies import IdleBalancePolicy
-from vgc.behaviour.BattlePolicies import RandomPlayer
-from vgc.behaviour.TeamBuildPolicies import RandomTeamBuilder
-from vgc.behaviour.TeamPredictors import NullTeamPredictor
-from vgc.behaviour.TeamSelectionPolicies import RandomTeamSelectionPolicy
-
-random_battle_policy = RandomPlayer()
-random_selector_policy = RandomTeamSelectionPolicy()
-random_team_build_policy = RandomTeamBuilder()
-idle_balance_policy = IdleBalancePolicy()
-null_team_predictor = NullTeamPredictor()
 
 
 class Competitor(ABC):
 
     @property
+    @abstractmethod
     def battle_policy(self) -> BattlePolicy:
-        return random_battle_policy
+        pass
 
     @property
+    @abstractmethod
     def team_selection_policy(self) -> TeamSelectionPolicy:
-        return random_selector_policy
+        pass
 
     @property
+    @abstractmethod
     def team_build_policy(self) -> TeamBuildPolicy:
-        return random_team_build_policy
+        pass
 
     @property
+    @abstractmethod
     def team_predictor(self) -> TeamPredictor:
-        return null_team_predictor
+        pass
 
     @property
+    @abstractmethod
     def balance_policy(self) -> BalancePolicy:
-        return idle_balance_policy
+        pass
 
     @property
     def name(self) -> str:
