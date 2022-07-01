@@ -4,6 +4,11 @@
 
 ## Changelog
 
+### Version 2.1.0 (July 2022)
+
+1. Optimized team build flow with adapted API.
+2. Added more team build agents with examples.
+
 ### Version 2.0.0 (June 2022)
 
 1. Removed views data structure, game state can now be queried directly instead.
@@ -110,11 +115,7 @@ class MetaData(ABC):
 
     def get_global_pkm_usage(self, pkm_id: PkmId) -> float
 
-        def get_global_pkm_winrate(self, pkm_id: PkmId) -> float
-
         def get_global_move_usage(self, move: PkmMove) -> float
-
-        def get_global_move_winrate(self, move: PkmMove) -> float
 
         def get_pair_usage(self, pkm_ids: Tuple[PkmId, PkmId]) -> float
 
@@ -123,7 +124,7 @@ class MetaData(ABC):
         def get_n_teams(self) -> int
 ```
 
-Several standard methods can be used to query usage and winrate information of isolated moves, pokemon and teams.
+Several standard methods can be used to query usage rate information of isolated moves, pokemon and teams.
 
 ### Create My Battle Policy
 
@@ -292,6 +293,5 @@ Please cite this work if used.
 
 ## TODO
 
-* Add baseline team building agents.
 * Complete the balance track implementation.
 * Improve game state encoding performance.
