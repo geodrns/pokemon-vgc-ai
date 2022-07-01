@@ -1,7 +1,8 @@
 import operator
 
 from vgc.balance.meta import MetaData
-from vgc.competition import CompetitorManager, legal_team
+from vgc.competition import legal_team
+from vgc.competition.Competitor import CompetitorManager
 from vgc.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
 from vgc.datatypes.Objects import PkmRoster
 from vgc.ecosystem.BattleEcosystem import BattleEcosystem, Strategy
@@ -48,7 +49,7 @@ class ChampionshipEcosystem:
 
     def __set_new_team(self, cm: CompetitorManager):
         try:
-            cm.team = cm.competitor.team_build_policy.get_action((self.meta_data, self.roster))
+            cm.team = cm.competitor.team_build_policy.get_action(self.meta_data)
             if not legal_team(cm.team, self.roster):
                 cm.team = self.rand_gen.get_team()
         except:

@@ -4,8 +4,7 @@ from typing import Tuple, List, Optional
 
 from vgc.balance.meta import MetaData
 from vgc.behaviour import BattlePolicy
-from vgc.competition import CompetitorManager
-from vgc.competition.Competitor import Competitor
+from vgc.competition.Competitor import Competitor, CompetitorManager
 from vgc.datatypes.Constants import DEFAULT_MATCH_N_BATTLES, DEFAULT_TEAM_SIZE
 from vgc.datatypes.Objects import PkmFullTeam, PkmTeam
 from vgc.engine.HiddenInformation import hide_team

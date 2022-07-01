@@ -7,9 +7,9 @@ def main():
     roster = RandomPkmRosterGenerator().gen_roster()
     for pt in roster:
         print(pt)
-
     a = RandomTeamBuilder()
-    t = a.get_action((StandardMetaData(), None, roster))
+    a.set_roster(roster)
+    t = a.get_action(StandardMetaData())
     print(t)
 
 

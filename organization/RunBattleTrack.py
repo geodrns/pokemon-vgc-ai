@@ -1,7 +1,7 @@
 import argparse
 from multiprocessing.connection import Client
 
-from vgc.competition import CompetitorManager
+from vgc.competition.Competitor import CompetitorManager
 from vgc.competition.Competition import TreeChampionship
 from vgc.network.ProxyCompetitor import ProxyCompetitor
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator

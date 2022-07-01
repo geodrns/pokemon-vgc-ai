@@ -1,8 +1,3 @@
-from typing import Optional
-
-from elo import INITIAL
-
-from vgc.competition import Competitor
 from vgc.datatypes.Constants import BASE_HIT_POINTS
 from vgc.datatypes.Objects import PkmRoster, Pkm, PkmTemplate, PkmFullTeam, PkmMove
 from vgc.datatypes.Types import PkmStatus, PkmEntryHazard, WeatherCondition
@@ -66,11 +61,3 @@ def legal_team(team: PkmFullTeam, roster: PkmRoster) -> bool:
                 if not valid:
                     return False
     return True
-
-
-class CompetitorManager:
-
-    def __init__(self, c: Competitor):
-        self.competitor: Competitor = c
-        self.team: Optional[PkmFullTeam] = None
-        self.elo: float = INITIAL
