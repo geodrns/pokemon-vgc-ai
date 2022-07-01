@@ -1,5 +1,5 @@
 from vgc.balance.meta import StandardMetaData
-from vgc.behaviour.TeamBuildPolicies import RandomTeamBuildPolicy
+from vgc.behaviour.TeamBuildPolicies import RandomTeamBuilder
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 
@@ -7,9 +7,9 @@ def main():
     roster = RandomPkmRosterGenerator().gen_roster()
     for pt in roster:
         print(pt)
-
-    a = RandomTeamBuildPolicy()
-    t = a.get_action((StandardMetaData(), None, roster))
+    a = RandomTeamBuilder()
+    a.set_roster(roster)
+    t = a.get_action(StandardMetaData())
     print(t)
 
 

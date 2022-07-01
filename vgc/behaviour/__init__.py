@@ -39,7 +39,11 @@ class TeamSelectionPolicy(Behaviour):
 class TeamBuildPolicy(Behaviour):
 
     @abstractmethod
-    def get_action(self, s: Tuple[MetaData, PkmFullTeam, PkmRoster]) -> PkmFullTeam:
+    def set_roster(self, roster: PkmRoster):
+        pass
+
+    @abstractmethod
+    def get_action(self, s: MetaData) -> PkmFullTeam:
         pass
 
 

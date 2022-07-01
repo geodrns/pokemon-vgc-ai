@@ -4,7 +4,7 @@ from multiprocessing.connection import Client
 from agent.Example_Competitor import ExampleCompetitor
 from vgc.balance.meta import StandardMetaData
 from vgc.balance.restriction import VGCDesignConstraints
-from vgc.competition import CompetitorManager
+from vgc.competition.Competitor import CompetitorManager
 from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
 from vgc.network.ProxyCompetitor import ProxyCompetitor
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator

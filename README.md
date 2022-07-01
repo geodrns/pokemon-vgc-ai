@@ -4,6 +4,11 @@
 
 ## Changelog
 
+### Version 2.1.0 (July 2022)
+
+1. Optimized team build flow with adapted API.
+2. Added more team build agents with examples.
+
 ### Version 2.0.0 (June 2022)
 
 1. Removed views data structure, game state can now be queried directly instead.
@@ -110,11 +115,7 @@ class MetaData(ABC):
 
     def get_global_pkm_usage(self, pkm_id: PkmId) -> float
 
-        def get_global_pkm_winrate(self, pkm_id: PkmId) -> float
-
         def get_global_move_usage(self, move: PkmMove) -> float
-
-        def get_global_move_winrate(self, move: PkmMove) -> float
 
         def get_pair_usage(self, pkm_ids: Tuple[PkmId, PkmId]) -> float
 
@@ -123,7 +124,7 @@ class MetaData(ABC):
         def get_n_teams(self) -> int
 ```
 
-Several standard methods can be used to query usage and winrate information of isolated moves, pokemon and teams.
+Several standard methods can be used to query usage rate information of isolated moves, pokemon and teams.
 
 ### Create My Battle Policy
 
@@ -165,9 +166,9 @@ receive automatically the standard encoded game state as `get_action(self, s: Li
 
 ### Forward Model
 
-The `GameState` provided to you is in reality a `PkmBattleEnv` object (which inherits from `GameState`), so you can 
+The `GameState` provided to you is in reality a `PkmBattleEnv` object (which inherits from `GameState`), so you can
 forward the game state using the openAI gym method `step` providing the joint action. Note that only public or predicted
-information will be available (if a move is unknown it will be replaced by a normal type `PkmMove`, and same for the 
+information will be available (if a move is unknown it will be replaced by a normal type `PkmMove`, and same for the
 `Pkm`), with no effects and a base move power and hp.
 
 ```python
@@ -180,6 +181,39 @@ information will be available (if a move is unknown it will be replaced by a nor
     opp_action = 1
     s, _, _, _ = g.step([my_action, opp_action])
     g = s[0]  # my game state view (second iteration)
+```
+
+### Create My Team Build Policy
+
+At the beginning of a championship, or during a meta-game balance competition, `set_roster` is called providing the
+information about the available roster. You can use that opportunity to store the roster or to make some preprocessing
+about the `Pkm` win rates.
+
+```python
+class MyVGCBuildPolicy(TeamBuildPolicy):
+    """
+    Agents that selects teams randomly.
+    """
+
+    def __init__(self):
+        self.roster = None
+
+    def requires_encode(self) -> bool:
+        return False
+
+    def close(self):
+        pass
+
+    def set_roster(self, roster: PkmRoster):
+        self.roster = roster
+
+    def get_action(self, meta: MetaData) -> PkmFullTeam:
+        roster = list(self.roster)
+        pre_selection: List[PkmTemplate] = [roster[i] for i in random.sample(range(len(roster)), DEFAULT_TEAM_SIZE)]
+        team: List[Pkm] = []
+        for pt in pre_selection:
+            team.append(pt.gen_pkm(random.sample(range(len(pt.move_roster)), DEFAULT_PKM_N_MOVES)))
+        return PkmFullTeam(team)
 ```
 
 ### Create My VGC AI Agent
@@ -292,6 +326,5 @@ Please cite this work if used.
 
 ## TODO
 
-* Add baseline team building agents.
 * Complete the balance track implementation.
 * Improve game state encoding performance.

@@ -1,7 +1,8 @@
 import operator
 
 from vgc.balance.meta import MetaData
-from vgc.competition import CompetitorManager, legal_team
+from vgc.competition import legal_team
+from vgc.competition.Competitor import CompetitorManager
 from vgc.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
 from vgc.datatypes.Objects import PkmRoster
 from vgc.ecosystem.BattleEcosystem import BattleEcosystem, Strategy
@@ -24,6 +25,7 @@ class ChampionshipEcosystem:
 
     def run(self, n_epochs: int, n_league_epochs: int):
         epoch = 0
+        self.__reveal_roster_for_competitors()
         while epoch < n_epochs:
             if self.debug:
                 print("TEAM BUILD\n")
@@ -38,9 +40,16 @@ class ChampionshipEcosystem:
             self.league.run(n_league_epochs)
             epoch += 1
 
+    def __reveal_roster_for_competitors(self):
+        for cm in self.league.competitors:
+            try:
+                cm.competitor.team_build_policy.set_roster(self.roster)
+            except:
+                pass
+
     def __set_new_team(self, cm: CompetitorManager):
         try:
-            cm.team = cm.competitor.team_build_policy.get_action((self.meta_data, cm.team, self.roster))
+            cm.team = cm.competitor.team_build_policy.get_action(self.meta_data)
             if not legal_team(cm.team, self.roster):
                 cm.team = self.rand_gen.get_team()
         except:

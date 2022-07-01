@@ -3,9 +3,8 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from vgc.balance.meta import MetaData
-from vgc.competition import CompetitorManager
 from vgc.competition.BattleMatch import BattleMatch, RandomTeamsBattleMatch
-from vgc.competition.Competitor import Competitor
+from vgc.competition.Competitor import Competitor, CompetitorManager
 from vgc.datatypes.Objects import PkmRoster
 from vgc.util.generator.PkmTeamGenerators import PkmTeamGenerator
 
@@ -96,7 +95,9 @@ class TreeChampionship(Championship):
         self.gen = gen
 
     def register(self, cm: CompetitorManager):
-        cm.team = cm.competitor.team_build_policy.get_action((self.meta_data, cm.team, self.roster))
+        team_builder = cm.competitor.team_build_policy
+        team_builder.set_roster(self.roster)
+        cm.team = team_builder.get_action(self.meta_data)
         self.competitors.append(cm)
 
     def new_tournament(self):
