@@ -11,7 +11,7 @@ np.set_printoptions(threshold=sys.maxsize)
 
 
 def main():
-    roster = RandomPkmRosterGenerator(roster_size=50).gen_roster()
+    roster = RandomPkmRosterGenerator().gen_roster()
     team_builder = IndividualPkmCounter()
     t = time.time()
     team_builder.set_roster(roster)
