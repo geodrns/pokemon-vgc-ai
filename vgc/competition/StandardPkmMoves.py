@@ -63,7 +63,7 @@ EarthPower = PkmMove(90., 1., 10, PkmType.GROUND, "Earth Power", stat=PkmStat.DE
 Roost = PkmMove(0., 1., 5, PkmType.FLYING, "Roost", recover=80., target=0, prob=1.)
 Chatter = PkmMove(65., 1., 20, PkmType.FLYING, "Chatter", status=PkmStatus.CONFUSED, prob=1.)
 Hurricane = PkmMove(110., .7, 10, PkmType.FLYING, "Hurricane", status=PkmStatus.CONFUSED, prob=.3)
-WingAttack = PkmMove(60., 100., 20, PkmType.FLYING, "Wing Attack")
+WingAttack = PkmMove(60., 1., 20, PkmType.FLYING, "Wing Attack")
 
 # Psychic Moves
 CalmMind = PkmMove(0., 1., 5, PkmType.PSYCHIC, "Calm Mind", stat=PkmStat.DEFENSE, stage=2, target=0, prob=1.)
