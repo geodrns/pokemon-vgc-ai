@@ -161,13 +161,13 @@ class StandardMetaData(MetaData):
             self._total_move_usage -= 12
 
     def get_global_pkm_usage(self, pkm_id: PkmId) -> float:
-        return self._pkm_usage[pkm_id] / self._total_pkm_usage
+        return self._pkm_usage[pkm_id] / max(1.0, self._total_pkm_usage)
 
     # def get_global_pkm_winrate(self, pkm_id: PkmId) -> float:
     #    return self._pkm_wins[pkm_id] / self._pkm_usage[pkm_id]
 
     def get_global_move_usage(self, move: PkmMove) -> float:
-        return self._move_usage[move.move_id] / self._total_move_usage
+        return self._move_usage[move.move_id] / max(1.0, self._total_move_usage)
 
     # def get_global_move_winrate(self, move: PkmMove) -> float:
     #    return self._move_wins[move.move_id] / self._move_usage[move.move_id]
