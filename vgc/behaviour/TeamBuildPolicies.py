@@ -40,7 +40,7 @@ class RandomTeamBuilder(TeamBuildPolicy):
 
 class FixedTeamBuilder(TeamBuildPolicy):
     """
-    Agents that selects teams randomly.
+    Agents that always selects the same team.
     """
 
     def __init__(self):
