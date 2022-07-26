@@ -38,6 +38,32 @@ class RandomTeamBuilder(TeamBuildPolicy):
         return PkmFullTeam(team)
 
 
+class FixedTeamBuilder(TeamBuildPolicy):
+    """
+    Agents that selects teams randomly.
+    """
+
+    def __init__(self):
+        self.roster = None
+
+    def requires_encode(self) -> bool:
+        return False
+
+    def close(self):
+        pass
+
+    def set_roster(self, roster: PkmRoster):
+        self.roster = roster
+
+    def get_action(self, meta: MetaData) -> PkmFullTeam:
+        roster = list(self.roster)
+        pre_selection: List[PkmTemplate] = roster[0:3]
+        team: List[Pkm] = []
+        for pt in pre_selection:
+            team.append(pt.gen_pkm([0, 1, 2, 3]))
+        return PkmFullTeam(team)
+
+
 def run_battles(pkm0, pkm1, agent0, agent1, n_battles):
     wins = [0, 0]
     t0 = PkmTeam([pkm0])
