@@ -53,7 +53,7 @@ class ChampionshipEcosystem:
             if not legal_team(cm.team, self.roster):
                 cm.team = self.rand_gen.get_team()
         except:
-            cm.team = cm.team
+            cm.team = cm.team if cm.team is not None else self.rand_gen.get_team()
 
     def strongest(self) -> CompetitorManager:
         return max(self.league.competitors, key=operator.attrgetter('elo'))

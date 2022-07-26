@@ -63,9 +63,9 @@ def softmax(x):
 def select_next(matchup_table, n_pkms, members):
     average_winrate = np.sum(matchup_table, axis=1) / n_pkms
     policy = softmax(average_winrate)
-    p = np.random.choice(n_pkms, p=softmax(average_winrate))
+    p = np.random.choice(n_pkms, 1, p=policy)[0]
     while p in members:
-        p = np.random.choice(n_pkms, p=policy)
+        p = np.random.choice(n_pkms, 1, p=policy)[0]
     members.append(p)
     if len(members) < 3:
         for i in range(n_pkms):
@@ -82,14 +82,14 @@ class IndividualPkmCounter(TeamBuildPolicy):
     unpredictable fashion.
     Source: https://ieee-cog.org/2021/assets/papers/paper_192.pdf
     """
+    matchup_table = None
+    n_pkms = -1
+    pkms = None
 
     def __init__(self, agent0: BattlePolicy = TypeSelector(), agent1: BattlePolicy = TypeSelector(), n_battles=10):
-        self.matchup_table = None
         self.agent0 = agent0
         self.agent1 = agent1
         self.n_battles = n_battles
-        self.pkms = None
-        self.n_pkms = -1
 
     def requires_encode(self) -> bool:
         return False
@@ -102,22 +102,25 @@ class IndividualPkmCounter(TeamBuildPolicy):
         Instead of storing the roster, we fill a pairwise match up table where each entry has the estimated win rate
         from a row pkm against a column pkm.
         """
-        self.pkms = []
-        for pt in roster:
-            self.pkms.append(pt.gen_pkm([0, 1, 2, 3]))
-        self.n_pkms = len(roster)
-        self.matchup_table = np.zeros((self.n_pkms, self.n_pkms))
-        for i, pkm0 in enumerate(self.pkms):
-            for j, pkm1 in enumerate(self.pkms[i:]):
-                if j == 0:  # p0 == p1
-                    self.matchup_table[i][i] = 0.5
-                else:
-                    wins = run_battles(pkm0, pkm1, self.agent0, self.agent1, self.n_battles)
-                    self.matchup_table[i][i + j] = wins[0] / self.n_battles
-                    self.matchup_table[i + j][i] = wins[1] / self.n_battles
+        if IndividualPkmCounter.matchup_table is None:
+            IndividualPkmCounter.pkms = []
+            for pt in roster:
+                IndividualPkmCounter.pkms.append(pt.gen_pkm([0, 1, 2, 3]))
+            IndividualPkmCounter.n_pkms = len(roster)
+            IndividualPkmCounter.matchup_table = np.zeros((IndividualPkmCounter.n_pkms, IndividualPkmCounter.n_pkms))
+            for i, pkm0 in enumerate(IndividualPkmCounter.pkms):
+                for j, pkm1 in enumerate(IndividualPkmCounter.pkms[i:]):
+                    if j == 0:  # p0 == p1
+                        IndividualPkmCounter.matchup_table[i][i] = 0.5
+                    else:
+                        wins = run_battles(pkm0, pkm1, self.agent0, self.agent1, self.n_battles)
+                        IndividualPkmCounter.matchup_table[i][i + j] = wins[0] / self.n_battles
+                        IndividualPkmCounter.matchup_table[i + j][i] = wins[1] / self.n_battles
 
     def get_action(self, meta: MetaData) -> PkmFullTeam:
         members: List[int] = []
-        matchup_table = deepcopy(self.matchup_table)
-        select_next(matchup_table, self.n_pkms, members)
-        return PkmFullTeam([self.pkms[members[0]], self.pkms[members[1]], self.pkms[members[2]]])
+        matchup_table = deepcopy(IndividualPkmCounter.matchup_table)
+        select_next(matchup_table, IndividualPkmCounter.n_pkms, members)
+        return PkmFullTeam([IndividualPkmCounter.pkms[members[0]],
+                            IndividualPkmCounter.pkms[members[1]],
+                            IndividualPkmCounter.pkms[members[2]]])
