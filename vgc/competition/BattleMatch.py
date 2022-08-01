@@ -5,7 +5,7 @@ from typing import Tuple, List, Optional
 from vgc.balance.meta import MetaData
 from vgc.behaviour import BattlePolicy
 from vgc.competition.Competitor import Competitor, CompetitorManager
-from vgc.datatypes.Constants import DEFAULT_MATCH_N_BATTLES, DEFAULT_TEAM_SIZE
+from vgc.datatypes.Constants import DEFAULT_MATCH_N_BATTLES, DEFAULT_TEAM_SIZE, DEFAULT_N_ACTIONS
 from vgc.datatypes.Objects import PkmFullTeam, PkmTeam
 from vgc.engine.HiddenInformation import hide_team
 from vgc.engine.PkmBattleEnv import PkmBattleEnv
@@ -103,11 +103,11 @@ class BattleMatch:
             try:
                 act0 = a0.get_action(s[0])
             except:
-                act0 = random.randint(0, 6)
+                act0 = random.randint(0, DEFAULT_N_ACTIONS-1)
             try:
                 act1 = a1.get_action(s[1])
             except:
-                act1 = random.randint(0, 6)
+                act1 = random.randint(0, DEFAULT_N_ACTIONS-1)
             a = [act0, act1]
             s, _, t, v = env.step(a)
             if self.debug:
