@@ -46,7 +46,7 @@ class TestStandardMetaData(unittest.TestCase):
         self.assertEqual(self.meta_data.get_pair_usage((pkms[0].pkm_id, pkms[1].pkm_id)), 1 / 2)
         self.assertEqual(self.meta_data.get_pair_usage((pkms[1].pkm_id, pkms[2].pkm_id)), 1)
 
-    def test_update_with_delta_roster(self):
+    def test_delta_roster_apply(self):
         pkm = self.roster[0]
         copy_pkm = deepcopy(pkm)
         self.assertTrue(pkm == copy_pkm)
@@ -69,5 +69,3 @@ class TestStandardMetaData(unittest.TestCase):
         self.assertNotEqual(pkm.move_roster[1], copy2_pkm.move_roster[1])
         self.assertEqual(pkm.move_roster[0], copy2_pkm.move_roster[0])
         self.assertNotEqual(pkm, copy2_pkm)
-        self.meta_data.update_with_delta_roster(delta_roster)
-        # TODO

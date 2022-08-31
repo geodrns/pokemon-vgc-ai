@@ -5,7 +5,7 @@ from typing import Dict, Tuple, List
 
 from vgc.balance import DeltaRoster
 from vgc.balance.archtype import std_move_dist, std_pkm_dist, std_team_dist
-from vgc.datatypes.Objects import PkmTemplate, PkmMove, PkmFullTeam, PkmRoster, PkmMoveRoster
+from vgc.datatypes.Objects import PkmMove, PkmFullTeam, PkmRoster, PkmMoveRoster
 
 PkmId = int
 MoveId = int
@@ -51,8 +51,8 @@ class StandardMetaData(MetaData):
     def __init__(self, _max_history_size: int = 1e5, unlimited: bool = False, pkm_dist=std_pkm_dist,
                  move_dist=std_move_dist):
         # listings - moves, pkm, teams
-        self._moves: List[PkmMove] = []
-        self._pkm: List[PkmTemplate] = []
+        self._moves: PkmMoveRoster = []
+        self._pkm: PkmRoster = []
         # global usage rate - moves, pkm
         self._move_usage: Dict[MoveId, int] = {}
         self._pkm_usage: Dict[PkmId, int] = {}
@@ -82,10 +82,8 @@ class StandardMetaData(MetaData):
         self._moves = move_roster
         for pkm in self._pkm:
             self._pkm_usage[pkm.pkm_id] = 0
-            # self._pkm_wins[pkm.pkm_id] = 0
         for move in self._moves:
             self._move_usage[move.move_id] = 0
-            # self._move_wins[move.move_id] = 0
         for m0, m1 in itertools.product(self._moves, self._moves):
             self._d_move[(m0.move_id, m1.move_id)] = self.move_dist(m0, m1)
         for p0, p1 in itertools.product(self._pkm, self._pkm):
@@ -93,18 +91,19 @@ class StandardMetaData(MetaData):
                 x.move_id, y.move_id])
 
     def update_with_delta_roster(self, delta: DeltaRoster):
-        for idx in delta.dp.keys():
-            for m_idx in delta.dp[idx].dpm.keys():
-                for move_pair in self._d_move.keys():
-                    if self._moves[idx * 4 + m_idx] in move_pair:
-                        self._d_move[(move_pair[0], move_pair[1])] = self.move_dist(self._moves[move_pair[0]],
-                                                                                    self._moves[move_pair[1]])
-            for pkm_pair in self._d_pkm.keys():
-                if self._pkm[idx] in pkm_pair:
-                    self._d_pkm[(pkm_pair[0], pkm_pair[1])] = self.pkm_dist(self._pkm[pkm_pair[0]],
-                                                                            self._pkm[pkm_pair[1]])
-        # remove from history changed pkm
-        # TODO
+        delta.apply(self._pkm)
+        # clean history
+        self._move_usage: Dict[MoveId, int] = {}
+        self._pkm_usage: Dict[PkmId, int] = {}
+        # update similarity matrix
+        for p0, p1 in itertools.product(self._pkm, self._pkm):
+            self._d_pkm[(p0.pkm_id, p1.pkm_id)] = self.pkm_dist(p0, p1, move_distance=lambda x, y: self._d_move[
+                x.move_id, y.move_id])
+        # history buffer - moves, pkm, teams
+        self._move_history: List[PkmMove] = []
+        self._pkm_history: List[PkmId] = []
+        self._teammates_history: Dict[Tuple[PkmId, PkmId], int] = {}
+        self._team_history: List[PkmFullTeam] = []
 
     def update_with_team(self, team: PkmFullTeam):
         self._team_history.append(team.get_copy())
