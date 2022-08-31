@@ -150,7 +150,7 @@ class PkmMove:
         return self.public
 
 
-PkmMoveRoster = Set[PkmMove]
+PkmMoveRoster = List[PkmMove]
 
 
 class Pkm:
@@ -271,7 +271,12 @@ class PkmTemplate:
         self.pkm_id = pkm_id
 
     def __eq__(self, other):
-        return self.type == other.type and self.max_hp == other.max_hp and self.move_roster == other.move_roster
+        same_move_roster = True
+        for move in self.move_roster:
+            if move not in other.move_roster:
+                same_move_roster = False
+                break
+        return self.type == other.type and self.max_hp == other.max_hp and same_move_roster
 
     def __hash__(self):
         return hash((self.type, self.max_hp) + tuple(self.move_roster))
@@ -307,7 +312,7 @@ class PkmTemplate:
         return pkm.type == self.type and pkm.max_hp == self.max_hp and set(pkm.moves).issubset(self.move_roster)
 
 
-PkmRoster = Set[PkmTemplate]
+PkmRoster = List[PkmTemplate]
 
 
 class PkmTeam:

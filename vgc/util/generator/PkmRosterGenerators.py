@@ -37,7 +37,7 @@ class RandomMoveRosterGenerator(MoveRosterGenerator):
             move = random.choice(list(base_move_roster))
             base_move_roster.remove(move)
             move_roster.append(move)
-        return set(move_roster)
+        return move_roster
 
 
 class PkmRosterGenerator(ABC):
@@ -78,4 +78,4 @@ class RandomPkmRosterGenerator(PkmRosterGenerator):
             if max_hp < MIN_HIT_POINTS:
                 max_hp = MIN_HIT_POINTS
             roster.append(PkmTemplate(move_roster, p_type, max_hp, i))
-        return set(roster)
+        return roster

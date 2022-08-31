@@ -78,8 +78,8 @@ class BattleMatch:
         a0.close()
         a1.close()
         if self.update_meta:
-            self.meta_data.update_with_team(team0, self.wins[0] > self.wins[1])
-            self.meta_data.update_with_team(team1, self.wins[1] > self.wins[0])
+            self.meta_data.update_with_team(team0)
+            self.meta_data.update_with_team(team1)
         self.finished = True
 
     def __team_prediction(self, c: Competitor, opp_team_view: PkmFullTeam) -> PkmFullTeam:
