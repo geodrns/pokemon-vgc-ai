@@ -14,7 +14,7 @@ class DeltaPkm:
     def apply(self, pkm: PkmTemplate):
         pkm.max_hp = self.max_hp
         pkm.type = self.type
-        for idx, move in enumerate(pkm.move_roster):
+        for idx, move in enumerate(pkm.moves):
             if idx in self.dpm.keys():
                 dpm = self.dpm[idx]
                 move.__dict__.update(dpm.__dict__)

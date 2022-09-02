@@ -36,7 +36,7 @@ def legal_move_set(pkm: Pkm, template: PkmTemplate) -> bool:
     # all members must be instances of roster
     for move in pkm.moves:
         valid = False
-        for roster_move in template.move_roster:
+        for roster_move in template.moves:
             valid = move == roster_move
             if valid:
                 break

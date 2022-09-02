@@ -129,7 +129,7 @@ class MoveRosterBoundedSizeRule(VGCDesignRule):
         self._template = None
 
     def check(self, roster: PkmRoster, template: PkmTemplate = None) -> bool:
-        inBounds = self._min_size <= len(template.move_roster) <= self._max_size
+        inBounds = self._min_size <= len(template.moves) <= self._max_size
         if not inBounds:
             self._template = template
         return inBounds
@@ -155,7 +155,7 @@ class MoveRosterFixedSizeRule(VGCDesignRule):
         self._template = None
 
     def check(self, roster: PkmRoster, template: PkmTemplate = None) -> bool:
-        equals = len(template.move_roster) == self._base_move_roster_size
+        equals = len(template.moves) == self._base_move_roster_size
         if not equals:
             self._template = template
         return equals
@@ -175,7 +175,7 @@ class MovesUnchangeableRule(VGCDesignRule):
         self._template = None
 
     def check(self, roster: PkmRoster, template: PkmTemplate = None) -> bool:
-        equals = template.move_roster == self._base_move_roster
+        equals = template.moves == self._base_move_roster
         if not equals:
             self._template = template
         return equals
@@ -198,7 +198,7 @@ class SingleMovesUnchangeableRule(VGCDesignRule):
 
     def check(self, roster: PkmRoster, template: PkmTemplate = None) -> bool:
         for enabled, move_original, new_move in zip(self._changeable_moves, self._base_move_roster,
-                                                    template.move_roster):
+                                                    template.moves):
             if not enabled:
                 if move_original != new_move:
                     self._original_move = move_original

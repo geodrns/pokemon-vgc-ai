@@ -265,25 +265,25 @@ class PkmTemplate:
         :param pkm_type: pokemon type
         :param max_hp: pokemon max_hp
         """
-        self.move_roster: PkmMoveRoster = move_roster
+        self.moves: PkmMoveRoster = move_roster
         self.type: PkmType = pkm_type
         self.max_hp = max_hp
         self.pkm_id = pkm_id
 
     def __eq__(self, other):
         same_move_roster = True
-        for move in self.move_roster:
-            if move not in other.move_roster:
+        for move in self.moves:
+            if move not in other.moves:
                 same_move_roster = False
                 break
         return self.type == other.type and self.max_hp == other.max_hp and same_move_roster
 
     def __hash__(self):
-        return hash((self.type, self.max_hp) + tuple(self.move_roster))
+        return hash((self.type, self.max_hp) + tuple(self.moves))
 
     def __str__(self):
         s = 'PkmTemplate(Type=%s, Max_HP=%d, Moves={' % (PkmType(self.type).name, self.max_hp)
-        for move in self.move_roster:
+        for move in self.moves:
             s += str(move) + ', '
         return s + '})'
 
@@ -294,7 +294,7 @@ class PkmTemplate:
         :param moves: index list of moves
         :return: the requested pokemon
         """
-        move_list = list(self.move_roster)
+        move_list = list(self.moves)
         return Pkm(p_type=self.type, max_hp=self.max_hp,
                    move0=move_list[moves[0]],
                    move1=move_list[moves[1]],
@@ -309,7 +309,7 @@ class PkmTemplate:
         :param pkm: pokemon
         :return: if pokemon is speciman of this template
         """
-        return pkm.type == self.type and pkm.max_hp == self.max_hp and set(pkm.moves).issubset(self.move_roster)
+        return pkm.type == self.type and pkm.max_hp == self.max_hp and set(pkm.moves).issubset(self.moves)
 
 
 PkmRoster = List[PkmTemplate]
