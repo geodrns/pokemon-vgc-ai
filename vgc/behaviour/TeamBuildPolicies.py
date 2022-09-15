@@ -1,5 +1,3 @@
-import random
-from copy import deepcopy
 from typing import List
 
 import numpy as np
@@ -30,11 +28,13 @@ class RandomTeamBuilder(TeamBuildPolicy):
         self.roster = roster
 
     def get_action(self, meta: MetaData) -> PkmFullTeam:
-        roster = list(self.roster)
-        pre_selection: List[PkmTemplate] = [roster[i] for i in random.sample(range(len(roster)), DEFAULT_TEAM_SIZE)]
+        n_pkms = len(self.roster)
+        members = np.random.choice(n_pkms, 3, False)
+        pre_selection: List[PkmTemplate] = [self.roster[i] for i in members]
         team: List[Pkm] = []
         for pt in pre_selection:
-            team.append(pt.gen_pkm(random.sample(range(len(pt.moves)), DEFAULT_PKM_N_MOVES)))
+            moves: List[int] = np.random.choice(DEFAULT_PKM_N_MOVES, DEFAULT_PKM_N_MOVES, False)
+            team.append(pt.gen_pkm(moves))
         return PkmFullTeam(team)
 
 
@@ -86,17 +86,10 @@ def softmax(x):
     return e_x / e_x.sum(axis=0)
 
 
-def select_next(matchup_table, n_pkms, members):
+def select_next(matchup_table, n_pkms) -> List[int]:
     average_winrate = np.sum(matchup_table, axis=1) / n_pkms
     policy = softmax(average_winrate)
-    p = np.random.choice(n_pkms, 1, p=policy)[0]
-    while p in members:
-        p = np.random.choice(n_pkms, 1, p=policy)[0]
-    members.append(p)
-    if len(members) < 3:
-        for i in range(n_pkms):
-            matchup_table[p][i] = 0.
-        select_next(matchup_table, n_pkms, members)
+    return np.random.choice(n_pkms, 3, False, p=policy)
 
 
 class IndividualPkmCounter(TeamBuildPolicy):
@@ -116,6 +109,7 @@ class IndividualPkmCounter(TeamBuildPolicy):
         self.agent0 = agent0
         self.agent1 = agent1
         self.n_battles = n_battles
+        self.policy = None
 
     def requires_encode(self) -> bool:
         return False
@@ -142,11 +136,11 @@ class IndividualPkmCounter(TeamBuildPolicy):
                         wins = run_battles(pkm0, pkm1, self.agent0, self.agent1, self.n_battles)
                         IndividualPkmCounter.matchup_table[i][i + j] = wins[0] / self.n_battles
                         IndividualPkmCounter.matchup_table[i + j][i] = wins[1] / self.n_battles
+            average_winrate = np.sum(IndividualPkmCounter.matchup_table, axis=1) / IndividualPkmCounter.n_pkms
+            # pre compute policy
+            self.policy = softmax(average_winrate)
 
     def get_action(self, meta: MetaData) -> PkmFullTeam:
-        members: List[int] = []
-        matchup_table = deepcopy(IndividualPkmCounter.matchup_table)
-        select_next(matchup_table, IndividualPkmCounter.n_pkms, members)
-        return PkmFullTeam([IndividualPkmCounter.pkms[members[0]],
-                            IndividualPkmCounter.pkms[members[1]],
+        members: List[int] = np.random.choice(IndividualPkmCounter.n_pkms, 3, False, p=self.policy)
+        return PkmFullTeam([IndividualPkmCounter.pkms[members[0]], IndividualPkmCounter.pkms[members[1]],
                             IndividualPkmCounter.pkms[members[2]]])
