@@ -49,7 +49,7 @@ def std_pkm_dist(pkm0: PkmTemplate, pkm1: PkmTemplate, move_distance=std_move_di
     d_max_hp = abs(pkm0.max_hp - pkm1.max_hp) / MAX_HIT_POINTS
     d_type = float(pkm0.type != pkm1.type)
     d_moves = 0.0
-    for move0, move1 in zip(pkm0.move_roster, pkm1.move_roster):
+    for move0, move1 in zip(pkm0.moves, pkm1.moves):
         d_moves += move_distance(move0, move1) / 5.25
     return d_max_hp + d_type + d_moves / 8.0
 

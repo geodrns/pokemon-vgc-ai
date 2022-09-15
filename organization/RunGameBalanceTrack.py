@@ -5,6 +5,7 @@ from agent.Example_Competitor import ExampleCompetitor
 from vgc.balance.meta import StandardMetaData
 from vgc.balance.restriction import VGCDesignConstraints
 from vgc.competition.Competitor import CompetitorManager
+from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
 from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
 from vgc.network.ProxyCompetitor import ProxyCompetitor
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
@@ -18,6 +19,7 @@ def main(args):
     base_port = args.base_port
     population_size = args.population_size
     surrogate_agent = [CompetitorManager(ExampleCompetitor()) for _ in range(population_size)]
+    move_roster = STANDARD_MOVE_ROSTER
     base_roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=100).gen_roster()
     constraints = VGCDesignConstraints(base_roster)
     results = []
@@ -26,7 +28,7 @@ def main(args):
         conn = Client(address, authkey=f'Competitor {i}'.encode('utf-8'))
         competitor = ProxyCompetitor(conn)
         meta_data = StandardMetaData()
-        meta_data.set_moves_and_pkm(base_roster)
+        meta_data.set_moves_and_pkm(base_roster, move_roster)
         gbe = GameBalanceEcosystem(competitor, surrogate_agent, constraints, base_roster, meta_data, debug=True)
         gbe.run(n_epochs=n_epochs, n_vgc_epochs=n_vgc_epochs, n_league_epochs=n_league_epochs)
         results.append((competitor.name, gbe.accumulated_points))

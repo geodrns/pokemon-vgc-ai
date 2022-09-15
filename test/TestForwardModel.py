@@ -15,8 +15,7 @@ class TestForwardModel(unittest.TestCase):
     def setUpClass(cls):
         generator = RandomPkmRosterGenerator()
         roster = generator.gen_roster()
-        templates = list(roster)
-        pkms = [templates[i].gen_pkm([0, 1, 2, 3]) for i in range(6)]
+        pkms = [roster[i].gen_pkm([0, 1, 2, 3]) for i in range(6)]
         cls.team0 = PkmFullTeam(pkms[0:3]).get_battle_team([0, 1, 2])
         cls.team1 = PkmFullTeam(pkms[3:6]).get_battle_team([0, 1, 2])
 
@@ -206,7 +205,7 @@ class TestForwardModel(unittest.TestCase):
 
         if opp_move_0.type != PkmType.NORMAL:
             self.assertNotEqual(opp_move_0.type, null_pkm.moves[0].type)
-        if opp_move_0.power != 240.0:
+        if opp_move_0.power != 240.0:  # TODO
             self.assertNotEqual(opp_move_0.power, null_pkm.moves[0].power)
         self.assertTrue(opp_move_0.public)
 

@@ -49,7 +49,7 @@ class RandomTeamGenerator(PkmTeamGenerator):
 class RandomTeamFromRoster(PkmTeamGenerator):
 
     def __init__(self, roster: PkmRoster, team_size=DEFAULT_TEAM_SIZE, n_moves_pkm=DEFAULT_N_MOVES_PKM):
-        self.roster = list(roster)
+        self.roster = roster
         self.team_size = team_size
         self.n_moves_pkm = n_moves_pkm
 

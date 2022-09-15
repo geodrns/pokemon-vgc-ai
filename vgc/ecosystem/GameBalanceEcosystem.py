@@ -35,6 +35,5 @@ class GameBalanceEcosystem:
             delta_roster.apply(copy_roster)
             violated_rules = self.constraints.check_every_rule(copy_roster)
             if len(violated_rules) == 0:
-                delta_roster.apply(self.vgc.roster)
                 self.meta_data.update_with_delta_roster(delta_roster)
             epoch += 1
