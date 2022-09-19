@@ -119,3 +119,6 @@ STANDARD_MOVE_ROSTER = [Recover, DoubleEdge, ExtremeSpeed, Slam, Tackle, SunnyDa
                         Sandstorm, PowerGem, RockTomb, StoneEdge, NightShade, ShadowBall, ShadowSneak, DragonRage,
                         DracoMeteor, DragonBreath, Outrage, NastyPlot, Crunch, Snarl, IronDefense, IronTail, SteelWing,
                         BulletPunch, SweetKiss, PlayRough, Moonblast]
+
+for i, move in enumerate(STANDARD_MOVE_ROSTER):
+    move.move_id = i
