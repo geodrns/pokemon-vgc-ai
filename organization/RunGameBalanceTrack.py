@@ -2,7 +2,7 @@ import argparse
 from multiprocessing.connection import Client
 
 from agent.Example_Competitor import ExampleCompetitor
-from vgc.balance.meta import StandardMetaData
+from vgc.balance.meta import StandardMetaData, default_eval_func
 from vgc.balance.restriction import VGCDesignConstraints
 from vgc.competition.Competitor import CompetitorManager
 from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
@@ -29,9 +29,10 @@ def main(args):
         competitor = ProxyCompetitor(conn)
         meta_data = StandardMetaData()
         meta_data.set_moves_and_pkm(base_roster, move_roster)
-        gbe = GameBalanceEcosystem(competitor, surrogate_agent, constraints, base_roster, meta_data, debug=True)
+        gbe = GameBalanceEcosystem(default_eval_func, competitor, surrogate_agent, constraints, base_roster, meta_data,
+                                   debug=True)
         gbe.run(n_epochs=n_epochs, n_vgc_epochs=n_vgc_epochs, n_league_epochs=n_league_epochs)
-        results.append((competitor.name, gbe.accumulated_points))
+        results.append((competitor.name, gbe.total_score))
         conn.close()
     winner_name = ""
     max_score = 0.0
