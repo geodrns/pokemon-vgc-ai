@@ -1,7 +1,8 @@
 import itertools
 from abc import ABC, abstractmethod
-from math import exp
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Callable
+
+import numpy as np
 
 from vgc.balance import DeltaRoster
 from vgc.balance.archtype import std_move_dist, std_pkm_dist, std_team_dist
@@ -39,10 +40,6 @@ class MetaData(ABC):
 
     @abstractmethod
     def get_n_teams(self) -> int:
-        pass
-
-    @abstractmethod
-    def evaluate(self) -> float:
         pass
 
 
@@ -170,28 +167,17 @@ class StandardMetaData(MetaData):
     def get_n_teams(self) -> int:
         return len(self._team_history)
 
-    def evaluate(self) -> float:
-        d = [0., 0., 0., 0., 0.]
-        # Overall number of different Pkm (templates).
-        for pkm0, pkm1 in itertools.product(self._pkm, self._pkm):
-            d[0] += - self._pkm_usage[pkm1.pkm_id] * exp(-self._d_pkm[(pkm0.pkm_id, pkm1.pkm_id)]) + 1
-        d[0] /= 2
-        # Overall number of different Pkm moves.
-        for move0, move1 in itertools.product(self._moves, self._moves):
-            d[1] += - self._move_usage[move1.move_id] * exp(-self._d_move[(move0.move_id, move1.move_id)]) + 1
-        d[1] /= 2
-        # Overall number of different Pkm teams.
-        d[2] = self._d_overall_team
-        for team, win in self._team_history:
-            # Difference over moves on same Pkm.
-            moves = []
-            for pkm in team.pkm_list:
-                moves.extend(pkm.moves)
-            for move0, move1 in itertools.product(moves, moves):
-                d[3] += - exp(-self._d_move[(move0.move_id, move1.move_id)]) + 1
-            # Difference over Pkm on same team.
-            for pkm0, pkm1 in itertools.product(team.pkm_list, team.pkm_list):
-                d[4] += - exp(-self._d_pkm[(pkm0.pkm_id, pkm1.pkm_id)]) + 1
-        d[3] /= 2
-        d[4] /= 2
-        return sum(d)
+
+BalanceEvalFunc: Callable[[MetaData, PkmRoster], float]
+
+
+def default_eval_func(meta: StandardMetaData, base_roster: PkmRoster) -> float:
+    n_pkms = len(base_roster)
+    dist = 0.0
+    for i in range(n_pkms):
+        dist += std_pkm_dist(meta._pkm[i], base_roster[i])
+    dist /= n_pkms
+    usage = np.array([meta.get_global_pkm_usage(i) for i in range(n_pkms)])
+    target = np.array([1.0] * (n_pkms // 3) + [0.0] * (n_pkms - n_pkms // 3))
+    balance = np.linalg.norm(usage - target)
+    return 0.5 * dist + 0.5 * balance
