@@ -168,9 +168,6 @@ class StandardMetaData(MetaData):
         return len(self._team_history)
 
 
-BalanceEvalFunc: Callable[[MetaData, PkmRoster], float]
-
-
 def default_eval_func(meta: StandardMetaData, base_roster: PkmRoster) -> float:
     n_pkms = len(base_roster)
     dist = 0.0

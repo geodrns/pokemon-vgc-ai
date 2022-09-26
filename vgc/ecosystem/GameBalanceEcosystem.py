@@ -1,7 +1,7 @@
 from copy import deepcopy
 from typing import List
 
-from vgc.balance.meta import MetaData, BalanceEvalFunc
+from vgc.balance.meta import MetaData
 from vgc.balance.restriction import VGCDesignConstraints
 from vgc.competition.Competition import Competitor
 from vgc.competition.Competitor import CompetitorManager
@@ -13,7 +13,7 @@ from vgc.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
 
 class GameBalanceEcosystem:
 
-    def __init__(self, eval_func: BalanceEvalFunc, competitor: Competitor, surrogate_agent: List[CompetitorManager],
+    def __init__(self, eval_func, competitor: Competitor, surrogate_agent: List[CompetitorManager],
                  constraints: VGCDesignConstraints, base_roster: PkmRoster, meta_data: MetaData, debug=False,
                  render=False, n_battles=DEFAULT_MATCH_N_BATTLES, strategy: Strategy = Strategy.RANDOM_PAIRING):
         self.eval_func = eval_func
