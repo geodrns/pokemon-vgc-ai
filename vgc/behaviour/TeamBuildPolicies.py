@@ -24,7 +24,7 @@ class RandomTeamBuilder(TeamBuildPolicy):
     def close(self):
         pass
 
-    def set_roster(self, roster: PkmRoster):
+    def set_roster(self, roster: PkmRoster, ver: int = 0):
         self.roster = roster
 
     def get_action(self, meta: MetaData) -> PkmFullTeam:
@@ -52,7 +52,7 @@ class FixedTeamBuilder(TeamBuildPolicy):
     def close(self):
         pass
 
-    def set_roster(self, roster: PkmRoster):
+    def set_roster(self, roster: PkmRoster, ver: int = 0):
         self.roster = roster
 
     def get_action(self, meta: MetaData) -> PkmFullTeam:
@@ -110,6 +110,7 @@ class IndividualPkmCounter(TeamBuildPolicy):
         self.agent1 = agent1
         self.n_battles = n_battles
         self.policy = None
+        self.ver = -1
 
     def requires_encode(self) -> bool:
         return False
@@ -117,12 +118,13 @@ class IndividualPkmCounter(TeamBuildPolicy):
     def close(self):
         pass
 
-    def set_roster(self, roster: PkmRoster):
+    def set_roster(self, roster: PkmRoster, ver: int = 0):
         """
         Instead of storing the roster, we fill a pairwise match up table where each entry has the estimated win rate
         from a row pkm against a column pkm.
         """
-        if IndividualPkmCounter.matchup_table is None:
+        if self.ver < ver:
+            self.ver = ver
             IndividualPkmCounter.pkms = []
             for pt in roster:
                 IndividualPkmCounter.pkms.append(pt.gen_pkm([0, 1, 2, 3]))

@@ -39,7 +39,7 @@ class TeamSelectionPolicy(Behaviour):
 class TeamBuildPolicy(Behaviour):
 
     @abstractmethod
-    def set_roster(self, roster: PkmRoster):
+    def set_roster(self, roster: PkmRoster, ver: int = 0):
         pass
 
     @abstractmethod

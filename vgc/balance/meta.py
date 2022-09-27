@@ -1,6 +1,6 @@
 import itertools
 from abc import ABC, abstractmethod
-from typing import Dict, Tuple, List, Callable
+from typing import Dict, Tuple, List
 
 import numpy as np
 
