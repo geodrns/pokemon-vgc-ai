@@ -19,6 +19,7 @@ class ChampionshipEcosystem:
         self.league: BattleEcosystem = BattleEcosystem(self.meta_data, debug, render, n_battles, strategy,
                                                        update_meta=True)
         self.debug = debug
+        self.roster_ver = 0
 
     def register(self, cm: CompetitorManager):
         self.league.register(cm)
@@ -27,6 +28,7 @@ class ChampionshipEcosystem:
         epoch = 0
         self.__reveal_roster_for_competitors()
         while epoch < n_epochs:
+            print('Round', epoch + 1)
             if self.debug:
                 print("TEAM BUILD\n")
             for cm in self.league.competitors:
@@ -43,16 +45,19 @@ class ChampionshipEcosystem:
     def __reveal_roster_for_competitors(self):
         for cm in self.league.competitors:
             try:
-                cm.competitor.team_build_policy.set_roster(self.roster)
+                cm.competitor.team_build_policy.set_roster(self.roster, self.roster_ver)
             except:
+                print('ups 1')
                 pass
 
     def __set_new_team(self, cm: CompetitorManager):
         try:
             cm.team = cm.competitor.team_build_policy.get_action(self.meta_data).get_copy()
             if not legal_team(cm.team, self.roster):
+                print('ups 2')
                 cm.team = self.rand_gen.get_team()
         except:
+            print('ups 3')
             cm.team = cm.team if cm.team is not None else self.rand_gen.get_team()
 
     def strongest(self) -> CompetitorManager:

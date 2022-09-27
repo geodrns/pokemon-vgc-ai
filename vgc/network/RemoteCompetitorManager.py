@@ -47,6 +47,8 @@ class RemoteCompetitorManager:
         elif msg[0] == 'TeamBuildPolicy':
             if msg[1] == 'get_action':
                 self.conn.send(self.competitor.team_build_policy.get_action(msg[2]))
+            elif msg[1] == 'set_roster':
+                self.competitor.team_build_policy.set_roster(msg[2][0], msg[2][1])
             elif msg[1] == 'requires_encode':
                 self.conn.send(self.competitor.team_build_policy.requires_encode())
             elif msg[1] == 'close':

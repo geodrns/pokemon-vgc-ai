@@ -1,6 +1,6 @@
 import itertools
 from abc import ABC, abstractmethod
-from typing import Dict, Tuple, List, Callable
+from typing import Dict, Tuple, List
 
 import numpy as np
 
@@ -166,9 +166,6 @@ class StandardMetaData(MetaData):
 
     def get_n_teams(self) -> int:
         return len(self._team_history)
-
-
-BalanceEvalFunc: Callable[[MetaData, PkmRoster], float]
 
 
 def default_eval_func(meta: StandardMetaData, base_roster: PkmRoster) -> float:

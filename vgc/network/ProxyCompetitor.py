@@ -63,9 +63,9 @@ class ProxyTeamBuildPolicy(TeamBuildPolicy):
         self.conn: Client = conn
         self.timeout: float = timeout
 
-    def set_roster(self, roster: PkmRoster):
+    def set_roster(self, roster: PkmRoster, ver: int = 0):
         # self.conn.settimeout(self.timeout)
-        self.conn.send(('TeamBuildPolicy', 'set_roster', roster))
+        self.conn.send(('TeamBuildPolicy', 'set_roster', (roster, ver)))
 
     def get_action(self, s) -> PkmFullTeam:
         # self.conn.settimeout(self.timeout)
