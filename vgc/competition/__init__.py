@@ -32,7 +32,6 @@ def legal_move_set(pkm: Pkm, template: PkmTemplate) -> bool:
         move = pkm.moves[i]
         for j in range(i + 1, len(pkm.moves)):
             if move == pkm.moves[j]:
-                print('repeated move')
                 return False
     # all members must be instances of roster
     for move in pkm.moves:
@@ -42,7 +41,6 @@ def legal_move_set(pkm: Pkm, template: PkmTemplate) -> bool:
             if valid:
                 break
         if not valid:
-            print('invalid move')
             return False
     return True
 

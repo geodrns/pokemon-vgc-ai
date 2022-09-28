@@ -175,6 +175,5 @@ def default_eval_func(meta: StandardMetaData, base_roster: PkmRoster) -> float:
         dist += std_pkm_dist(meta._pkm[i], base_roster[i])
     dist /= n_pkms
     usage = np.array([meta.get_global_pkm_usage(i) for i in range(n_pkms)])
-    target = np.array([1.0] * (n_pkms // 3) + [0.0] * (n_pkms - n_pkms // 3))
-    balance = np.linalg.norm(usage - target)
+    balance = -np.std(usage)
     return 0.5 * dist + 0.5 * balance
