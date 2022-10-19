@@ -326,5 +326,4 @@ Please cite this work if used.
 
 ## TODO
 
-* Complete the balance track implementation.
 * Improve game state encoding performance.
