@@ -302,6 +302,10 @@ Rules can be found in the [Wiki](https://gitlab.com/DracoStriker/pokemon-vgc-eng
 
 ## Citation
 
+The technical document can be found in the following link:
+
+https://ieeexplore.ieee.org/document/9618985
+
 Please cite this work if used.
 
 ```
