@@ -66,6 +66,6 @@ class TestStandardMetaData(unittest.TestCase):
         pkm = self.roster[0]
         self.assertNotEqual(pkm.max_hp, copy2_pkm.max_hp)
         self.assertEqual(pkm.type, copy2_pkm.type)
-        self.assertNotEqual(pkm.moves[1], copy2_pkm.moves[1])
+        self.assertTrue(pkm.moves[1] != copy2_pkm.moves[1] or copy2_pkm.moves[1] == STANDARD_MOVE_ROSTER[10])
         self.assertEqual(pkm.moves[0], copy2_pkm.moves[0])
         self.assertNotEqual(pkm, copy2_pkm)

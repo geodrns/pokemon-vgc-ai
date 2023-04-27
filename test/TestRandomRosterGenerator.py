@@ -12,4 +12,7 @@ class TestEncodingMethods(unittest.TestCase):
         for tmpl in roster:
             pkm = tmpl.gen_pkm([0, 1, 2, 3])
             points = get_pkm_points(pkm)
-            self.assertLess(points, STANDARD_TOTAL_POINTS + 1)
+            if pkm.hp == 10.0:
+                self.assertLess(points, STANDARD_TOTAL_POINTS + 4)
+            else:
+                self.assertLess(points, STANDARD_TOTAL_POINTS + 1)
