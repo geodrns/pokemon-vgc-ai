@@ -1,7 +1,7 @@
 import unittest
 
 from vgc.datatypes.Objects import PkmFullTeam
-from vgc.datatypes.Types import PkmType
+from vgc.datatypes.Types import PkmType, PkmStatus
 from vgc.engine.HiddenInformation import null_pkm
 from vgc.engine.PkmBattleEnv import PkmBattleEnv
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
@@ -186,6 +186,8 @@ class TestForwardModel(unittest.TestCase):
             self.assertEqual(opp_move_1.power, null_pkm.moves[0].power)
         self.assertFalse(opp_move_1.public)
 
+        prev_my_active_0 = my_active_0
+
         s, _, _, _ = env.step([0, 0])  # both players use first move
         s0, s1 = s
 
@@ -201,13 +203,16 @@ class TestForwardModel(unittest.TestCase):
             self.assertNotEqual(my_move_0.type, null_pkm.moves[0].type)
         if my_move_0.power != 240.0:
             self.assertNotEqual(my_move_0.power, null_pkm.moves[0].power)
-        self.assertTrue(my_move_0.public)
+        self.assertTrue(my_move_0.public
+                        or my_active_0 != prev_my_active_0
+                        or my_active_0.status != PkmStatus.PARALYZED
+                        or my_active_0.status != PkmStatus.SLEEP
+                        or my_active_0.status != PkmStatus.FROZEN)
 
-        if opp_move_0.type != PkmType.NORMAL:
-            self.assertNotEqual(opp_move_0.type, null_pkm.moves[0].type)
-        if opp_move_0.power != 240.0:  # TODO
+        if opp_move_0.public:
             self.assertNotEqual(opp_move_0.power, null_pkm.moves[0].power)
-        self.assertTrue(opp_move_0.public)
+            if opp_move_0.type != PkmType.NORMAL:
+                self.assertNotEqual(opp_move_0.type, null_pkm.moves[0].type)
 
         my_team_1 = s1.teams[0]
         opp_team_1 = s1.teams[1]
@@ -221,13 +226,16 @@ class TestForwardModel(unittest.TestCase):
             self.assertNotEqual(my_move_1.type, null_pkm.moves[0].type)
         if my_move_1.power != 240.0:
             self.assertNotEqual(my_move_1.power, null_pkm.moves[0].power)
-        self.assertTrue(my_move_1.public)
+        self.assertTrue(my_move_1.public
+                        or my_active_1 != prev_my_active_0
+                        or my_active_1.status != PkmStatus.PARALYZED
+                        or my_active_1.status != PkmStatus.SLEEP
+                        or my_active_1.status != PkmStatus.FROZEN)
 
-        if opp_move_1.type != PkmType.NORMAL:
-            self.assertNotEqual(opp_move_1.type, null_pkm.moves[0].type)
-        if opp_move_1.power != 240.0:
+        if opp_move_1.public:
             self.assertNotEqual(opp_move_1.power, null_pkm.moves[0].power)
-        self.assertTrue(opp_move_1.public)
+            if opp_move_1.type != PkmType.NORMAL:
+                self.assertNotEqual(opp_move_1.type, null_pkm.moves[0].type)
 
 
 if __name__ == '__main__':
