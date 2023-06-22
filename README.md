@@ -36,14 +36,14 @@ In the `/test` folder is contained some unit tests from the core framework modul
 
 In this section we present a set of introductory tutorials.
 
-### Set a Pokémon  Battle in the Pokémon  Battle Env (OpenAI Gym)
+### Set a Pokémon  Battle in the Pokémon  Battle Env (gym)
 
-Set Pokémon battles is just to set a simple OpenAI Gym environment loop. The `PkmBattleEnv` is parametrized
+Set Pokémon battles is just to set a simple gym environment loop. The `PkmBattleEnv` is parametrized
 by two `PkmTeam`, each will be piloted by its respective `BattlePolicy` agent.
 
 ```python
 team0, team1 = PkmTeam(), PkmTeam()
-agent0, agent1 = RandomBattlePolicy(), RandomBattlePolicy()
+agent0, agent1 = RandomPlayer(), RandomPlayer()
 env = PkmBattleEnv((team0, team1),
                    encode=(agent0.requires_encode(), agent1.requires_encode())  # set new environment with teams
 n_battles = 3  # total number of battles
@@ -57,7 +57,7 @@ while battle < n_battles:
         env.render()
     t = False
     battle += 1
-print(env.winner)  # tuple with the victories of agent0 and agent1
+print(env.winner)  # winner id number
 ```
 
 `s` is a duple with the game state encoding for each agent. `r` is a duple with the reward for each agent.
@@ -167,7 +167,7 @@ receive automatically the standard encoded game state as `get_action(self, s: Li
 ### Forward Model
 
 The `GameState` provided to you is in reality a `PkmBattleEnv` object (which inherits from `GameState`), so you can
-forward the game state using the openAI gym method `step` providing the joint action. Note that only public or predicted
+forward the game state using the gym method `step` providing the joint action. Note that only public or predicted
 information will be available (if a move is unknown it will be replaced by a normal type `PkmMove`, and same for the
 `Pkm`), with no effects and a base move power and hp.
 
