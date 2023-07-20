@@ -67,7 +67,10 @@ class MatchHandlerTree:
             mh.match.finished = True
             mh.winner = cm[0]
         elif len(cm) == 2:
-            mh.match = BattleMatch(cm[0], cm[1], debug=self.debug)
+            if self.gen is not None:
+                mh.match = RandomTeamsBattleMatch(self.gen, cm[0], cm[1], debug=self.debug)
+            else:
+                mh.match = BattleMatch(cm[0], cm[1], debug=self.debug)
         else:
             half = len(cm) // 2
             mh.prev_mh0 = MatchHandler(self.gen)
