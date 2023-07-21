@@ -4,7 +4,7 @@
 
 ## Changelog
 
-### Version 2.2.0 (July 2024)
+### Version 2.2.0 (July 2023)
 
 1. Fixed an issue for the Battle Track where pairings were done wrongly and random teams were not used.
 
