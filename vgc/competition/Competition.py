@@ -31,9 +31,9 @@ class MatchHandler:
                 self.match = RandomTeamsBattleMatch(self.gen, self.prev_mh0.winner, self.prev_mh1.winner, debug=debug)
             else:
                 self.match = BattleMatch(self.prev_mh0.winner, self.prev_mh1.winner, debug=debug)
-        if debug:
-            print(self.match.cms[0].competitor.name + ' vs ' + self.match.cms[1].competitor.name + '\n')
         if not self.match.finished:
+            if debug:
+                print(self.match.cms[0].competitor.name + ' vs ' + self.match.cms[1].competitor.name + '\n')
             self.match.run()
             winner = self.match.winner
             if winner == 0:
@@ -67,9 +67,14 @@ class MatchHandlerTree:
             mh.match.finished = True
             mh.winner = cm[0]
         elif len(cm) == 2:
-            mh.match = BattleMatch(cm[0], cm[1], debug=self.debug)
+            if self.gen is not None:
+                mh.match = RandomTeamsBattleMatch(self.gen, cm[0], cm[1], debug=self.debug)
+            else:
+                mh.match = BattleMatch(cm[0], cm[1], debug=self.debug)
         else:
             half = len(cm) // 2
+            if half % 2 != 0:
+                half += 1
             mh.prev_mh0 = MatchHandler(self.gen)
             mh.prev_mh1 = MatchHandler(self.gen)
             self.handlers.append(mh.prev_mh0)

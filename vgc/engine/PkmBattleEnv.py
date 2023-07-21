@@ -49,10 +49,11 @@ class PkmBattleEnv(gym.Env, GameState):
         env.turn = self.turn
         env.winner = self.winner
         # hidde information and replace with prediction information
-        opp_team: PkmTeam = env.teams[1]
-        set_pkm(opp_team.active, self.predictions[player].active)
-        for i in range(len(opp_team.party)):
-            set_pkm(opp_team.party[i], self.predictions[player].party[i])
+        if self.predictions[player] is not None:
+            opp_team: PkmTeam = env.teams[1]
+            set_pkm(opp_team.active, self.predictions[player].active)
+            for i in range(len(opp_team.party)):
+                set_pkm(opp_team.party[i], self.predictions[player].party[i])
         env.game_state_view = []
         return env
 

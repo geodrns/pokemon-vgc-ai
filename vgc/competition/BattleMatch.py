@@ -70,7 +70,8 @@ class BattleMatch:
             b += 1
             if self.debug:
                 print('BATTLE ' + str(b) + '\n')
-            winner = self.__run_battle(a0, a1, battle_team0, battle_team1, battle_team1_p, battle_team0_p)
+            winner = self._run_battle(a0, a1, battle_team0, battle_team1, battle_team1_p, battle_team0_p)
+            self.wins[winner] += 1
             if self.wins[winner] > self.n_battles // 2:
                 break
         if self.debug:
@@ -91,8 +92,8 @@ class BattleMatch:
             except:
                 return PkmFullTeam()
 
-    def __run_battle(self, a0: BattlePolicy, a1: BattlePolicy, team0: PkmTeam, team1: PkmTeam,
-                     team1_p: Optional[PkmTeam], team0_p: Optional[PkmTeam]) -> int:
+    def _run_battle(self, a0: BattlePolicy, a1: BattlePolicy, team0: PkmTeam, team1: PkmTeam,
+                    team1_p: Optional[PkmTeam] = None, team0_p: Optional[PkmTeam] = None) -> int:
         env = PkmBattleEnv((team0, team1), debug=self.debug, encode=(a0.requires_encode(), a1.requires_encode()))
         env.set_predictions(team1_p, team0_p)
         s = env.reset()
@@ -112,7 +113,6 @@ class BattleMatch:
             s, _, t, v = env.step(a)
             if self.debug:
                 env.render(self.render_mode)
-        self.wins[env.winner] += 1
         return env.winner
 
     def winner(self) -> int:
@@ -134,16 +134,18 @@ class RandomTeamsBattleMatch(BattleMatch):
         a0 = self.cms[0].competitor.battle_policy
         a1 = self.cms[1].competitor.battle_policy
         tie = True
-        while tie:
+        n_runs = 0
+        while tie or n_runs < 10:
             team0 = self.gen.get_team().get_battle_team([0, 1, 2])
             team1 = self.gen.get_team().get_battle_team([0, 1, 2])
             if self.debug:
                 print('BATTLE\n')
-            winner0 = self.__run_battle(a0, a1, team0, team1, None, None)
+            winner0 = self._run_battle(a0, a1, team0, team1)
             self.wins[winner0] += 1
-            winner1 = self.__run_battle(a0, a1, team1, team0, None, None)
+            winner1 = self._run_battle(a0, a1, team1, team0)
             self.wins[winner1] += 1
-            tie = winner0 != winner1
+            tie = self.wins[0] == self.wins[1]
+            n_runs += 1
         if self.debug:
             print('MATCH RESULTS ' + str(self.wins) + '\n')
         a0.close()
