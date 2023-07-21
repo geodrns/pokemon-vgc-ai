@@ -134,7 +134,8 @@ class RandomTeamsBattleMatch(BattleMatch):
         a0 = self.cms[0].competitor.battle_policy
         a1 = self.cms[1].competitor.battle_policy
         tie = True
-        while tie:
+        n_runs = 0
+        while tie or n_runs < 10:
             team0 = self.gen.get_team().get_battle_team([0, 1, 2])
             team1 = self.gen.get_team().get_battle_team([0, 1, 2])
             if self.debug:
@@ -144,6 +145,7 @@ class RandomTeamsBattleMatch(BattleMatch):
             winner1 = self._run_battle(a0, a1, team1, team0)
             self.wins[winner1] += 1
             tie = self.wins[0] == self.wins[1]
+            n_runs += 1
         if self.debug:
             print('MATCH RESULTS ' + str(self.wins) + '\n')
         a0.close()
