@@ -1,0 +1,4 @@
+recursive-include vgc/*
+include vgc/ux/sprites/move/*.png
+include vgc/ux/sprites/pkm/*.png
+include vgc/ux/sprites/background.png
