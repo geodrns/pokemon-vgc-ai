@@ -199,7 +199,7 @@ multiple methods that return the various types of behaviours that will be called
 Example:
 
 ```python
-class Competitor(ABC):
+class MyVGCCompetitor(Competitor):
 
     def __init__(self):
         self.my_battle_policy = MyVGCBattlePolicy()
