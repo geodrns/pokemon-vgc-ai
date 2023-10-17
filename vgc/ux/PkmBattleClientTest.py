@@ -1,6 +1,6 @@
 from multiprocessing.connection import Client
 
-from vgc.engine.PkmBattleEngine import PkmBattleEnv
+from vgc.engine.PkmBattleEnv import PkmBattleEnv
 
 from vgc.behaviour.BattlePolicies import RandomPlayer
 from vgc.util.generator.PkmTeamGenerators import RandomTeamGenerator
