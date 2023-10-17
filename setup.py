@@ -8,7 +8,7 @@ setup(
     author='Simão Reis',
     author_email='simao.reis@outlook.pt',
     license='MIT License',
-    packages=find_packages(),
+    packages=find_packages(exclude=['agent*', 'example']),
     include_package_data=True,
     install_requires=['numpy>=1.15.4',
                       'gym>=0.10.9',
