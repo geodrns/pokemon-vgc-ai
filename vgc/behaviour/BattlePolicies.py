@@ -67,7 +67,8 @@ class OneTurnLookahead(BattlePolicy):
 
         # get my pkms
         my_team = g.teams[0]
-        my_pkms = [my_team.active] + my_team.party
+        my_active = my_team.active
+        my_attack_stage = my_team.stage[PkmStat.ATTACK]
 
         # get opp team
         opp_team = g.teams[1]
@@ -75,35 +76,20 @@ class OneTurnLookahead(BattlePolicy):
         opp_active_type = opp_active.type
         opp_defense_stage = opp_team.stage[PkmStat.DEFENSE]
 
-        # get most damaging move from all my pkms
+        # get most damaging move from my active pkm
         damage: List[float] = []
-        for i, pkm in enumerate(my_pkms):
-            if i == 0:
-                my_attack_stage = my_team.stage[PkmStat.ATTACK]
-            else:
-                my_attack_stage = 0
-            for move in pkm.moves:
-                if pkm.hp == 0.0:
-                    damage.append(0.0)
-                else:
-                    damage.append(estimate_damage(move.type, pkm.type, move.power, opp_active_type, my_attack_stage,
-                                                  opp_defense_stage, weather))
-        move_id = int(np.argmax(damage))
+        for move in my_active.moves:
+                damage.append(estimate_damage(move.type, my_active.type, move.power, opp_active_type,
+                                              my_attack_stage, opp_defense_stage, weather))
 
-        # decide between using an active pkm move or switching
-        if move_id < 4:
-            return move_id  # use current active pkm best damaging move
-        if 4 <= move_id < 8:
-            return 4  # switch to first party pkm
-        else:
-            return 5  # switch to second party pkm
+        return int(np.argmax(damage))  # use active pkm best damaging move
 
 
-def evaluate_matchup(pkm_type: PkmType, opp_pkm_type: PkmType, moves_type: List[PkmType]) -> float:
+def evaluate_matchup(my_pkm_type: PkmType, opp_pkm_type: PkmType, opp_moves_type: List[PkmType]) -> float:
     # determine defensive matchup
     defensive_matchup = 0.0
-    for mtype in moves_type + [opp_pkm_type]:
-        defensive_matchup = min(TYPE_CHART_MULTIPLIER[mtype][pkm_type], defensive_matchup)
+    for mtype in opp_moves_type + [opp_pkm_type]:
+        defensive_matchup = max(TYPE_CHART_MULTIPLIER[mtype][my_pkm_type], defensive_matchup)
     return defensive_matchup
 
 
@@ -133,15 +119,14 @@ class TypeSelector(BattlePolicy):
         # get opp team
         opp_team = g.teams[1]
         opp_active = opp_team.active
+        opp_active_type = opp_active.type
         opp_defense_stage = opp_team.stage[PkmStat.DEFENSE]
 
-        # estimate damage my active pkm moves
+        # get most damaging move from my active pkm
         damage: List[float] = []
         for move in my_active.moves:
-            damage.append(estimate_damage(move.type, my_active.type, move.power, opp_active.type, my_attack_stage,
-                                          opp_defense_stage, weather))
-
-        # get most damaging move
+                damage.append(estimate_damage(move.type, my_active.type, move.power, opp_active_type,
+                                              my_attack_stage, opp_defense_stage, weather))
         move_id = int(np.argmax(damage))
 
         #  If this damage is greater than the opponents current health we knock it out
@@ -149,7 +134,7 @@ class TypeSelector(BattlePolicy):
             return move_id
 
         # If not, check if are a favorable match. If we are lets give maximum possible damage.
-        if evaluate_matchup(my_active.type, opp_active.type, list(map(lambda m: m.type, opp_active.moves))) >= 1.0:
+        if evaluate_matchup(my_active.type, opp_active.type, list(map(lambda m: m.type, opp_active.moves))) <= 1.0:
             return move_id
 
         # If we are not switch to the most favorable matchup
@@ -157,14 +142,14 @@ class TypeSelector(BattlePolicy):
         not_fainted = False
         for pkm in my_party:
             if pkm.hp == 0.0:
-                matchup.append(0.0)
+                matchup.append(2.0)
             else:
                 not_fainted = True
                 matchup.append(
-                    evaluate_matchup(my_active.type, opp_active.type, list(map(lambda m: m.type, opp_active.moves))))
+                    evaluate_matchup(pkm.type, opp_active.type, list(map(lambda m: m.type, opp_active.moves))))
 
         if not_fainted:
-            return int(np.argmax(matchup)) + 4
+            return int(np.argmin(matchup)) + 4
 
         # If our party has no non fainted pkm, lets give maximum possible damage with current active
         return move_id
