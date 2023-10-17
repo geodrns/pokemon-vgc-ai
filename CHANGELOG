@@ -1,5 +1,11 @@
 ## Changelog
 
+### Version 2.2.1 (October 2023)
+
+1. Added Setup.py for easy installation of vgc.
+2. Fixed minor bugs.
+3. Fixed some baseline BattlePolicies.
+
 ### Version 2.2.0 (July 2023)
 
 1. Fixed an issue for the Battle Track where pairings were done wrongly and random teams were not used.
