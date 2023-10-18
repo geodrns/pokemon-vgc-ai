@@ -1,7 +1,7 @@
 import argparse
 from multiprocessing.connection import Client
 
-from agent.Example_Competitor import ExampleCompetitor
+from example.Example_Competitor import ExampleCompetitor
 from vgc.balance.meta import StandardMetaData, default_eval_func
 from vgc.balance.restriction import VGCDesignConstraints
 from vgc.competition.Competitor import CompetitorManager

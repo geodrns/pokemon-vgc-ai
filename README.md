@@ -215,7 +215,7 @@ class MyVGCCompetitor(Competitor):
 
     @property
     def name(self) -> str:
-        return "My VGC AI agent"
+        return "My VGC AI competition"
 ```
 
 ### Set Competition Managers and a Tree Championship
@@ -306,4 +306,5 @@ Please cite this work if used.
 
 ## TODO
 
+* Improve the baseline tree search battle policies, currently can't beat the random policy in a consistent way.
 * Improve game state encoding performance.
