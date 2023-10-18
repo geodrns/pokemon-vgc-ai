@@ -55,7 +55,7 @@ class KidMeBot(BattlePolicy):
 
 class DamageFocusedBot(BattlePolicy):
     """
-    Greedy heuristic based agent designed to encapsulate a greedy strategy that prioritizes damage output.
+    Greedy heuristic based competition designed to encapsulate a greedy strategy that prioritizes damage output.
     Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
     """
 

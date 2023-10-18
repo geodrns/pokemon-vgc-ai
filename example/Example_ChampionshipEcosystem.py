@@ -1,4 +1,4 @@
-from agent.Example_Competitor import ExampleCompetitor
+from Example_Competitor import ExampleCompetitor
 from vgc.balance.meta import StandardMetaData
 from vgc.competition.Competitor import CompetitorManager
 from vgc.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem

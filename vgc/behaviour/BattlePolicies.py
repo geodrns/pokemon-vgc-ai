@@ -51,7 +51,7 @@ def estimate_damage(move_type: PkmType, pkm_type: PkmType, move_power: float, op
 
 class OneTurnLookahead(BattlePolicy):
     """
-    Greedy heuristic based agent designed to encapsulate a greedy strategy that prioritizes damage output.
+    Greedy heuristic based competition designed to encapsulate a greedy strategy that prioritizes damage output.
     Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
     """
 
@@ -95,7 +95,7 @@ def evaluate_matchup(my_pkm_type: PkmType, opp_pkm_type: PkmType, opp_moves_type
 
 class TypeSelector(BattlePolicy):
     """
-    Type Selector is a variation upon the One Turn Lookahead agent that utilizes a short series of if-else statements in
+    Type Selector is a variation upon the One Turn Lookahead competition that utilizes a short series of if-else statements in
     its decision making.
     Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
     """
@@ -168,7 +168,7 @@ class BFSNode:
 class BreadthFirstSearch(BattlePolicy):
     """
     Basic tree search algorithm that traverses nodes in level order until it finds a state in which the current opponent
-    Pokemon is fainted. As a non-adversarial algorithm, the agent selfishly assumes that the opponent uses ”forceskip”
+    Pokemon is fainted. As a non-adversarial algorithm, the competition selfishly assumes that the opponent uses ”forceskip”
     (by selecting an invalid switch action).
     Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
     """
@@ -188,11 +188,13 @@ class BreadthFirstSearch(BattlePolicy):
         while len(self.node_queue) > 0:
             current_parent = self.node_queue.pop(0)
             # expand nodes of current parent
+            print()
             for i in range(DEFAULT_N_ACTIONS):
-                s, _, _, _ = current_parent.g.step([i, 99])  # opponent select an invalid switch action
-                if s[0].teams[0].active.hp == 0:
-                    continue
-                elif s[0].teams[1].active.hp == 0:
+                g = deepcopy(current_parent.g)
+                prev = g.teams[1].active.hp
+                s, _, _, _ = g.step([i, 99])  # opponent select an invalid switch action
+                print(prev, s[0].teams[1].active.hp)
+                if s[0].teams[1].active.hp == 0:
                     a = i
                     while current_parent != self.root:
                         a = current_parent.a
@@ -202,7 +204,7 @@ class BreadthFirstSearch(BattlePolicy):
                     node = BFSNode()
                     node.parent = current_parent
                     node.a = i
-                    node.g = deepcopy(s[0])
+                    node.g = s[0]
                     self.node_queue.append(node)
         # if victory is not possible return arbitrary action
         return 0
@@ -239,8 +241,9 @@ class Minimax(BattlePolicy):
             # expand nodes of current parent
             for i in range(DEFAULT_N_ACTIONS):
                 for j in range(DEFAULT_N_ACTIONS):  # opponent acts with his best interest, we iterate all joint actions
-                    s, _, _, _ = current_parent.g.step([i, j])  # opponent select an invalid switch action
-                    # gnore any node in which any of the agent's Pokemon faints
+                    g = deepcopy(current_parent.g)
+                    s, _, _, _ = g.step([i, j])  # opponent select an invalid switch action
+                    # gnore any node in which any of the competition's Pokemon faints
                     if s[0].teams[0].active.hp == 0:
                         continue
                     elif s[0].teams[1].active.hp == 0:
@@ -248,28 +251,30 @@ class Minimax(BattlePolicy):
                         while current_parent != self.root:
                             a = current_parent.a
                             current_parent = current_parent.parent
+                        print('victory state')
                         return a
                     else:
                         node = BFSNode()
                         node.parent = current_parent
                         node.depth = node.parent.depth + 1
                         node.a = i
-                        node.g = deepcopy(s[0])
+                        node.g = s[0]
                         node.eval = minimax_eval(s[0], node.depth)
                         self.node_queue.append(node)
                         # this could be improved by inserting with order
                         self.node_queue.sort(key=lambda n: n.eval, reverse=True)
         # if victory is not possible return arbitrary action
+        print('cant win')
         return 0
 
 
 class PrunedBFS(BattlePolicy):
     """
-    Utilize domain knowledge as a cost-cutting measure by making modifications to the Breadth First Search agent.
+    Utilize domain knowledge as a cost-cutting measure by making modifications to the Breadth First Search competition.
     We do not simulate any actions that involve using a damaging move with a resisted type, nor does it simulate any
-    actions that involve switching to a Pokemon with a subpar type matchup. Additionally, rather than selfishly
-    assuming the opponent skips their turn in each simulation, the agent assumes its opponent is a One Turn Lookahead
-    agent.
+    actions that involve switching to a Pokémon with a subpar type match up. Additionally, rather than selfishly
+    assuming the opponent skips their turn in each simulation, the competition assumes its opponent is a One Turn Lookahead
+    competition.
     Source: http://www.cig2017.com/wp-content/uploads/2017/08/paper_87.pdf
     """
 
@@ -288,20 +293,25 @@ class PrunedBFS(BattlePolicy):
         self.root.g = g
         while len(self.node_queue) > 0:
             current_parent = self.node_queue.pop(0)
+            # assume opponent follows OneTurnLookahead strategy
+            j = self.opp.get_action(g)
             # expand nodes of current parent
             for i in range(DEFAULT_N_ACTIONS):
-                teams = current_parent.g.teams
+                g = deepcopy(current_parent.g)
+                my_team = g.teams[0]
+                my_active = my_team.active
+                opp_team = g.teams[1]
+                opp_active = opp_team.active
                 # skip traversing tree with non very effective moves
-                if i < 4 and TYPE_CHART_MULTIPLIER[teams[0].active.moves[i].type][teams[1].active.type] < 0.5:
+                if i < 4 and TYPE_CHART_MULTIPLIER[my_active.moves[i].type][opp_active.type] < 1.0:
                     continue
-                # skip traversing tree with switches to pokemons that are a bad type matchup against opponent active
-                if i >= 4:
-                    for move in teams[1].active.moves:
-                        if move.power > 0.0 and TYPE_CHART_MULTIPLIER[move.type][teams[0].active.type] > 1.0:
+                # skip traversing tree with switches to Pokémon that are a bad type match against opponent active
+                elif i >= 4:
+                    p = i - DEFAULT_N_ACTIONS
+                    for move in opp_active.moves:
+                        if move.power > 0.0 and TYPE_CHART_MULTIPLIER[move.type][my_team.party[p].type] > 1.0:
                             continue
-                # assume opponent follows OneTurnLookahead strategy
-                j = self.opp.get_action(GameState((teams[1], teams[0]), current_parent.g.weather))
-                s, _, _, _ = current_parent.g.step([i, j])
+                s, _, _, _ = g.step([i, j])
                 if s[0].teams[0].active.hp == 0:
                     continue
                 elif s[0].teams[1].active.hp == 0:
@@ -309,12 +319,13 @@ class PrunedBFS(BattlePolicy):
                     while current_parent != self.root:
                         a = current_parent.a
                         current_parent = current_parent.parent
+                    print('win node')
                     return a
                 else:
                     node = BFSNode()
                     node.parent = current_parent
                     node.a = i
-                    node.g = deepcopy(s[0])
+                    node.g = s[0]
                     self.node_queue.append(node)
         # if victory is not possible return arbitrary action
         return 0

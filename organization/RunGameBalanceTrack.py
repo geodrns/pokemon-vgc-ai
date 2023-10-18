@@ -1,14 +1,30 @@
 import argparse
 from multiprocessing.connection import Client
 
-from agent.Example_Competitor import ExampleCompetitor
 from vgc.balance.meta import StandardMetaData, default_eval_func
 from vgc.balance.restriction import VGCDesignConstraints
-from vgc.competition.Competitor import CompetitorManager
+from vgc.behaviour import BattlePolicy
+from vgc.behaviour.BattlePolicies import TypeSelector
+from vgc.competition.Competitor import CompetitorManager, Competitor
 from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
 from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
 from vgc.network.ProxyCompetitor import ProxyCompetitor
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+
+
+class SurrogateCompetitor(Competitor):
+
+    def __init__(self, name: str = "Example"):
+        self._name = name
+        self._battle_policy = TypeSelector()
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def battle_policy(self) -> BattlePolicy:
+        return self._battle_policy
 
 
 def main(args):
@@ -18,7 +34,7 @@ def main(args):
     n_league_epochs = args.n_league_epochs
     base_port = args.base_port
     population_size = args.population_size
-    surrogate_agent = [CompetitorManager(ExampleCompetitor()) for _ in range(population_size)]
+    surrogate_agent = [CompetitorManager(SurrogateCompetitor()) for _ in range(population_size)]
     move_roster = STANDARD_MOVE_ROSTER
     base_roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=100).gen_roster()
     constraints = VGCDesignConstraints(base_roster)
