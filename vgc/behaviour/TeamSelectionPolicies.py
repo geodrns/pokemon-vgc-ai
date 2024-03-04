@@ -1,10 +1,8 @@
 import random
 from typing import Set, Tuple
 
-import PySimpleGUI as sg
-
 from vgc.behaviour import TeamSelectionPolicy
-from vgc.datatypes.Constants import DEFAULT_TEAM_SIZE, MAX_TEAM_SIZE
+from vgc.datatypes.Constants import DEFAULT_TEAM_SIZE
 from vgc.datatypes.Objects import PkmFullTeam
 
 
@@ -67,7 +65,7 @@ class TerminalTeamSelection(TeamSelectionPolicy):
         return {int(t[0]), int(t[1]), int(t[2])}
 
 
-class GUITeamSelectionPolicy(TeamSelectionPolicy):
+"""class GUITeamSelectionPolicy(TeamSelectionPolicy):
 
     def __init__(self, selected_team_size: int = DEFAULT_TEAM_SIZE, full_team_size: int = MAX_TEAM_SIZE):
         self.selected_team_size = selected_team_size
@@ -86,8 +84,8 @@ class GUITeamSelectionPolicy(TeamSelectionPolicy):
 
     def get_action(self, d: Tuple[PkmFullTeam, PkmFullTeam]) -> Set[int]:
 
-        """:param d: (self, opponent)
-        :return: idx list of selected pokémon"""
+        :param d: (self, opponent)
+        :return: idx list of selected pokémon
 
         selected = []
         for item in self.team:
@@ -113,4 +111,4 @@ class GUITeamSelectionPolicy(TeamSelectionPolicy):
         return set(selected)
 
     def close(self):
-        self.window.close()
+        self.window.close()"""
