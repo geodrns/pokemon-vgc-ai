@@ -107,12 +107,6 @@ class IndividualPkmCounter(TeamBuildPolicy):
         self.policy = None
         self.ver = -1
 
-    def requires_encode(self) -> bool:
-        return False
-
-    def close(self):
-        pass
-
     def set_roster(self, roster: PkmRoster, ver: int = 0):
         """
         Instead of storing the roster, we fill a pairwise match up table where each entry has the estimated win rate

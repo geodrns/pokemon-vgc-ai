@@ -1,11 +1,12 @@
+import tkinter
 from copy import deepcopy
-from threading import Thread
-from time import sleep
-from tkinter import CENTER
-from typing import List, Union
+from threading import Thread, Event
+from tkinter import CENTER, DISABLED, NORMAL
+from types import CellType
+from typing import List
 
 import numpy as np
-from customtkinter import CTk, CTkButton
+from customtkinter import CTk, CTkButton, CTkRadioButton, CTkLabel
 
 from vgc.behaviour import BattlePolicy
 from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, DEFAULT_PARTY_SIZE, TYPE_CHART_MULTIPLIER, DEFAULT_N_ACTIONS
@@ -388,6 +389,9 @@ class TunedTreeTraversal(BattlePolicy):
 
 
 class TerminalPlayer(BattlePolicy):
+    """
+    Terminal interface.
+    """
 
     def get_action(self, g: GameState) -> int:
         print('~ Actions ~')
@@ -408,33 +412,72 @@ class TerminalPlayer(BattlePolicy):
         return m
 
 
-def run_tk():
+def run_tk(event, value_wrapper, game_state_wrapper):
     app = GUIPlayer.App()
+    app.event = event
+    app.value_wrapper = value_wrapper
+    app.game_state_wrapper = game_state_wrapper
+    app.update_game_state()
     app.mainloop()
 
 
+def disable_event():
+    pass
+
 class GUIPlayer(BattlePolicy):
+    """
+    Graphical interface.
+    """
+
     class App(CTk):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            self.title("VGC GUI Battle Policy")
-            self.geometry("400x240")
-            button = CTkButton(master=self, text="Select Move", command=self.__button_function)
-            button.place(relx=0.5, rely=0.5, anchor=CENTER)
+            self.title("VGC GUI Battle GUI")
+            #self.iconbitmap(r"vgc/ux/vgc_v2_01_Uw5_icon.ico")
+            self.geometry("300x200")
+            self.protocol("WM_DELETE_WINDOW", disable_event)
+            CTkLabel(self, text="Actions").pack(anchor='w')
+            self.button = CTkButton(self, text="Select Action", state=DISABLED, command=self.button_callback)
+            self.button.place(relx=0.5, rely=0.9, anchor=CENTER)
+            self.radio_var = tkinter.IntVar(value=0)  # Create a variable for strings, and initialize the variable
+            self.buttons = []
+            for i in range(DEFAULT_N_ACTIONS):
+                button = CTkRadioButton(self, text=f"{i}", state=DISABLED, variable=self.radio_var, value=i)
+                button.pack(anchor='w')
+                self.buttons += [button]
+            self.event = None
+            self.value_wrapper = None
+            self.game_state_wrapper = None
 
-        def __button_function(self):
-            print('Hello')
+        def button_callback(self):
+            self.button.configure(state=DISABLED)
+            for button in self.buttons:
+                button.configure(state=DISABLED)
+            self.value_wrapper.cell_contents = self.radio_var.get()
+            self.event.set()
 
-        def update_game_state(self, g: GameState):
-            pass
-
+        def update_game_state(self):
+            g = self.game_state_wrapper.cell_contents
+            if g is not None:
+                self.button.configure(state=NORMAL)
+                for i, button in enumerate(self.buttons):
+                    if i < DEFAULT_PKM_N_MOVES:
+                        button.configure(state=NORMAL, text=f"{g.teams[0].active.moves[i]}")
+                    else:
+                        button.configure(state=NORMAL, text=f"Switch to {g.teams[0].party[i - DEFAULT_PKM_N_MOVES]}")
+                self.game_state_wrapper.cell_contents = None
+            self.after(1000, self.update_game_state)
 
     def __init__(self):
-        self.thd = Thread(target=run_tk)
+        self.event = Event()
+        self.value_wrapper = CellType(0)
+        self.game_state_wrapper = CellType(0)
+        self.thd = Thread(target=run_tk, args=(self.event, self.value_wrapper, self.game_state_wrapper))
         self.thd.daemon = True
         self.thd.start()
 
     def get_action(self, g: GameState) -> int:
-        self.thd.update_game_state(g)
-
-        return 0
+        self.game_state_wrapper.cell_contents = g
+        self.event.wait()
+        self.event.clear()
+        return self.value_wrapper.cell_contents
