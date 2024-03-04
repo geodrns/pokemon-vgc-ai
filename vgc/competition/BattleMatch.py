@@ -96,7 +96,7 @@ class BattleMatch:
                     team1_p: Optional[PkmTeam] = None, team0_p: Optional[PkmTeam] = None) -> int:
         env = PkmBattleEnv((team0, team1), debug=self.debug, encode=(a0.requires_encode(), a1.requires_encode()))
         env.set_predictions(team1_p, team0_p)
-        s = env.reset()
+        s, _ = env.reset()
         if self.debug:
             env.render(self.render_mode)
         t = False
@@ -104,13 +104,13 @@ class BattleMatch:
             try:
                 act0 = a0.get_action(s[0])
             except:
-                act0 = random.randint(0, DEFAULT_N_ACTIONS-1)
+                act0 = random.randint(0, DEFAULT_N_ACTIONS - 1)
             try:
                 act1 = a1.get_action(s[1])
             except:
-                act1 = random.randint(0, DEFAULT_N_ACTIONS-1)
+                act1 = random.randint(0, DEFAULT_N_ACTIONS - 1)
             a = [act0, act1]
-            s, _, t, v = env.step(a)
+            s, _, t, _, _ = env.step(a)
             if self.debug:
                 env.render(self.render_mode)
         return env.winner

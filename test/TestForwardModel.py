@@ -21,13 +21,13 @@ class TestForwardModel(unittest.TestCase):
 
     def test_state_type(self):
         env = PkmBattleEnv((self.team0, self.team1), encode=(False, True))
-        s0, s1 = env.reset()
+        (s0, s1), _ = env.reset()
         self.assertIs(type(s0), PkmBattleEnv)
         self.assertIsNot(type(s1), PkmBattleEnv)
 
     def test_forward_model(self):
         env = PkmBattleEnv((self.team0, self.team1), encode=(False, False))
-        s0, s1 = env.reset()
+        (s0, s1), _ = env.reset()
 
         my_team_0 = s0.teams[0]
         opp_team_0 = s0.teams[1]
@@ -91,7 +91,7 @@ class TestForwardModel(unittest.TestCase):
             self.assertEqual(opp_first_1.hp, null_pkm.hp)
         self.assertFalse(opp_first_1.public)
 
-        s, _, _, _ = env.step([4, 4])  # both players switch
+        s, _, _, _, _ = env.step([4, 4])  # both players switch
         s0, s1 = s
 
         my_team_0 = s0.teams[0]
@@ -188,7 +188,7 @@ class TestForwardModel(unittest.TestCase):
 
         prev_my_active_0 = my_active_0
 
-        s, _, _, _ = env.step([0, 0])  # both players use first move
+        s, _, _, _, _ = env.step([0, 0])  # both players use first move
         s0, s1 = s
 
         my_team_0 = s0.teams[0]

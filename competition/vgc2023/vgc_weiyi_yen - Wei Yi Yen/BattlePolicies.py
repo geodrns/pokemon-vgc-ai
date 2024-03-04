@@ -26,7 +26,7 @@ class AStarSearch(BattlePolicy):
             current_parent = self.node_queue.get()
             # Expand nodes of current parent
             for i in range(DEFAULT_N_ACTIONS):
-                s, _, _, _ = current_parent.g.step([i, 99])  # Opponent selects an invalid switch action
+                s, _, _, _, _ = current_parent.g.step([i, 99])  # Opponent selects an invalid switch action
                 if s[0].teams[0].active.hp == 0:
                     continue
                 elif s[0].teams[1].active.hp == 0:

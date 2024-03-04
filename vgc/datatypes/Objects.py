@@ -1,7 +1,7 @@
 import random
 from copy import deepcopy
 from math import isclose
-from typing import List, Tuple, Set
+from typing import List, Tuple
 
 import numpy as np
 

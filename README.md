@@ -26,10 +26,10 @@ n_battles = 3  # total number of battles
 t = False
 battle = 0
 while battle < n_battles:
-    s = env.reset()
+    s, _ = env.reset()
     while not t:  # True when all pkms of one of the two PkmTeam faint
         a = [agent0.get_action(s[0]), agent1.get_action(s[1])]
-        s, _, t, _ = env.step(a)  # for inference we don't need reward
+        s, _, t, _, _ = env.step(a)  # for inference we don't need reward
         env.render()
     t = False
     battle += 1
