@@ -1,10 +1,10 @@
-from vgc.behaviour.BattlePolicies import RandomPlayer, GUIPlayer
+from vgc.behaviour.BattlePolicies import RandomPlayer
 from vgc.datatypes.Objects import PkmTeam
 from vgc.engine.PkmBattleEnv import PkmBattleEnv
 
 
 def main():
-    a0 = GUIPlayer()
+    a0 = RandomPlayer()
     a1 = RandomPlayer()
     t0 = PkmTeam()
     t1 = PkmTeam()

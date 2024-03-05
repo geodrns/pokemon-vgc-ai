@@ -1,6 +1,6 @@
 from vgc.behaviour import BattlePolicy, TeamSelectionPolicy
 from vgc.behaviour.BattlePolicies import GUIPlayer, RandomPlayer, TerminalPlayer
-from vgc.behaviour.TeamSelectionPolicies import TerminalTeamSelection, GUITeamSelectionPolicy
+from vgc.behaviour.TeamSelectionPolicies import TerminalTeamSelection, GUITeamSelection
 from vgc.competition.Competitor import Competitor
 
 
@@ -40,7 +40,7 @@ class GUIExampleCompetitor(ExampleCompetitor):
 
     @property
     def team_selection_policy(self) -> TeamSelectionPolicy:
-        return GUITeamSelectionPolicy()
+        return GUITeamSelection()
 
     @property
     def battle_policy(self) -> BattlePolicy:

@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -79,12 +79,6 @@ def softmax(x):
     """Compute softmax values for each sets of scores in x."""
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum(axis=0)
-
-
-def select_next(matchup_table, n_pkms) -> List[int]:
-    average_winrate = np.sum(matchup_table, axis=1) / n_pkms
-    policy = softmax(average_winrate)
-    return np.random.choice(n_pkms, 3, False, p=policy)
 
 
 class IndividualPkmCounter(TeamBuildPolicy):
@@ -183,13 +177,13 @@ def get_policy(matchup_table, n_units):
     A_eq = np.array([[0] + [1] * n_units])
     b_eq = np.array([1])
     bounds = [(None, None)] + [(0, None)] * n_units
-    return linprog(c, A_ub=A_ub, b_ub=b_ub, A_eq=A_eq, b_eq=b_eq, bounds=bounds).x[1:]
+    return linprog(c, A_ub=A_ub, b_ub=b_ub, A_eq=A_eq, b_eq=b_eq, method='highs', bounds=bounds).x[1:]
 
 
-def minimax_select_next(matchup_table, n_pkms, n_team_mebers: int = 3):
+def minimax_select_next(matchup_table, n_pkms, n_team_members: int = 3):
     policy = get_policy(matchup_table, n_pkms)
     policy /= policy.sum()  # normalize
-    return np.random.choice(n_pkms, n_team_mebers, False, p=policy).tolist()
+    return np.random.choice(n_pkms, n_team_members, False, p=policy).tolist()
 
 
 class MinimaxBuilder(IndividualPkmCounter):
@@ -390,7 +384,7 @@ class MetaCounter(IndividualPkmCounter):
     def set_roster(self, roster: PkmRoster, ver: int = 0):
         super().set_roster(roster, ver)
         self.mlp = PredictorMLP()
-        self.mlp.load_state_dict(torch.load('Model/team_pred'))
+        self.mlp.load_state_dict(torch.load('model/team_pred'))
         self.mlp.eval()
 
     def get_action(self, meta: MetaData) -> PkmFullTeam:
@@ -400,7 +394,8 @@ class MetaCounter(IndividualPkmCounter):
         return PkmFullTeam([self.pkms[ids[0]], self.pkms[ids[1]], self.pkms[ids[2]]])
 
 
-def get_winrate_sim(team0, team1):
+def get_winrate_sim(team0: PkmFullTeam, team1: PkmFullTeam):
+    # TODO
     pass
 
 
@@ -428,7 +423,7 @@ class MaxTeamCoverage(IndividualPkmCounter):
         super().set_roster(roster, ver)
         if self.must_encode:
             self.mlp = PredictorMLP()
-            self.mlp.load_state_dict(torch.load('Model/team_pred'))
+            self.mlp.load_state_dict(torch.load('model/team_pred'))
             self.mlp.eval()
 
     def get_action(self, meta: MetaData) -> PkmFullTeam:
@@ -438,11 +433,11 @@ class MaxTeamCoverage(IndividualPkmCounter):
             usage = torch.ones(1)
             ids, _ = get_counter([team], usage, self.pkms, self.mlp, self.conf)
             counter_teams.append(PkmFullTeam([self.pkms[ids[0]], self.pkms[ids[1]], self.pkms[ids[2]]]))
-        encoded_teams = []
+        encoded_teams: List[Union[PkmFullTeam, np.ndarray]] = []
         all_teams = meta_teams + counter_teams
         if self.must_encode:
             for team in all_teams:
-                encoded_teams.append(encode_full_team(team))
+                encoded_teams.append(np.array(encode_full_team(team)))
         else:
             encoded_teams = all_teams
         n_teams = len(encoded_teams)
@@ -460,5 +455,5 @@ class MaxTeamCoverage(IndividualPkmCounter):
                     team_matchup_table[i + j][i] = 1.0 - winrate
         policy = get_policy(team_matchup_table, n_teams)
         policy /= sum(policy)
-        p: int = np.random.choice(n_teams, 1, p=policy)[0]
+        p: int = np.random.choice(n_teams, 1, p=policy)
         return all_teams[p]

@@ -432,9 +432,9 @@ class GUIPlayer(BattlePolicy):
     class App(CTk):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            self.title("VGC GUI Battle GUI")
+            self.title("VGC Battle GUI")
             #self.iconbitmap(r"vgc/ux/vgc_v2_01_Uw5_icon.ico")
-            self.geometry("300x200")
+            self.geometry("650x200")
             self.protocol("WM_DELETE_WINDOW", disable_event)
             CTkLabel(self, text="Actions").pack(anchor='w')
             self.button = CTkButton(self, text="Select Action", state=DISABLED, command=self.button_callback)
@@ -458,7 +458,7 @@ class GUIPlayer(BattlePolicy):
 
         def update_game_state(self):
             g = self.game_state_wrapper.cell_contents
-            if g is not None:
+            if g is not None and not isinstance(g, int):
                 self.button.configure(state=NORMAL)
                 for i, button in enumerate(self.buttons):
                     if i < DEFAULT_PKM_N_MOVES:

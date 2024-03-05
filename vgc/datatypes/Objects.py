@@ -96,21 +96,21 @@ class PkmMove:
     def __str__(self):
         if self.name:
             return self.name
-        name = "PkmMove(Power=%f, Acc=%f, PP=%d, Type=%s" % (self.power, self.acc, self.pp, self.type.name)
+        name = "PkmMove(Power=%d, Acc=%0.1f, PP=%d, Type=%s" % (self.power, self.acc, self.pp, self.type.name)
         if self.priority > 0:
             name += ", Priority=%d" % self.priority
         if self.prob > 0.:
             if self.prob < 1.:
-                name += ", Prob=%f" % self.prob
+                name += ", Prob=%d" % self.prob
             name += ", Target=Self" if self.target == 0 else ", Target=Opp"
             if self.recover > 0.:
-                name += ", Recover=%f" % self.recover
+                name += ", Recover=%d" % self.recover
             if self.status != PkmStatus.NONE:
                 name += ", Status=%s" % self.status.name
             if self.stage != 0.:
                 name += ", Stat=%s, Stage=%d" % (self.stat.name, self.stage)
             if self.fixed_damage > 0.:
-                name += ", Fixed=%f" % self.fixed_damage
+                name += ", Fixed=%d" % self.fixed_damage
             if self.weather != self.weather.CLEAR:
                 name += ", Weather=%s" % self.weather.name
             if self.hazard != PkmEntryHazard.NONE:
