@@ -12,7 +12,7 @@ What's new?
 * New terminal-based agents for Pokémon battling, team selection and team building.
 * New gui-based agents for Pokémon battling.
 * Integration of baseline team building agents from the VGC-Agent projects.
-* Meta-Game Balance Track validation fitness functions updated.
+* Meta-Game Balance Track upgraded with MetaEvaluator to allow different evaluation criteria.
 * requirements.txt updated.
 * Readme.md updated, tutorials were fixed to correspond to technical changes of 3.0.
 
@@ -325,6 +325,7 @@ Please cite this work if used.
 ## TODO
 
 * Improve Game State encoding performance.
+* Integrate more meta-game evaluators.
 * Implement In-Game Balance Track.
 * GUI interface for team selection.
 * GUI interface for team building.

@@ -1,14 +1,8 @@
 import random
-import tkinter
-from threading import Thread, Event
-from tkinter import NORMAL, DISABLED, CENTER
-from types import CellType
 from typing import Set, Tuple
 
-from customtkinter import CTkRadioButton, CTkButton, CTkLabel, CTk
-
 from vgc.behaviour import TeamSelectionPolicy
-from vgc.datatypes.Constants import DEFAULT_TEAM_SIZE, DEFAULT_PKM_N_MOVES, DEFAULT_N_ACTIONS
+from vgc.datatypes.Constants import DEFAULT_TEAM_SIZE
 from vgc.datatypes.Objects import PkmFullTeam
 
 
