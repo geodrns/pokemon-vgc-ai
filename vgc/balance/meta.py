@@ -168,12 +168,21 @@ class StandardMetaData(MetaData):
         return len(self._team_history)
 
 
-def default_eval_func(meta: StandardMetaData, base_roster: PkmRoster) -> float:
-    n_pkms = len(base_roster)
-    dist = 0.0
-    for i in range(n_pkms):
-        dist += std_pkm_dist(meta._pkm[i], base_roster[i])
-    dist /= n_pkms
-    usage = np.array([meta.get_global_pkm_usage(i) for i in range(n_pkms)])
-    balance = -np.std(usage)
-    return 0.5 * dist + 0.5 * balance
+class MetaEvaluator:
+
+    @abstractmethod
+    def eval(self, meta: StandardMetaData, base_roster: PkmRoster) -> float:
+        pass
+
+
+class BaseMetaEvaluator(MetaEvaluator):
+
+    def eval(self, meta: StandardMetaData, base_roster: PkmRoster) -> float:
+        n_pkms = len(base_roster)
+        dist = 0.0
+        for i in range(n_pkms):
+            dist += std_pkm_dist(meta._pkm[i], base_roster[i])
+        dist /= n_pkms
+        usage = np.array([meta.get_global_pkm_usage(i) for i in range(n_pkms)])
+        balance = -np.std(usage)
+        return 0.5 * dist + 0.5 * balance

@@ -14,4 +14,4 @@ class NullTeamPredictor(TeamPredictor):
         pass
 
     def get_action(self, d: Tuple[PkmFullTeam, MetaData]) -> PkmFullTeam:
-        return PkmFullTeam()
+        return d[0]

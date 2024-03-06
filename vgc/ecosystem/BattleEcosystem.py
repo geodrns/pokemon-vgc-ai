@@ -2,7 +2,7 @@ from enum import Enum
 from random import shuffle
 from typing import List, Tuple
 
-from elo import rate_1vs1
+from elopy.elo import Elo
 
 from vgc.balance.meta import MetaData
 from vgc.competition.BattleMatch import BattleMatch
@@ -26,6 +26,7 @@ class BattleEcosystem:
         self.n_battles = n_battles
         self.pairings_strategy = pairings_strategy
         self.update_meta = update_meta
+        self.elo = Elo()
 
     def register(self, cm: CompetitorManager):
         if cm not in self.competitors:
@@ -58,6 +59,6 @@ class BattleEcosystem:
                                 update_meta=self.update_meta)
             match.run()
             if match.winner() == 0:
-                cm0.elo, cm1.elo = rate_1vs1(cm0.elo, cm1.elo)
+                cm0.player.play_game(cm1.player, match.wins[0] - match.wins[1], is_home=False)
             elif match.winner() == 1:
-                cm1.elo, cm0.elo = rate_1vs1(cm1.elo, cm0.elo)
+                cm1.player.play_game(cm0.player, match.wins[1] - match.wins[0], is_home=False)

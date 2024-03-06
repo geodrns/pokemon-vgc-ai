@@ -59,8 +59,8 @@ class BattleMatch:
             team1_view = team1.get_copy()
             hide_team(team1_view)
             # full team predictions
-            team1_p = self.__team_prediction(c0, team0_view)
-            team0_p = self.__team_prediction(c1, team1_view)
+            team1_p = self.__team_prediction(c0, team1_view)
+            team0_p = self.__team_prediction(c1, team0_view)
             # self team selection and opponent prediction
             battle_team0, battle_team1_p = team_selection(c0, team0, team1_p)
             battle_team1, battle_team0_p = team_selection(c1, team1, team0_p)
@@ -85,7 +85,7 @@ class BattleMatch:
 
     def __team_prediction(self, c: Competitor, opp_team_view: PkmFullTeam) -> PkmFullTeam:
         if self.meta_data is None:
-            return PkmFullTeam()
+            return opp_team_view
         else:
             try:
                 return c.team_predictor.get_action((opp_team_view, self.meta_data))
@@ -96,7 +96,7 @@ class BattleMatch:
                     team1_p: Optional[PkmTeam] = None, team0_p: Optional[PkmTeam] = None) -> int:
         env = PkmBattleEnv((team0, team1), debug=self.debug, encode=(a0.requires_encode(), a1.requires_encode()))
         env.set_predictions(team1_p, team0_p)
-        s = env.reset()
+        s, _ = env.reset()
         if self.debug:
             env.render(self.render_mode)
         t = False
@@ -104,13 +104,13 @@ class BattleMatch:
             try:
                 act0 = a0.get_action(s[0])
             except:
-                act0 = random.randint(0, DEFAULT_N_ACTIONS-1)
+                act0 = random.randint(0, DEFAULT_N_ACTIONS - 1)
             try:
                 act1 = a1.get_action(s[1])
             except:
-                act1 = random.randint(0, DEFAULT_N_ACTIONS-1)
+                act1 = random.randint(0, DEFAULT_N_ACTIONS - 1)
             a = [act0, act1]
-            s, _, t, v = env.step(a)
+            s, _, t, _, _ = env.step(a)
             if self.debug:
                 env.render(self.render_mode)
         return env.winner

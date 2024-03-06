@@ -157,9 +157,9 @@ class WBukowskiBattlePolicy(BattlePolicy):
                 attack_score = dmg * move.acc * priority_bonus
                 status_score = 5 * target_sign * status_weights[move.status] * move.prob * move.acc
                 stat_change_score = 5 * -target_sign * move.stage * stat_change_weights[move.stat] * (
-                            1 - my_team.stage[move.stat] / 5) * move.prob * move.acc
+                        1 - my_team.stage[move.stat] / 5) * move.prob * move.acc
                 recovery_score = float("-inf") if (
-                                                              pkm.hp + move.recover) / pkm.max_hp <= 0.4 and move.recover < 0 else 150 * move.recover / pkm.max_hp
+                                                          pkm.hp + move.recover) / pkm.max_hp <= 0.4 and move.recover < 0 else 150 * move.recover / pkm.max_hp
 
                 score = (pkm_score + attack_score + status_score + stat_change_score + recovery_score) * switch_malus
                 move_value.append(score)

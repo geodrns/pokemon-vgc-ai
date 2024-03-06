@@ -1,7 +1,7 @@
 from copy import deepcopy
 from typing import List
 
-from vgc.balance.meta import MetaData
+from vgc.balance.meta import StandardMetaData, MetaEvaluator
 from vgc.balance.restriction import VGCDesignConstraints
 from vgc.competition.Competition import Competitor
 from vgc.competition.Competitor import CompetitorManager
@@ -13,10 +13,10 @@ from vgc.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
 
 class GameBalanceEcosystem:
 
-    def __init__(self, eval_func, competitor: Competitor, surrogate_agent: List[CompetitorManager],
-                 constraints: VGCDesignConstraints, base_roster: PkmRoster, meta_data: MetaData, debug=False,
+    def __init__(self, evaluator: MetaEvaluator, competitor: Competitor, surrogate_agent: List[CompetitorManager],
+                 constraints: VGCDesignConstraints, base_roster: PkmRoster, meta_data: StandardMetaData, debug=False,
                  render=False, n_battles=DEFAULT_MATCH_N_BATTLES, strategy: Strategy = Strategy.RANDOM_PAIRING):
-        self.eval_func = eval_func
+        self.evaluator = evaluator
         self.c = competitor
         self.constraints = constraints
         self.meta_data = meta_data
@@ -31,7 +31,7 @@ class GameBalanceEcosystem:
         for epoch in range(n_epochs):
             self.vgc.run(n_vgc_epochs, n_league_epochs)
             if epoch > 0:
-                self.total_score += self.eval_func(self.meta_data, self.base_roster)
+                self.total_score += self.evaluator.eval(self.meta_data, self.base_roster)
             delta_roster = self.c.balance_policy.get_action((deepcopy(self.vgc.roster), deepcopy(self.meta_data),
                                                              self.constraints))
             copy_roster = deepcopy(self.vgc.roster)

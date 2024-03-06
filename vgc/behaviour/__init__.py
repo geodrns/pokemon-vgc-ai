@@ -13,11 +13,9 @@ class Behaviour(ABC):
     def get_action(self, s) -> Any:
         pass
 
-    @abstractmethod
     def requires_encode(self) -> bool:
-        pass
+        return False
 
-    @abstractmethod
     def close(self):
         pass
 

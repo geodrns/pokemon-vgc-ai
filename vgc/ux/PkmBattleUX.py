@@ -7,9 +7,9 @@ from typing import List, Tuple
 import arcade
 
 from vgc.datatypes.Types import PkmType, PkmStat
-# Set constants for the screen size
 from vgc.util.Networking import non_blocking_lock
 
+# Set constants for the screen size
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 300
 TITLE = "Pokemon Battle"
@@ -202,11 +202,11 @@ class PkmBattleUX(arcade.Window):
         arcade.draw_text(self.atk[0], 130.0, 160.0, arcade.color.WHITE, 12, 180, 'left')
         arcade.draw_text(self.hp[0], 130.0, 140.0, arcade.color.WHITE, 12, 180, 'left')
 
-        arcade.draw_text(self.moves, 10.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.a[0], 80.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.a[1], 120.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.a[2], 160.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
-        arcade.draw_text(self.a[3], 200.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
+        #arcade.draw_text(self.moves, 10.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
+        #arcade.draw_text(self.a[0], 80.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
+        #arcade.draw_text(self.a[1], 120.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
+        #arcade.draw_text(self.a[2], 160.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
+        #arcade.draw_text(self.a[3], 200.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
 
         arcade.draw_text(self.spd[1], 210.0, 200.0, arcade.color.WHITE, 12, 180, 'left')
         arcade.draw_text(self.dfs[1], 210.0, 180.0, arcade.color.WHITE, 12, 180, 'left')
@@ -285,12 +285,12 @@ class PkmBattleUX(arcade.Window):
         self.sprite_list.append(self.party[0][2])
 
         hp0 = data[3]
-        self.hp[0] = f'HP: {hp0}'
+        self.hp[0] = f'HP: {int(hp0)}'
 
-        self.a[0] = str(data[4])
-        self.a[1] = str(data[5])
-        self.a[2] = str(data[6])
-        self.a[3] = str(data[7])
+        self.a[0] = str(int(data[4]))
+        self.a[1] = str(int(data[5]))
+        self.a[2] = str(int(data[6]))
+        self.a[3] = str(int(data[7]))
 
         type1_0 = data[8]
         n = 1
@@ -314,7 +314,7 @@ class PkmBattleUX(arcade.Window):
         self.sprite_list.append(self.party[1][2])
 
         hp1 = data[11]
-        self.hp[1] = f'HP: {hp1}'
+        self.hp[1] = f'HP: {int(hp1)}'
 
         self.log = 'Battle begins.'
 
@@ -327,7 +327,7 @@ class PkmBattleUX(arcade.Window):
         self.party[team][party] = old_active
         self.anim_events.append(SwitchEvent(self.party[team][0], self.party[team][party], 1.0))
         self.anim_events.append(PauseEvent(0.5))
-        self.hp[team] = f'HP: {hp}'
+        self.hp[team] = f'HP: {int(hp)}'
         self.atk[team] = f'Atk: 0'
         self.dfs[team] = f'Def: 0'
         if team == 0:
@@ -360,7 +360,7 @@ class PkmBattleUX(arcade.Window):
         team = data[1]
         if evt == 'hp':
             stat = data[2]
-            self.hp[team] = f'HP: {stat}'
+            self.hp[team] = f'HP: {int(stat)}'
             self.log = f'Active {team} HP becomes {stat}.'
         elif evt == PkmStat.ATTACK.name:
             stat = data[2]

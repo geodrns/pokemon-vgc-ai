@@ -1,5 +1,3 @@
-import operator
-
 from vgc.balance.meta import MetaData
 from vgc.competition import legal_team
 from vgc.competition.Competitor import CompetitorManager
@@ -61,4 +59,4 @@ class ChampionshipEcosystem:
             cm.team = cm.team if cm.team is not None else self.rand_gen.get_team()
 
     def strongest(self) -> CompetitorManager:
-        return max(self.league.competitors, key=operator.attrgetter('elo'))
+        return max(self.league.competitors, key=lambda c: c.player.elo)

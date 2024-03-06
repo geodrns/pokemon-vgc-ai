@@ -3,9 +3,8 @@ from copy import deepcopy
 from multiprocessing.connection import Client
 from typing import List, Tuple
 
-import gym
 import numpy as np
-from gym import spaces
+from gymnasium import Env, spaces
 
 from vgc.competition.StandardPkmMoves import Struggle
 from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, MAX_HIT_POINTS, STATE_DAMAGE, SPIKES_2, SPIKES_3, \
@@ -17,7 +16,7 @@ from vgc.engine.HiddenInformation import set_pkm
 from vgc.util.Encoding import GAME_STATE_ENCODE_LEN, partial_encode_game_state
 
 
-class PkmBattleEnv(gym.Env, GameState):
+class PkmBattleEnv(Env, GameState):
 
     def __init__(self, teams: Tuple[PkmTeam, PkmTeam], weather=Weather(), debug: bool = False, conn: Client = None,
                  encode: Tuple[bool, bool] = (True, True)):
@@ -157,9 +156,9 @@ class PkmBattleEnv(gym.Env, GameState):
         r[first] += float(t[first])
         r[second] += float(t[second])
 
-        finished = t[0] or t[1]
+        terminated = t[0] or t[1]
 
-        if finished:
+        if terminated:
             self.winner = 1 if t[0] else 0
 
             if self.debug:
@@ -169,7 +168,7 @@ class PkmBattleEnv(gym.Env, GameState):
                 self.log += f'Trainer 1 {outcome1}\n'
                 self.commands.append(('event', ['log', f'Trainer 0 {outcome0}.']))
 
-        return self.__get_states(), r, finished, None
+        return self.__get_states(), r, terminated, False, {}
 
     def reset(self):
         self.weather.condition = WeatherCondition.CLEAR
@@ -199,7 +198,7 @@ class PkmBattleEnv(gym.Env, GameState):
                                            self.teams[1].party[1].type.value,
                                            self.teams[1].active.hp]))
 
-        return self.__get_states()
+        return self.__get_states(), {}
 
     def render(self, mode='console'):
         if mode == 'console':
