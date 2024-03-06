@@ -20,7 +20,7 @@ from vgc.util.Encoding import one_hot
 
 class RandomTeamBuilder(TeamBuildPolicy):
     """
-    Agents that selects teams randomly.
+    Agent that selects teams randomly.
     """
 
     def __init__(self):
@@ -42,7 +42,7 @@ class RandomTeamBuilder(TeamBuildPolicy):
 
 class FixedTeamBuilder(TeamBuildPolicy):
     """
-    Agents that always selects the same team.
+    Agent that always selects the same team.
     """
 
     def __init__(self):
@@ -457,3 +457,45 @@ class MaxTeamCoverage(IndividualPkmCounter):
         policy /= sum(policy)
         p: int = np.random.choice(n_teams, 1, p=policy)
         return all_teams[p]
+
+class TerminalTeamBuilder(TeamBuildPolicy):
+    """
+    Terminal interface.
+    """
+
+    def __init__(self):
+        self.roster = None
+
+    def set_roster(self, roster: PkmRoster, ver: int = 0):
+        self.roster = roster
+
+    def get_action(self, s: MetaData) -> PkmFullTeam:
+        print('~ Roster ~')
+        for i, pt in enumerate(self.roster):
+            print(i, '->', pt)
+        print(f'Select action in the format p p p with p in [0-{len(self.roster) - 1}]')
+        while True:
+            valid = True
+            try:
+                t = input('Select Action: ')
+                t = t.split()
+                if len(t) != 3:
+                    print('Invalid action. Select again.')
+                    continue
+                for m in t:
+                    if not m.isdigit() and 0 < int(m) < len(self.roster):
+                        print('Invalid action. Select again.')
+                        valid = False
+                        break
+                if valid:
+                    break
+            except:
+                print('Invalid action. Select again.')
+        print()
+        pre_selection: List[PkmTemplate] = [self.roster[int(t[0])], self.roster[int(t[1])], self.roster[int(t[2])]]
+        team: List[Pkm] = []
+        for pt in pre_selection:
+            team.append(pt.gen_pkm([0, 1, 2, 3]))
+        return PkmFullTeam(team)
+
+# class GUITeamBuild TODO

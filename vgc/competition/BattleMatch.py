@@ -59,8 +59,8 @@ class BattleMatch:
             team1_view = team1.get_copy()
             hide_team(team1_view)
             # full team predictions
-            team1_p = self.__team_prediction(c0, team0_view)
-            team0_p = self.__team_prediction(c1, team1_view)
+            team1_p = self.__team_prediction(c0, team1_view)
+            team0_p = self.__team_prediction(c1, team0_view)
             # self team selection and opponent prediction
             battle_team0, battle_team1_p = team_selection(c0, team0, team1_p)
             battle_team1, battle_team0_p = team_selection(c1, team1, team0_p)
@@ -85,7 +85,7 @@ class BattleMatch:
 
     def __team_prediction(self, c: Competitor, opp_team_view: PkmFullTeam) -> PkmFullTeam:
         if self.meta_data is None:
-            return PkmFullTeam()
+            return opp_team_view
         else:
             try:
                 return c.team_predictor.get_action((opp_team_view, self.meta_data))

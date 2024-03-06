@@ -1,16 +1,54 @@
-# Pokémon VGC AI Framework
+# Pokémon VGC AI Framework 3.0
 
 [[_TOC_]]
 
-## Source Code
+## Changelog 3.0 (New)
+
+What's new?
+
+* Previous baseline tree-search agents were fixed; A new agent, TunedTreeTraversal was added.
+* Fixed broken dependencies from the elo package installation, migrated to elopy.
+* PkmBattleEnv was migrated from gym to gymnasium.
+* New terminal-based agents for Pokémon battling, team selection and team building.
+* New gui-based agents for Pokémon battling.
+* Integration of baseline team building agents from the VGC-Agent projects.
+* Meta-Game Balance Track validation fitness functions updated.
+* requirements.txt updated.
+* Readme.md updated, tutorials were fixed to correspond to technical changes of 3.0.
+
+## Installation (New)
+
+If you wish to use a clone of this project standalone, we recommend to install the dependencies using requirements.txt
+
+```
+git clone https://gitlab.com/DracoStriker/pokemon-vgc-engine.git
+cd pokemon-vgc-egine
+pip install -r requirements.txt
+```
+
+If you wish to install vgc as a package in your venv, then you can:
+
+```
+git clone https://gitlab.com/DracoStriker/pokemon-vgc-engine.git
+cd pokemon-vgc-egine
+pip install .
+```
+
+## Project Organization
 
 The `/vgc` module is the core implementation of the VGC AI Framework.
 
 In the `/test` folder is contained some unit tests from the core framework modules.
 
-## Tutorial
+In the `/example` folder it can be found multiple examples for how to use the framework, to train or test isolated
+agents or behaviours or run full ecosystems with independent processes controlling each agent.
 
-In this section we present a set of introductory tutorials.
+In the `/organization` folder it can be found the multiple entry points for the main ecosystem layers in the VGC AI
+Framework.
+
+In the `/competition` folder can be found previous years entries.
+
+## Tutorials
 
 ### Set a Pokémon  Battle in the Pokémon  Battle Env (gym)
 
@@ -29,7 +67,7 @@ while battle < n_battles:
     s, _ = env.reset()
     while not t:  # True when all pkms of one of the two PkmTeam faint
         a = [agent0.get_action(s[0]), agent1.get_action(s[1])]
-        s, _, t, _, _ = env.step(a)  # for inference we don't need reward
+        s, _, t, _, _ = env.step(a)  # for inference, we don't need reward
         env.render()
     t = False
     battle += 1
@@ -38,7 +76,7 @@ print(env.winner)  # winner id number
 
 `s` is a duple with the game state encoding for each agent. `r` is a duple with the reward for each agent.
 
-To create custom `PkmTeam` you can just input an array of `Pkm`.
+To create custom `PkmTeam` you can just input a list of `Pkm`.
 
 Agents may require the standard game state encoding for their observations. Agents' `BattlePolicy` encode such
 information in the `requires_encode()` method. We pass the required encoding protocol to the environment.
@@ -52,17 +90,17 @@ settings. You can obtain a battle team from a full team by providing the team in
 
 ```python
 full_team = FullPkmTeam([Pkm(), Pkm(), Pkm(), Pkm(), Pkm(), Pkm()])
-team = full_team.get_battle_team([1, 4, 5])
+team: PkmTeam = full_team.get_battle_team([1, 4, 5])
 ```
 
 ### Create a Pokémon  Roster and Meta
 
 A `PkmRoster` represents the entirety of unit selection for a team build competition. It is defined as
-`set[PkmTemplate]`. A `PkmTemplate` represents a Pokémon species. It defines the legal stats combinations and moveset
-for that Pokémon species. To create a roster you jsut need to convert a list of `PkmTemplate`.
+`List[PkmTemplate]`. A `PkmTemplate` represents a Pokémon species. It defines the legal stats combinations and move set
+for that Pokémon species.
 
 ```python
-roster = set([PkmTemplate(), PkmTemplate(), PkmTemplate()])
+roster = [PkmTemplate(), PkmTemplate(), PkmTemplate()]
 ```
 
 To get a `Pkm` instance from a `PkmTemplate` you just need to provide the moves indexes.
@@ -76,7 +114,7 @@ To create a meta is as simple as initializing.
 
 ```python
 meta_data = StandardMetaData()
-meta_data.set_moves_and_pkm(self, roster: PkmRoster, move_roster: PkmMoveRoster)
+meta_data.set_moves_and_pkm(self, roster, move_roster)
 ```
 
 The `StandardMetaData` assumes that the `move_roster` contains `PkmMove` that have the field `move_id` ordered and with
@@ -100,7 +138,7 @@ class MetaData(ABC):
         def get_n_teams(self) -> int
 ```
 
-Several standard methods can be used to query usage rate information of isolated moves, pokemon and teams.
+Several standard methods can be used to query usage rate information of isolated moves, Pokémon and teams.
 
 ### Create My Battle Policy
 
@@ -109,12 +147,6 @@ The battle policy must inherit from `BattlePolicy` (example bellow). The team bu
 
 ```python
 class MyVGCBattlePolicy(BattlePolicy):
-
-    def close(self):
-        pass
-
-    def requires_encode(self):
-        return False
 
     def get_action(self, g: GameState) -> int:
         # get my team
@@ -173,12 +205,6 @@ class MyVGCBuildPolicy(TeamBuildPolicy):
 
     def __init__(self):
         self.roster = None
-
-    def requires_encode(self) -> bool:
-        return False
-
-    def close(self):
-        pass
 
     def set_roster(self, roster: PkmRoster):
         self.roster = roster
@@ -263,14 +289,6 @@ print(ce.strongest.name)  # determine winner by checking the highest ELO rating!
 See and use examples provided in `vgc/ux`. Run `vgc/ux/PkmBattleClientTest.py` and `vgc/ux/PkmBattleUX.py` in that
 order.
 
-### More
-
-In the `/example` folder it can be found multiple examples for how to use the framework, to train or test isolated
-agents or behaviours or run full ecosystems with independent processes controlling each agent.
-
-In the `/organization` folder it can be found the multiple entry points for the main ecosystem layers in the VGC AI
-Framework.
-
 ## Documentation
 
 The full documentation from API, Framework architecture to the Competition Tracks and
@@ -306,5 +324,7 @@ Please cite this work if used.
 
 ## TODO
 
-* Improve the baseline tree search battle policies, currently can't beat the random policy in a consistent way.
-* Improve game state encoding performance.
+* Improve Game State encoding performance.
+* Implement In-Game Balance Track.
+* GUI interface for team selection.
+* GUI interface for team building.

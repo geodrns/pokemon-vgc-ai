@@ -1,8 +1,14 @@
 import random
+import tkinter
+from threading import Thread, Event
+from tkinter import NORMAL, DISABLED, CENTER
+from types import CellType
 from typing import Set, Tuple
 
+from customtkinter import CTkRadioButton, CTkButton, CTkLabel, CTk
+
 from vgc.behaviour import TeamSelectionPolicy
-from vgc.datatypes.Constants import DEFAULT_TEAM_SIZE
+from vgc.datatypes.Constants import DEFAULT_TEAM_SIZE, DEFAULT_PKM_N_MOVES, DEFAULT_N_ACTIONS
 from vgc.datatypes.Objects import PkmFullTeam
 
 
@@ -36,11 +42,15 @@ class FirstEditionTeamSelectionPolicy(TeamSelectionPolicy):
 
 
 class TerminalTeamSelection(TeamSelectionPolicy):
+    """
+    Terminal interface.
+    """
 
     def get_action(self, s: Tuple[PkmFullTeam, PkmFullTeam]) -> Set[int]:
         print('~ Opponent Team ~')
-        for p in s[0].pkm_list:
+        for p in s[1].pkm_list:
             print(p)
+        print('~ My Team ~')
         for i, p in enumerate(s[0].pkm_list):
             print(i, '->', p)
         print('Select action in the format p p p with p in [0-5]')
@@ -65,6 +75,4 @@ class TerminalTeamSelection(TeamSelectionPolicy):
         return {int(t[0]), int(t[1]), int(t[2])}
 
 
-class GUITeamSelection(TeamSelectionPolicy):
-    def get_action(self, s: Tuple[PkmFullTeam, PkmFullTeam]) -> Set[int]:
-        pass
+# class GUITeamSelection TODO
