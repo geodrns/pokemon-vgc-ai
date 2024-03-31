@@ -1,8 +1,8 @@
-# Pokémon VGC AI Framework 3.0
+# Pokémon VGC AI Framework 3.0.1
 
 [[_TOC_]]
 
-## Changelog 3.0 (New)
+## Changelog 3.0.1 (New)
 
 What's new?
 
@@ -15,6 +15,8 @@ What's new?
 * Meta-Game Balance Track upgraded with MetaEvaluator to allow different evaluation criteria.
 * requirements.txt updated.
 * Readme.md updated, tutorials were fixed to correspond to technical changes of 3.0.
+
+* Minor bug fixed in tree championship structure (3.0.1)
 
 ## Installation (New)
 

@@ -35,7 +35,7 @@ class MatchHandler:
             if debug:
                 print(self.match.cms[0].competitor.name + ' vs ' + self.match.cms[1].competitor.name + '\n')
             self.match.run()
-            winner = self.match.winner
+            winner = self.match.winner()
             if winner == 0:
                 self.winner = self.match.cms[0]
             else:
