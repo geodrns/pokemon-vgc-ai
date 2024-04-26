@@ -2,7 +2,7 @@
 
 [[_TOC_]]
 
-## Changelog 3.0.2 (New)
+## Changelog 3.0.3 (New)
 
 What's new?
 
@@ -19,6 +19,7 @@ What's new?
 * Minor bug fixed in tree championship structure (3.0.1)
 * Minor bug fixed in PkmBattleEnv where speed change only affected one of the trainers (3.0.2)
 * Minor bug fixed in stadard moves where one of the names would print wrongly (3.0.2)
+* Minor bug fixed in PkmBattleEnv where burned and frozen status where not implemented (3.0.3)
 
 ## Installation (New)
 

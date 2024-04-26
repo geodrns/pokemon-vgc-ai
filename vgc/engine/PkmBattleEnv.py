@@ -115,7 +115,7 @@ class PkmBattleEnv(Env, GameState):
 
         # battle
         first_can_attack = active_not_fainted and not first_pkm.paralyzed() and not first_pkm.asleep() and not \
-            first_confusion_damage
+            first_pkm.frozen() and not first_confusion_damage
         if self.debug and not first_can_attack:
             self.log += f'CANNOT MOVE: Trainer {first} cannot move\n'
             self.commands.append(('event', ['log', f'Trainer {first} cannot move.']))
@@ -124,7 +124,7 @@ class PkmBattleEnv(Env, GameState):
         active_not_fainted = not (first_pkm.fainted() or second_pkm.fainted())
 
         second_can_attack = active_not_fainted and not second_pkm.paralyzed() and not second_pkm.asleep() and not \
-            second_confusion_damage
+            second_pkm.frozen() and not second_confusion_damage
         if self.debug and not second_can_attack:
             self.log += f'CANNOT MOVE: Trainer {second} cannot move\n'
             self.commands.append(('event', ['log', f'Trainer {second} cannot move.']))
@@ -282,7 +282,7 @@ class PkmBattleEnv(Env, GameState):
                         self.log += f'STATUS: Trainer {i}\'s {str(pkm)} is no longer confused\n'
                         self.commands.append(('event', ['log', f'Trainer {i} active is no longer confused.']))
 
-            # check if active pkm should be no more asleep
+            # check if active pkm should be no longer asleep
             if pkm.asleep():
                 pkm.n_turns_asleep += 1
                 if random.uniform(0, 1) <= 0.5 or pkm.n_turns_asleep == 4:
@@ -291,6 +291,14 @@ class PkmBattleEnv(Env, GameState):
                     if self.debug:
                         self.log += f'STATUS: Trainer {i}\'s {str(pkm)} is no longer asleep\n'
                         self.commands.append(('event', ['log', f'Trainer {i} active is no longer asleep.']))
+
+            # check if active pkm should be no longer frozen
+            if pkm.frozen():
+                if random.uniform(0, 1) <= 0.2:
+                    pkm.status = PkmStatus.NONE
+                    if self.debug:
+                        self.log += f'STATUS: Trainer {i}\'s {str(pkm)} is no longer frozen\n'
+                        self.commands.append(('event', ['log', f'Trainer {i} active is no longer frozen.']))
 
     def __process_post_battle_effects(self):
         """
@@ -412,12 +420,22 @@ class PkmBattleEnv(Env, GameState):
                 if self.__engine.debug:
                     self.__engine.log += f'STATUS: {str(pkm)} was poisoned\n'
                     self.__engine.commands.append(('event', ['log', f'Trainer {t_id} is now poisoned.']))
+            elif status == PkmStatus.BURNED and pkm.type != PkmType.FIRE and pkm.status != PkmStatus.BURNED:
+                pkm.status = PkmStatus.BURNED
+                if self.__engine.debug:
+                    self.__engine.log += f'STATUS: {str(pkm)} was burned\n'
+                    self.__engine.commands.append(('event', ['log', f'Trainer {t_id} is now burned.']))
             elif status == PkmStatus.SLEEP and pkm.status != PkmStatus.SLEEP:
                 pkm.status = PkmStatus.SLEEP
                 pkm.n_turns_asleep = 0
                 if self.__engine.debug:
                     self.__engine.log += f'STATUS: {str(pkm)} is now asleep\n'
                     self.__engine.commands.append(('event', ['log', f'Trainer {t_id} is now asleep.']))
+            elif status == PkmStatus.FROZEN and pkm.type != PkmType.ICE and pkm.status != PkmStatus.BURNED:
+                pkm.status = PkmStatus.FROZEN
+                if self.__engine.debug:
+                    self.__engine.log += f'STATUS: {str(pkm)} was frozen\n'
+                    self.__engine.commands.append(('event', ['log', f'Trainer {t_id} is now frozen.']))
             elif not team.confused:
                 team.confused = True
                 if self.__engine.debug:
