@@ -85,7 +85,7 @@ StoneEdge = PkmMove(100., .8, 5, PkmType.ROCK, "Stone Edge")
 # Ghost Moves
 NightShade = PkmMove(0., 1., 10, PkmType.GHOST, "Night Shade", fixed_damage=40., prob=1.)
 ShadowBall = PkmMove(80., 1., 15, PkmType.GHOST, "Shadow Ball", stat=PkmStat.DEFENSE, stage=-1, prob=.2)
-ShadowSneak = PkmMove(40., 1., 20, PkmType.GHOST, "Mach Punch", priority=True)
+ShadowSneak = PkmMove(40., 1., 20, PkmType.GHOST, "Shadow Sneak", priority=True)
 
 # Dragon Moves
 DragonRage = PkmMove(0., 1., 10, PkmType.DRAGON, "Dragon Rage", fixed_damage=40., prob=1.)

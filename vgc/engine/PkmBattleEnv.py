@@ -366,7 +366,7 @@ class PkmBattleEnv(Env, GameState):
             self.teams[1].active.moves[action1].priority if action1 < DEFAULT_PKM_N_MOVES else 0)
         if speed0 > speed1:
             order = [0, 1]
-        elif speed1 < speed0:
+        elif speed1 > speed0:
             order = [1, 0]
         else:
             # random attack order

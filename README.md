@@ -1,8 +1,8 @@
-# Pokémon VGC AI Framework 3.0.1
+# Pokémon VGC AI Framework 3.0.2
 
 [[_TOC_]]
 
-## Changelog 3.0.1 (New)
+## Changelog 3.0.2 (New)
 
 What's new?
 
@@ -17,6 +17,8 @@ What's new?
 * Readme.md updated, tutorials were fixed to correspond to technical changes of 3.0.
 
 * Minor bug fixed in tree championship structure (3.0.1)
+* Minor bug fixed in PkmBattleEnv where speed change only affected one of the trainers (3.0.2)
+* Minor bug fixed in stadard moves where one of the names would print wrongly (3.0.2)
 
 ## Installation (New)
 
