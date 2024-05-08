@@ -14,8 +14,8 @@ class PkmMove:
 
     def __init__(self, power: float = 30., acc: float = 1., max_pp: int = MOVE_MED_PP,
                  move_type: PkmType = PkmType.NORMAL, name: str = None, priority: bool = False,
-                 prob=0.0, target=1, recover=0.0, status: PkmStatus = PkmStatus.NONE,
-                 stat: PkmStat = PkmStat.ATTACK, stage: int = 0, fixed_damage: float = 0.0,
+                 prob=0., target=1, recover=0., status: PkmStatus = PkmStatus.NONE,
+                 stat: PkmStat = PkmStat.ATTACK, stage: int = 0, fixed_damage: float = 0.,
                  weather: WeatherCondition = WeatherCondition.CLEAR, hazard: PkmEntryHazard = PkmEntryHazard.NONE):
         """
         Pokemon move data structure.

@@ -1,8 +1,8 @@
-# Pokémon VGC AI Framework 3.0.2
+# Pokémon VGC AI Framework 3.0.4
 
 [[_TOC_]]
 
-## Changelog 3.0.3 (New)
+## Changelog 3.0.4 (New)
 
 What's new?
 
@@ -20,6 +20,7 @@ What's new?
 * Minor bug fixed in PkmBattleEnv where speed change only affected one of the trainers (3.0.2)
 * Minor bug fixed in stadard moves where one of the names would print wrongly (3.0.2)
 * Minor bug fixed in PkmBattleEnv where burned and frozen status where not implemented (3.0.3)
+* Minor bug fixed in PkmBattleEnv where StringShot/hail effect did not work and frozen status did not work (3.0.4)
 
 ## Installation (New)
 

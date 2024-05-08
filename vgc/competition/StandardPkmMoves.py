@@ -30,13 +30,13 @@ Thunderbolt = PkmMove(90., 1., 15, PkmType.ELECTRIC, "Thunderbolt", status=PkmSt
 ThunderShock = PkmMove(40., 1., 20, PkmType.ELECTRIC, "Thunder Shock", status=PkmStatus.PARALYZED, prob=.1)
 
 # Grass Moves
-Spore = PkmMove(0., 1., 5, PkmType.GRASS, "Spore", status=PkmStatus.SLEEP, prob=1)
+Spore = PkmMove(0., 1., 5, PkmType.GRASS, "Spore", status=PkmStatus.SLEEP, prob=1.)
 GigaDrain = PkmMove(75., 1., 15, PkmType.GRASS, "Giga Drain", recover=30., prob=1.)
 RazorLeaf = PkmMove(55., .95, 20, PkmType.GRASS, "Razor Leaf")
 EnergyBall = PkmMove(90., 1., 10, PkmType.GRASS, "Energy Ball", stat=PkmStat.DEFENSE, stage=-1, prob=.1)
 
 # Ice Moves
-Hail = PkmMove(0., 1., 5, PkmType.ICE, "Hail", weather=WeatherCondition.HAIL)
+Hail = PkmMove(0., 1., 5, PkmType.ICE, "Hail", weather=WeatherCondition.HAIL, prob=1.)
 Blizzard = PkmMove(110., .7, 5, PkmType.ICE, "Blizzard", status=PkmStatus.FROZEN, prob=.1)
 IceBeam = PkmMove(90., 1., 10, PkmType.ICE, "Ice Beam", status=PkmStatus.FROZEN, prob=.1)
 IceShard = PkmMove(40., 1., 20, PkmType.ICE, "Ice Shard", priority=True)
@@ -72,7 +72,7 @@ PsychoBoost = PkmMove(140., .9, 5, PkmType.PSYCHIC, "Psycho Boost", stat=PkmStat
 Psybeam = PkmMove(65., 1., 10, PkmType.PSYCHIC, "Psybeam", status=PkmStatus.CONFUSED, prob=.1)
 
 # Bug Moves
-StringShot = PkmMove(0., 1., 5, PkmType.BUG, "String Shot", stat=PkmStat.SPEED, stage=-1)
+StringShot = PkmMove(0., 1., 5, PkmType.BUG, "String Shot", stat=PkmStat.SPEED, stage=-1, prob=1.)
 BugBuzz = PkmMove(90., 1., 10, PkmType.BUG, "Bug Buzz", stat=PkmStat.DEFENSE, stage=-1, prob=.1)
 LeechLife = PkmMove(80., 1., 10, PkmType.BUG, "Leech Life", recover=40., prob=1.)
 

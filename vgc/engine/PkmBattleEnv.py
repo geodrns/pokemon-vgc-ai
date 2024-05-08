@@ -431,7 +431,7 @@ class PkmBattleEnv(Env, GameState):
                 if self.__engine.debug:
                     self.__engine.log += f'STATUS: {str(pkm)} is now asleep\n'
                     self.__engine.commands.append(('event', ['log', f'Trainer {t_id} is now asleep.']))
-            elif status == PkmStatus.FROZEN and pkm.type != PkmType.ICE and pkm.status != PkmStatus.BURNED:
+            elif status == PkmStatus.FROZEN and pkm.type != PkmType.ICE and pkm.status != PkmStatus.FROZEN:
                 pkm.status = PkmStatus.FROZEN
                 if self.__engine.debug:
                     self.__engine.log += f'STATUS: {str(pkm)} was frozen\n'
