@@ -518,10 +518,6 @@ class PkmBattleEnv(Env, GameState):
             self.log += 'MOVE: Trainer %s with %s uses %s\n' % (t_id, str(pkm), str(move))
             self.commands.append(('attack', [t_id, move.type.value, move.power > 0.]))
 
-        self.move_view._team = [team, opp_team]
-        self.move_view._active = [pkm, opp_pkm]
-        move.effect(self.move_view)
-
         # set recover
         recover = self.__get_recover()
 
@@ -543,6 +539,11 @@ class PkmBattleEnv(Env, GameState):
             stage = (stage_level + 2.) / 2 if stage_level >= 0. else 2. / (np.abs(stage_level) + 2.)
             multiplier = TYPE_CHART_MULTIPLIER[move.type][opp_pkm.type] if move != Struggle else 1.0
             damage = multiplier * stab * weather * stage * move.power
+
+        # effects are only applied after damage calculation
+        self.move_view._team = [team, opp_team]
+        self.move_view._active = [pkm, opp_pkm]
+        move.effect(self.move_view)
 
         return round(damage), round(recover)
 

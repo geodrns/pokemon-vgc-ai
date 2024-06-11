@@ -424,6 +424,7 @@ def run_tk(event, value_wrapper, game_state_wrapper):
 def disable_event():
     pass
 
+
 class GUIPlayer(BattlePolicy):
     """
     Graphical interface.

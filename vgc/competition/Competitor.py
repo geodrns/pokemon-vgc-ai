@@ -1,8 +1,6 @@
 from abc import ABC
 from typing import Optional
 
-from elopy.elo import Elo
-
 from vgc.behaviour import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, BalancePolicy
 from vgc.behaviour.BalancePolicies import IdleBalancePolicy
 from vgc.behaviour.BattlePolicies import RandomPlayer
@@ -50,4 +48,4 @@ class CompetitorManager:
     def __init__(self, c: Competitor):
         self.competitor: Competitor = c
         self.team: Optional[PkmFullTeam] = None
-        self.player: Elo = Elo(start_elo=1200)
+        self.elo = 1200

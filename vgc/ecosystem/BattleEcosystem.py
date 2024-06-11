@@ -7,6 +7,7 @@ from elopy.elo import Elo
 from vgc.balance.meta import MetaData
 from vgc.competition.BattleMatch import BattleMatch
 from vgc.competition.Competitor import CompetitorManager
+from vgc.competition.Elo import elo_rating
 from vgc.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
 
 
@@ -58,7 +59,4 @@ class BattleEcosystem:
             match = BattleMatch(cm0, cm1, self.n_battles, self.debug, self.render, meta_data=self.meta_data,
                                 update_meta=self.update_meta)
             match.run()
-            if match.winner() == 0:
-                cm0.player.play_game(cm1.player, match.wins[0] - match.wins[1], is_home=False)
-            elif match.winner() == 1:
-                cm1.player.play_game(cm0.player, match.wins[1] - match.wins[0], is_home=False)
+            cm0.elo, cm1.elo = elo_rating(cm0.elo, cm1.elo, 1 if match.winner() == 0 else 0)
