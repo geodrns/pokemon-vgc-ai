@@ -1,8 +1,8 @@
-# Pokémon VGC AI Framework 3.0.4
+# Pokémon VGC AI Framework 3.0.5.1
 
 [[_TOC_]]
 
-## Changelog 3.0.5 (New)
+## Changelog 3.0.5.1 (New)
 
 What's new?
 
@@ -21,7 +21,7 @@ What's new?
 * Minor bug fixed in stadard moves where one of the names would print wrongly (3.0.2)
 * Minor bug fixed in PkmBattleEnv where burned and frozen status where not implemented (3.0.3)
 * Minor bug fixed in PkmBattleEnv where StringShot/hail effect did not work and frozen status did not work (3.0.4)
-* Bug fixed in Elo not working properly (3.0.5)
+* Bug fixed in Elo not working properly (3.0.5.1)
 
 ## Installation (New)
 
