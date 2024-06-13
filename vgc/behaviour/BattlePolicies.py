@@ -359,7 +359,7 @@ class TunedTreeTraversal(BattlePolicy):
             for i in [self.core_agent.get_action(current_parent.g)] + [i for i, m in enumerate(
                     current_parent.g.teams[0].active.moves) if m.power == 0.]:
                 g = deepcopy(current_parent.g)
-                s, _, _, _ = g.step([i, j])
+                s, _, _, _, _ = g.step([i, j])
                 # our fainted increased, skip
                 if n_fainted(s[0].teams[0]) > n_fainted(current_parent.g.teams[0]):
                     continue

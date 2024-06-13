@@ -2,7 +2,7 @@
 
 [[_TOC_]]
 
-## Changelog 3.0.5.1 (New)
+## Changelog 3.0.5.2 (New)
 
 What's new?
 
@@ -22,6 +22,7 @@ What's new?
 * Minor bug fixed in PkmBattleEnv where burned and frozen status where not implemented (3.0.3)
 * Minor bug fixed in PkmBattleEnv where StringShot/hail effect did not work and frozen status did not work (3.0.4)
 * Bug fixed in Elo not working properly (3.0.5.1)
+* Bug fixed in TunedTreeSearch (3.0.5.2)
 
 ## Installation (New)
 
