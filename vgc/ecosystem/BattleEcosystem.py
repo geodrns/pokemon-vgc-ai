@@ -2,8 +2,6 @@ from enum import Enum
 from random import shuffle
 from typing import List, Tuple
 
-from elopy.elo import Elo
-
 from vgc.balance.meta import MetaData
 from vgc.competition.BattleMatch import BattleMatch
 from vgc.competition.Competitor import CompetitorManager
@@ -27,7 +25,6 @@ class BattleEcosystem:
         self.n_battles = n_battles
         self.pairings_strategy = pairings_strategy
         self.update_meta = update_meta
-        self.elo = Elo()
 
     def register(self, cm: CompetitorManager):
         if cm not in self.competitors:
