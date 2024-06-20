@@ -95,6 +95,8 @@ class BattleMatch:
     def _run_battle(self, a0: BattlePolicy, a1: BattlePolicy, team0: PkmTeam, team1: PkmTeam,
                     team1_p: Optional[PkmTeam] = None, team0_p: Optional[PkmTeam] = None) -> int:
         env = PkmBattleEnv((team0, team1), debug=self.debug, encode=(a0.requires_encode(), a1.requires_encode()))
+        team1_p.reset()
+        team0_p.reset()
         env.set_predictions(team1_p, team0_p)
         s, _ = env.reset()
         if self.debug:
