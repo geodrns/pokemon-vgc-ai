@@ -618,6 +618,7 @@ class PkmBattleEnv(Env, GameState):
                 self.log += 'FAINTED: %s\n' % (str(pkm0))
                 self.commands.append(('event', ['log', f'Trainer 0 active fainted.']))
             new_active, _, pos = team0.switch(-1)
+            self.switched[0] = True
             if self.debug:
                 if pos != -1:
                     self.commands.append(('switch', [0, pos, new_active.hp,
@@ -625,17 +626,16 @@ class PkmBattleEnv(Env, GameState):
                                                      new_active.moves[1].power,
                                                      new_active.moves[2].power,
                                                      new_active.moves[3].power]))
+            damage0 = self.__get_entry_hazard_damage(0)
         if pkm1.fainted():
             if self.debug:
                 self.log += 'FAINTED: %s\n' % (str(pkm1))
                 self.commands.append(('event', ['log', f'Trainer 1 active fainted.']))
             new_active, _, pos = team1.switch(-1)
+            self.switched[1] = True
             if self.debug:
                 if pos != -1:
                     self.commands.append(('switch', [1, pos, new_active.hp]))
-        if not pkm0.fainted():
-            damage0 = self.__get_entry_hazard_damage(0)
-        if not pkm1.fainted():
             damage1 = self.__get_entry_hazard_damage(1)
         d0, d1 = 0., 0.
         if (pkm0.fainted() or pkm1.fainted()) and (not team0.fainted() and not team1.fainted()):
