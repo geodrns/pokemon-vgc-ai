@@ -1,8 +1,8 @@
-# Pokémon VGC AI Framework 3.0.5.5
+# Pokémon VGC AI Framework 3.0.5.6
 
 [[_TOC_]]
 
-## Changelog 3.0.5.5 (New)
+## Changelog 3.0.5.6 (New)
 
 What's new?
 
@@ -26,6 +26,7 @@ What's new?
 * Bug fixed in Elo not working properly (3.0.5.3)
 * Fixed team prediction (3.0.5.4)
 * Fixed team hazard damage on faint (3.0.5.5)
+* Fixed random team battles tree championship for battle track (3.0.5.6)
 
 ## Installation (New)
 

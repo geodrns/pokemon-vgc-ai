@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from vgc.balance.meta import MetaData
+from vgc.behaviour.TeamBuildPolicies import RandomTeamBuilder
 from vgc.competition.BattleMatch import BattleMatch, RandomTeamsBattleMatch
 from vgc.competition.Competitor import Competitor, CompetitorManager
 from vgc.datatypes.Objects import PkmRoster
@@ -98,11 +99,17 @@ class TreeChampionship(Championship):
         self.meta_data = meta_data
         self.debug = debug
         self.gen = gen
+        self.team_builder = RandomTeamBuilder()
 
     def register(self, cm: CompetitorManager):
         team_builder = cm.competitor.team_build_policy
-        team_builder.set_roster(self.roster)
-        cm.team = team_builder.get_action(self.meta_data)
+        if self.roster is not None:
+            try:
+                team_builder.set_roster(self.roster)
+                cm.team = team_builder.get_action(self.meta_data)
+            except:
+                self.team_builder.set_roster(self.roster)
+                cm.team = self.team_builder.get_action(self.meta_data)
         self.competitors.append(cm)
 
     def new_tournament(self):
