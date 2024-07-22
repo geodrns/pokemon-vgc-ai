@@ -1,8 +1,8 @@
-# Pokémon VGC AI Framework 3.0.5.6
+# Pokémon VGC AI Framework 3.0.5.7
 
 [[_TOC_]]
 
-## Changelog 3.0.5.6 (New)
+## Changelog 3.0.5.7 (New)
 
 What's new?
 
@@ -15,18 +15,6 @@ What's new?
 * Meta-Game Balance Track upgraded with MetaEvaluator to allow different evaluation criteria.
 * requirements.txt updated.
 * Readme.md updated, tutorials were fixed to correspond to technical changes of 3.0.
-
-* Minor bug fixed in tree championship structure (3.0.1)
-* Minor bug fixed in PkmBattleEnv where speed change only affected one of the trainers (3.0.2)
-* Minor bug fixed in stadard moves where one of the names would print wrongly (3.0.2)
-* Minor bug fixed in PkmBattleEnv where burned and frozen status where not implemented (3.0.3)
-* Minor bug fixed in PkmBattleEnv where StringShot/hail effect did not work and frozen status did not work (3.0.4)
-* Bug fixed in Elo not working properly (3.0.5.1)
-* Bug fixed in TunedTreeSearch (3.0.5.2)
-* Bug fixed in Elo not working properly (3.0.5.3)
-* Fixed team prediction (3.0.5.4)
-* Fixed team hazard damage on faint (3.0.5.5)
-* Fixed random team battles tree championship for battle track (3.0.5.6)
 
 ## Installation (New)
 

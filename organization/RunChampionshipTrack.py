@@ -34,7 +34,7 @@ def main(args):
     ce.run(n_epochs=n_epochs, n_league_epochs=n_league_epochs)
     winner = ce.strongest()
     print(winner.competitor.name + " wins the tournament!")
-    print(f"ELO {winner.player.elo}")
+    print(f"ELO {winner.elo}")
     for conn in conns:
         conn.close()
 
