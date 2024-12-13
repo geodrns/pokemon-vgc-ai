@@ -1,12 +1,15 @@
 import random
+
+from vgc.balance.meta import MetaData
 from vgc.behaviour import TeamBuildPolicy
-from vgc.datatypes.Objects import MetaData, PkmFullTeam
+from vgc.datatypes.Objects import PkmFullTeam, PkmRoster
+
 
 class SimpleTeamBuilder(TeamBuildPolicy):
     def __init__(self):
         self.roster = None
 
-    def set_roster(self, roster):
+    def set_roster(self, roster: PkmRoster, ver: int = 0):
         self.roster = roster
 
     def get_action(self, meta: MetaData) -> PkmFullTeam:
