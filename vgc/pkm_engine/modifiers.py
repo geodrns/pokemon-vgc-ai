@@ -5,13 +5,17 @@ Stats = Tuple[int, int, int, int, int, int]
 MutableStats = List[int]
 
 
-class PermStat:
+class Stat:
+    # perm
     MAX_HP = 0
     ATTACK = 1
     DEFENSE = 2
     SPECIAL_ATTACK = 3
     SPECIAL_DEFENSE = 4
     SPEED = 5
+    # temp
+    EVASION = 6
+    ACCURACY = 7
 
 
 class Category(IntEnum):

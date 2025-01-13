@@ -4,7 +4,7 @@ from vgc.pkm_engine.constants import DAMAGE_MULTIPLICATION_ARRAY, TERRAIN_DAMAGE
 from vgc.pkm_engine.game_state import State
 from vgc.pkm_engine.modifiers import Category, Weather, Terrain, Status, MutableStats
 from vgc.pkm_engine.move import BattlingMove, Move
-from vgc.pkm_engine.pokemon import PermStat, BattlingPokemon
+from vgc.pkm_engine.pokemon import Stat, BattlingPokemon
 from vgc.pkm_engine.typing import Type
 
 
@@ -20,11 +20,11 @@ def calculate_damage(attacking_side: int,
     # determine if combat is physical or special
     attacking_type = move.constants.category
     if attacking_type == Category.PHYSICAL:
-        attack = PermStat.ATTACK
-        defense = PermStat.DEFENSE
+        attack = Stat.ATTACK
+        defense = Stat.DEFENSE
     elif attacking_type == Category.SPECIAL:
-        attack = PermStat.SPECIAL_ATTACK
-        defense = PermStat.SPECIAL_DEFENSE
+        attack = Stat.SPECIAL_ATTACK
+        defense = Stat.SPECIAL_DEFENSE
     else:
         return 0
     # determine if move has no base power
@@ -37,9 +37,9 @@ def calculate_damage(attacking_side: int,
     # ice types get 1.5x DEF in snow
     try:
         if state.weather == Weather.SAND and Type.ROCK in defender.types:
-            defending_stats[PermStat.SPECIAL_DEFENSE] = int(defending_stats[PermStat.SPECIAL_DEFENSE] * 1.5)
+            defending_stats[Stat.SPECIAL_DEFENSE] = int(defending_stats[Stat.SPECIAL_DEFENSE] * 1.5)
         elif state.weather == Weather.SNOW and Type.ICE in defender.types:
-            defending_stats[PermStat.DEFENSE] = int(defending_stats[PermStat.DEFENSE] * 1.5)
+            defending_stats[Stat.DEFENSE] = int(defending_stats[Stat.DEFENSE] * 1.5)
     except KeyError:
         pass
     # apply damage formula
@@ -54,11 +54,11 @@ def calculate_damage(attacking_side: int,
 def calculate_boosted_stats(pkm: BattlingPokemon) -> MutableStats:
     return [
         0,
-        BOOST_MULTIPLIER_LOOKUP[pkm.boosts[PermStat.ATTACK]] * pkm.constants.stats[PermStat.ATTACK],
-        BOOST_MULTIPLIER_LOOKUP[pkm.boosts[PermStat.DEFENSE]] * pkm.constants.stats[PermStat.DEFENSE],
-        BOOST_MULTIPLIER_LOOKUP[pkm.boosts[PermStat.SPECIAL_ATTACK]] * pkm.constants.stats[PermStat.SPECIAL_ATTACK],
-        BOOST_MULTIPLIER_LOOKUP[pkm.boosts[PermStat.SPECIAL_DEFENSE]] * pkm.constants.stats[PermStat.SPECIAL_DEFENSE],
-        BOOST_MULTIPLIER_LOOKUP[pkm.boosts[PermStat.SPEED]] * pkm.constants.stats[PermStat.SPEED],
+        BOOST_MULTIPLIER_LOOKUP[pkm.boosts[Stat.ATTACK]] * pkm.constants.stats[Stat.ATTACK],
+        BOOST_MULTIPLIER_LOOKUP[pkm.boosts[Stat.DEFENSE]] * pkm.constants.stats[Stat.DEFENSE],
+        BOOST_MULTIPLIER_LOOKUP[pkm.boosts[Stat.SPECIAL_ATTACK]] * pkm.constants.stats[Stat.SPECIAL_ATTACK],
+        BOOST_MULTIPLIER_LOOKUP[pkm.boosts[Stat.SPECIAL_DEFENSE]] * pkm.constants.stats[Stat.SPECIAL_DEFENSE],
+        BOOST_MULTIPLIER_LOOKUP[pkm.boosts[Stat.SPEED]] * pkm.constants.stats[Stat.SPEED],
     ]
 
 
