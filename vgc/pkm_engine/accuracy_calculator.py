@@ -8,4 +8,5 @@ def move_hit_threshold(move: BattlingMove,
                        user: BattlingPokemon,
                        target: BattlingPokemon) -> float:
     return (move.constants.accuracy *
-            ACCURACY_MULTIPLIER_LOOKUP[user.boosts[Stat.ACCURACY] - target.boosts[Stat.EVASION]])
+            ACCURACY_MULTIPLIER_LOOKUP[user.boosts[Stat.ACCURACY] -
+                                       (0 if move.constants.ignore_evasion else target.boosts[Stat.EVASION])])

@@ -1,29 +1,32 @@
 from typing import List, Tuple
 
-from vgc.pkm_engine.modifiers import Weather, Terrain, Hazard
+from vgc.pkm_engine.modifiers import Weather, Terrain
 from vgc.pkm_engine.pokemon import BattlingPokemon
 
 
 class SideConditions:
-    __slots__ = ('reflect', 'lightscreen', 'tailwind', 'hazard')
+    __slots__ = ('reflect', 'lightscreen', 'tailwind', 'stealth_rock', 'poison_spikes')
 
     def __init__(self):
         self.reflect = False
         self.lightscreen = False
         self.tailwind = False
-        self.hazard = Hazard.NONE
+        self.stealth_rock = False
+        self.poison_spikes = False
 
     def __str__(self):
         return ((", Reflect" if self.reflect else "") +
                 (", Light Screen" if self.lightscreen else "") +
                 (", Tailwind" if self.tailwind else "") +
-                (", Hazard " + self.hazard.name if self.hazard != Hazard.NONE else ""))
+                (", Stealth Rock" if self.stealth_rock else "") +
+                (", Poison Spikes" if self.poison_spikes else ""))
 
     def reset(self):
         self.reflect = False
         self.lightscreen = False
         self.tailwind = False
-        self.hazard = Hazard.NONE
+        self.stealth_rock = False
+        self.poison_spikes = False
 
 
 class Side:
@@ -58,6 +61,7 @@ class Side:
         if old_reserve.fainted():
             return False
         old_active = self.active[active_pos]
+        old_active.switch_reset()
         self.reserve[reserve_pos] = old_active
         self.active[active_pos] = old_reserve
         return True

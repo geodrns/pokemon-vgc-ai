@@ -19,7 +19,7 @@ class Move:
                  self_switch: bool = False,
                  ignore_evasion: bool = False,
                  protect: bool = False,
-                 boosts: Stats = (0,) * 6,
+                 boosts: Stats = (0,) * 8,
                  heal: float = 0.,
                  recoil: float = 0.,
                  weather_start: Weather = Weather.CLEAR,
@@ -66,8 +66,10 @@ class Move:
         # what is the special ability, dimension, probability, percentage, target/signal
 
     def __str__(self):
-        return ("Type " + str(self.pkm_type.name) + ", Power " + str(self.base_power) + ", Accuracy " + str(
-            self.accuracy) + ", Max PP " + str(self.max_pp) + ", " + self.category.name +
+        return ("Type " + str(self.pkm_type.name) +
+                ", Power " + str(self.base_power) +
+                ", Accuracy " + str(self.accuracy) +
+                ", Max PP " + str(self.max_pp) + ", " + self.category.name +
                 (", Priority " + str(self.priority) if self.priority > 0 else "") +
                 (", Force Switch" if self.force_switch else "") +
                 (", Self Switch" if self.self_switch else "") +

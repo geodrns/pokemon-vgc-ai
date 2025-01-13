@@ -1,5 +1,5 @@
 import math
-from typing import List
+from typing import List, Optional
 
 from vgc.pkm_engine.constants import NATURES
 from vgc.pkm_engine.modifiers import Stat, Status, Stats
@@ -22,7 +22,8 @@ class PokemonSpecies:
         self._instances = []
 
     def __str__(self):
-        return ("Base Stats " + str(self.base_stats) + ", Types " + str([t.name for t in self.types]) +
+        return ("Base Stats " + str(self.base_stats) +
+                ", Types " + str([t.name for t in self.types]) +
                 ", Moves " + str([str(m) for m in self.moves]))
 
     def edit(self,
@@ -121,7 +122,8 @@ class Pokemon:
         self.species._instances += [self]
 
     def __str__(self):
-        return ("Stats " + str(self.stats) + ", Types " + str([t.name for t in self.species.types]) +
+        return ("Stats " + str(self.stats) +
+                ", Types " + str([t.name for t in self.species.types]) +
                 ", Moves " + str([str(m) for m in self.moves]))
 
     def __del__(self):
@@ -145,7 +147,7 @@ class Pokemon:
 
 
 class BattlingPokemon:
-    __slots__ = ('constants', 'hp', 'types', 'boosts', 'status', 'battling_moves')
+    __slots__ = ('constants', 'hp', 'types', 'boosts', 'status', 'battling_moves', 'last_used_move', 'protect')
 
     def __init__(self,
                  constants: Pokemon):
@@ -155,10 +157,14 @@ class BattlingPokemon:
         self.boosts = [0] * 8  # position 0 is not used
         self.status = Status.NONE
         self.battling_moves = [BattlingMove(m) for m in constants.moves]
+        self.last_used_move: Optional[BattlingMove] = None
+        self.protect = False
 
     def __str__(self):
-        return (("Stats " + str(self.constants.stats) + ", Types " + str([t.name for t in self.types]) + ", HP "
-                + str(self.hp)) + ", Boosts " + str(self.boosts[1:]) +
+        return ("Stats " + str(self.constants.stats) +
+                ", Types " + str([t.name for t in self.types]) +
+                ", HP " + str(self.hp) +
+                (", Boosts " + str(self.boosts[1:]) if any(b > 0 for b in self.boosts) else "") +
                 (", " + self.status.name if self.status != Status.NONE else ""))
 
     def reset(self):
@@ -168,9 +174,23 @@ class BattlingPokemon:
         self.status = Status.NONE
         for move in self.battling_moves:
             move.reset()
+        self.last_used_move = None
+        self.protect = False
 
     def fainted(self):
         return self.hp == 0
 
     def deal_damage(self, damage: int):
         self.hp = max(0, self.hp - damage)
+
+    def recover(self, heal: int):
+        self.hp = min(self.hp + heal, self.constants.species.base_stats[Stat.MAX_HP])
+
+    def switch_reset(self):
+        self.boosts = [0] * 8
+        for move in self.battling_moves:
+            move.disabled = False
+        self.last_used_move = None
+
+    def end_of_turn_reset(self):
+        self.protect = False

@@ -45,8 +45,7 @@ class Weather(IntEnum):
 class Hazard(IntEnum):
     NONE = 0
     STEALTH_ROCK = 1
-    SPIKES = 2
-    TOXIC_SPIKES = 3
+    TOXIC_SPIKES = 2
 
 
 class Terrain(IntEnum):
