@@ -1,4 +1,4 @@
-from vgc.pkm_engine.accuracy_calculator import move_hit_threshold
+from vgc.pkm_engine.threshold_calculator import move_hit_threshold
 from vgc.pkm_engine.battle_engine import BattleEngine
 from vgc.pkm_engine.modifiers import Status, Category, Stat
 from vgc.pkm_engine.move import Move

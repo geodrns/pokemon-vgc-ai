@@ -3,10 +3,10 @@ from vgc.pkm_engine.typing import Type
 
 
 class Move:
-    __slots__ = ('id', 'pkm_type', 'base_power', 'accuracy', 'max_pp', 'category', 'priority', 'force_switch',
-                 'self_switch', 'ignore_evasion', 'protect', 'boosts', 'heal', 'recoil', 'weather_start', 'field_start',
-                 'toggle_trickroom', 'change_type', 'toggle_reflect', 'toggle_lightscreen', 'toggle_tailwind', 'hazard',
-                 'status', 'disable')
+    __slots__ = ('id', 'pkm_type', 'base_power', 'accuracy', 'max_pp', 'category', 'priority', 'probability',
+                 'force_switch', 'self_switch', 'ignore_evasion', 'protect', 'boosts', 'heal', 'recoil',
+                 'weather_start', 'field_start', 'toggle_trickroom', 'change_type', 'toggle_reflect',
+                 'toggle_lightscreen', 'toggle_tailwind', 'hazard', 'status', 'disable')
 
     def __init__(self,
                  pkm_type: Type,
@@ -15,6 +15,7 @@ class Move:
                  max_pp: int,
                  category: Category,
                  priority: int = 0,
+                 probability: float = 1.,
                  force_switch: bool = False,
                  self_switch: bool = False,
                  ignore_evasion: bool = False,
@@ -39,6 +40,7 @@ class Move:
         self.max_pp = max_pp
         self.category = category
         self.priority = priority
+        self.probability = probability
         # both_opposing/all_adjacent
         # special effects
         self.force_switch = force_switch
@@ -71,6 +73,7 @@ class Move:
                 ", Accuracy " + str(self.accuracy) +
                 ", Max PP " + str(self.max_pp) + ", " + self.category.name +
                 (", Priority " + str(self.priority) if self.priority > 0 else "") +
+                (", Probability " + str(self.probability) if self.probability < 1. else "") +
                 (", Force Switch" if self.force_switch else "") +
                 (", Self Switch" if self.self_switch else "") +
                 (", Ignore Evasion" if self.ignore_evasion else "") +

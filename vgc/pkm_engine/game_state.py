@@ -5,12 +5,16 @@ from vgc.pkm_engine.pokemon import BattlingPokemon
 
 
 class SideConditions:
-    __slots__ = ('reflect', 'lightscreen', 'tailwind', 'stealth_rock', 'poison_spikes')
+    __slots__ = ('reflect', '_reflect_turns', 'lightscreen', '_lightscreen_turns', 'tailwind', '_tailwind_turns',
+                 'stealth_rock', 'poison_spikes')
 
     def __init__(self):
         self.reflect = False
+        self._reflect_turns = 0
         self.lightscreen = False
+        self._lightscreen_turns = 0
         self.tailwind = False
+        self._tailwind_turns = 0
         self.stealth_rock = False
         self.poison_spikes = False
 
@@ -23,14 +27,35 @@ class SideConditions:
 
     def reset(self):
         self.reflect = False
+        self._reflect_turns = 0
         self.lightscreen = False
+        self._lightscreen_turns = 0
         self.tailwind = False
+        self._tailwind_turns = 0
         self.stealth_rock = False
         self.poison_spikes = False
 
+    def on_turn_end(self):
+        if self.reflect:
+            self._reflect_turns += 1
+            if self._reflect_turns >= 5:
+                self.reflect = False
+                self._reflect_turns = 0
+        if self.lightscreen:
+            self._lightscreen_turns += 1
+            if self._lightscreen_turns >= 5:
+                self.lightscreen = False
+                self._lightscreen_turns = 0
+        if self.tailwind:
+            self._tailwind_turns += 1
+            if self._tailwind_turns >= 5:
+                self.tailwind = False
+                self._tailwind_turns = 0
+
 
 class Side:
-    __slots__ = ('active', '_initial_active', 'reserve', '_initial_reserve', 'wish', 'conditions', 'future_sight')
+    __slots__ = ('active', '_initial_active', 'reserve', '_initial_reserve', 'wish', 'conditions', 'future_sight',
+                 '_engine')
 
     def __init__(self,
                  active: List[BattlingPokemon],
@@ -40,6 +65,7 @@ class Side:
         self.reserve = reserve
         self._initial_reserve = active[:]
         self.conditions = SideConditions()
+        self._engine = None
 
     def __str__(self):
         return ("Active " + str([str(a) for a in self.active]) + ", Reserve " + str([str(r) for r in self.reserve]) +
@@ -56,26 +82,37 @@ class Side:
 
     def switch(self,
                active_pos: int,
-               reserve_pos: int) -> bool:
+               reserve_pos: int):
         old_reserve = self.reserve[reserve_pos]
         if old_reserve.fainted():
             return False
         old_active = self.active[active_pos]
-        old_active.switch_reset()
+        old_active.on_switch()
         self.reserve[reserve_pos] = old_active
         self.active[active_pos] = old_reserve
-        return True
+        self._engine._on_switch(old_reserve)
+
+    def on_turn_end(self):
+        self.conditions.on_turn_end()
+        for active in self.active:
+            active.on_turn_end()
+
+    def team_fainted(self) -> bool:
+        return all(p.fainted() for p in self.active + self.reserve)
 
 
 class State:
-    __slots__ = ('sides', 'weather', 'field', 'trickroom')
+    __slots__ = ('sides', 'weather', '_weather_turns', 'field', '_field_turns', 'trickroom', '_trickroom_turns')
 
     def __init__(self,
                  sides: Tuple[Side, Side]):
         self.sides = sides
         self.weather = Weather.CLEAR
+        self._weather_turns = 0
         self.field = Terrain.NONE
+        self._field_turns = 0
         self.trickroom = False
+        self._trickroom_turns = 0
 
     def __str__(self):
         return ((", Weather " + self.weather.name if self.weather != Weather.CLEAR else "") +
@@ -87,5 +124,33 @@ class State:
         for side in self.sides:
             side.reset()
         self.weather = Weather.CLEAR
+        self._weather_turns = 0
         self.field = Terrain.NONE
+        self._field_turns = 0
         self.trickroom = False
+        self._trickroom_turns = 0
+
+    def on_turn_end(self):
+        # weather advance
+        if self.weather != Weather.CLEAR:
+            self._weather_turns += 1
+            if self._weather_turns >= 5:
+                self._weather_turns = 0
+                self.weather = Weather.CLEAR
+        # terrain advance
+        if self.field != Terrain.NONE:
+            self._field_turns += 1
+            if self._field_turns >= 5:
+                self._field_turns = 0
+                self.field = Terrain.NONE
+        # trickroom advance
+        if self.trickroom:
+            self._trickroom_turns += 1
+            if self._trickroom_turns >= 5:
+                self.trickroom = False
+                self._trickroom_turns = 0
+        for side in self.sides:
+            side.on_turn_end()
+
+    def terminal(self):
+        return any(s.team_fainted() for s in self.sides)

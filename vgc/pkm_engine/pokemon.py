@@ -51,7 +51,7 @@ def update_stats_from_nature(stats: List[int],
 def calculate_stat(stat: int,
                    iv: int,
                    ev: int,
-                   level: int) -> float:
+                   level: int) -> int:
     return math.floor(((2 * stat + iv + math.floor(ev / 4)) * level) / 100)
 
 
@@ -147,7 +147,8 @@ class Pokemon:
 
 
 class BattlingPokemon:
-    __slots__ = ('constants', 'hp', 'types', 'boosts', 'status', 'battling_moves', 'last_used_move', 'protect')
+    __slots__ = ('constants', 'hp', 'types', 'boosts', 'status', '_wake_turns', 'battling_moves', 'last_used_move',
+                 'protect', '_consecutive_protect')
 
     def __init__(self,
                  constants: Pokemon):
@@ -156,9 +157,12 @@ class BattlingPokemon:
         self.types = constants.species.types
         self.boosts = [0] * 8  # position 0 is not used
         self.status = Status.NONE
+        self._wake_turns = 0
         self.battling_moves = [BattlingMove(m) for m in constants.moves]
         self.last_used_move: Optional[BattlingMove] = None
         self.protect = False
+        self._consecutive_protect = 0
+        self._engine = None
 
     def __str__(self):
         return ("Stats " + str(self.constants.stats) +
@@ -172,25 +176,38 @@ class BattlingPokemon:
         self.types = self.constants.species.types
         self.boosts = [0] * 8
         self.status = Status.NONE
+        self._wake_turns = 0
         for move in self.battling_moves:
             move.reset()
         self.last_used_move = None
         self.protect = False
+        self._consecutive_protect = 0
 
-    def fainted(self):
+    def fainted(self) -> bool:
         return self.hp == 0
 
-    def deal_damage(self, damage: int):
+    def deal_damage(self,
+                    damage: int):
         self.hp = max(0, self.hp - damage)
+        if self.fainted():
+            self._engine._on_fainted(self)
 
-    def recover(self, heal: int):
+    def recover(self,
+                heal: int):
         self.hp = min(self.hp + heal, self.constants.species.base_stats[Stat.MAX_HP])
 
-    def switch_reset(self):
+    def on_switch(self):
         self.boosts = [0] * 8
         for move in self.battling_moves:
             move.disabled = False
         self.last_used_move = None
-
-    def end_of_turn_reset(self):
         self.protect = False
+
+    def on_turn_end(self):
+        if self.protect:
+            self.protect = False
+            self._consecutive_protect += 1
+        else:
+            self._consecutive_protect = 0
+        if self.status == Status.SLEEP:
+            self._wake_turns -= 1

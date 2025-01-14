@@ -9,16 +9,12 @@ from vgc.pkm_engine.typing import Type
 
 
 def calculate_damage(attacking_side: int,
-                     move_id: BattlingMove,
+                     move: Move,
                      state: State,
-                     attacker_id: int = 0,
-                     defender_id: int = 0) -> int:
-    # determine attacker, its move and the defender
-    attacker = state.sides[attacking_side].active[attacker_id]
-    move = attacker.battling_moves[move_id]
-    defender = state.sides[not attacking_side].active[defender_id]
+                     attacker: BattlingPokemon,
+                     defender: BattlingPokemon) -> int:
     # determine if combat is physical or special
-    attacking_type = move.constants.category
+    attacking_type = move.category
     if attacking_type == Category.PHYSICAL:
         attack = Stat.ATTACK
         defense = Stat.DEFENSE
@@ -28,7 +24,7 @@ def calculate_damage(attacking_side: int,
     else:
         return 0
     # determine if move has no base power
-    if move.constants.base_power == 0:
+    if move.base_power == 0:
         return 0
     # calculate actual power of attacker and defender
     attacking_stats = calculate_boosted_stats(attacker)
@@ -43,7 +39,7 @@ def calculate_damage(attacking_side: int,
     except KeyError:
         pass
     # apply damage formula
-    damage = int(int((2 * attacker.base.level) / 5) + 2) * move.constants.base_power
+    damage = int(int((2 * attacker.constants.level) / 5) + 2) * move.base_power
     damage = int(damage * attacking_stats[attack] / defending_stats[defense])
     damage = int(damage / 50) + 2
     damage *= calculate_modifier(attacker, defender, move, state, attacking_side)
@@ -136,3 +132,22 @@ def terrain_modifier(move: Move,
     elif terrain == Terrain.PSYCHIC_TERRAIN and move.priority > 0:
         return 0
     return 1
+
+
+def calculate_stealth_rock_damage(pkm: BattlingPokemon) -> int:
+    return pkm.constants.species.base_stats[Stat.MAX_HP] * 0.125 * type_effectiveness_modifier(Type.ROCK, pkm.types)
+
+
+def calculate_poison_damage(pkm: BattlingPokemon) -> int:
+    return pkm.constants.species.base_stats[Stat.MAX_HP] * 0.125
+
+
+def calculate_burn_damage(pkm: BattlingPokemon) -> int:
+    return pkm.constants.species.base_stats[Stat.MAX_HP] * 0.0625
+
+
+def calculate_sand_damage(pkm: BattlingPokemon) -> int:
+    for t in pkm.types:
+        if t in (Type.ROCK, Type.GROUND, Type.STEEL):
+            return 0
+    return pkm.constants.species.base_stats[Stat.MAX_HP] * 0.125
