@@ -4,7 +4,7 @@ from vgc.pkm_engine.damage_calculator import calculate_damage, calculate_poison_
     calculate_burn_damage, calculate_stealth_rock_damage
 from vgc.pkm_engine.game_state import State, Side
 from vgc.pkm_engine.modifiers import Weather, Terrain, Hazard, Status
-from vgc.pkm_engine.move import Move
+from vgc.pkm_engine.move import Move, BattlingMove
 from vgc.pkm_engine.pokemon import Pokemon, BattlingPokemon
 from vgc.pkm_engine.priority_calculator import priority_calculator
 from vgc.pkm_engine.threshold_calculator import paralysis_threshold, move_hit_threshold, thaw_threshold
@@ -12,6 +12,8 @@ from vgc.pkm_engine.typing import Type
 
 Team = list[Pokemon]
 BattlingTeam = list[BattlingPokemon]
+Command = tuple[int, int]
+FullCommand = tuple[list[Command], list[Command]]
 
 
 def battling_team(team: Team):
@@ -29,9 +31,9 @@ class BattleEngine:
         self.n_active = n_active
         self.state = State((Side(battling_teams[0][:self.n_active], battling_teams[0][self.n_active:]),
                             Side(battling_teams[1][:self.n_active], battling_teams[1][self.n_active:])))
-        self.winning_side = -1
-        self._move_queue = []
-        self._switch_queue = []
+        self.winning_side: int = -1
+        self._move_queue: list[tuple[int, BattlingPokemon, BattlingMove, list[BattlingPokemon]]] = []
+        self._switch_queue: list[tuple[int, int, int]] = []
 
     def __str__(self):
         return str(self.state)
@@ -51,8 +53,8 @@ class BattleEngine:
         self.state.sides[1].reserve = battling_teams[1][self.n_active:]
 
     def run_turn(self,
-                 actions: tuple[list[tuple[int, int]], list[tuple[int, int]]]):
-        self._set_action_queue(actions)
+                 commands: FullCommand):
+        self._set_action_queue(commands)
         try:
             self._perform_switches()
             self._perform_moves()
@@ -69,9 +71,9 @@ class BattleEngine:
         return self.state.terminal()
 
     def _set_action_queue(self,
-                          actions: tuple[list[tuple[int, int]], list[tuple[int, int]]]):
+                          commands: FullCommand):
         for side in (0, 1):
-            for i, a in enumerate(actions[side]):
+            for i, a in enumerate(commands[side]):
                 if a[0] == -1:
                     user = self.state.sides[side].active[i]
                     self._move_queue += [(side, user, user.battling_moves[a[0]],
@@ -88,17 +90,19 @@ class BattleEngine:
         while len(self._move_queue) < 0:
             # determine next move
             side, attacker, move, defenders = (
-                self._move_queue.pop(max(enumerate([priority_calculator(a[2], a[1], self.state) for a in
+                self._move_queue.pop(max(enumerate([priority_calculator(a[2].constants, a[1], self.state) for a in
                                                     self._move_queue]), key=lambda x: x[1])[0]))
             # before each move check if Pokémon can attack due status or have its status removed
-            if self._perform_status(attacker, move):
+            if self._perform_status(attacker, move.constants):
+                continue
+            if move.disabled or move.pp == 0:
                 continue
             damage, protected, failed = 0, False, True
             for defender in defenders:
                 if defender.protect:
                     protected = True
                     continue
-                if rand() >= move_hit_threshold(move, attacker, defender):
+                if rand() >= move_hit_threshold(move.constants, attacker, defender):
                     continue
                 failed = False
                 # perform next move, damaged is applied first and then effects, unless opponent protected itself
@@ -106,11 +110,12 @@ class BattleEngine:
                 defender.deal_damage(damage)
                 if defender.fainted():
                     continue
-                self._perform_target_effects(move, side, defender)
+                if rand() < move.constants.effect_prob:
+                    self._perform_target_effects(move.constants, side, defender)
                 # a fire move will thaw a frozen target
-                if move.pkm_type == Type.FIRE and damage > 0 and defender.status == Status.FROZEN:
+                if move.constants.pkm_type == Type.FIRE and damage > 0 and defender.status == Status.FROZEN:
                     defender.status = Status.NONE
-            if not protected and not failed:
+            if not protected and not failed and rand() < move.constants.effect_prob:
                 self._perform_single_effects(move.constants, side, attacker, damage)
 
     def _perform_status(self,
@@ -140,48 +145,48 @@ class BattleEngine:
         # State changes
         if move.weather_start != Weather.CLEAR and move.weather_start != self.state.weather:
             self.state.weather = move.weather_start
-        if move.field_start != Terrain.NONE and move.field_start != self.state.field:
+        elif move.field_start != Terrain.NONE and move.field_start != self.state.field:
             self.state.field = move.field_start
-        if move.toggle_trickroom and not self.state.trickroom:
+        elif move.toggle_trickroom and not self.state.trickroom:
             self.state.trickroom = True
         # Side conditions changes
-        if move.toggle_lightscreen and not self.state.sides[side].lightscreen:
+        elif move.toggle_lightscreen and not self.state.sides[side].lightscreen:
             self.state.sides[side].lightscreen = True
-        if move.toggle_reflect and not self.state.sides[side].reflect:
+        elif move.toggle_reflect and not self.state.sides[side].reflect:
             self.state.sides[side].reflect = True
-        if move.toggle_tailwind and not self.state.sides[side].tailwind:
+        elif move.toggle_tailwind and not self.state.sides[side].tailwind:
             self.state.sides[side].tailwind = True
-        if move.hazard == Hazard.STEALTH_ROCK:
+        elif move.hazard == Hazard.STEALTH_ROCK:
             self.state.sides[side].stealth_rock = True
-        if move.hazard == Hazard.TOXIC_SPIKES:
+        elif move.hazard == Hazard.TOXIC_SPIKES:
             self.state.sides[side].toxic_spikes = True
         # Pokemon effects
-        if move.heal > 0:
+        elif move.heal > 0:
             attacker.recover(int(damage * move.heal))
-        if move.recoil > 0:
+        elif move.recoil > 0:
             attacker.deal_damage(int(damage * move.recoil))
-        if move.self_switch:
+        elif move.self_switch:
             self.state.sides[side].switch(self.state.sides[side].get_active_pos(attacker),
                                           self.state.sides[side].first_from_reserve())
-        if move.change_type:
+        elif move.change_type:
             attacker.types = [attacker.battling_moves[0].constants.pkm_type]
-        if any(b > 0 for b in move.boosts):
+        elif any(b > 0 for b in move.boosts):
             attacker.boosts = [_b + b for _b, b in zip(attacker.boosts, move.boosts)]
-        if move.protect:
+        elif move.protect:
             attacker.protect = True
 
     def _perform_target_effects(self,
                                 move: Move,
                                 side: int,
                                 defender: BattlingPokemon):
-        # Pokemon effects
+        # Pokémon effects
         if move.status != Status.NONE and defender.status == Status.NONE:
             defender.status = move.status
         # Move Effects
-        if move.disable and not any(
+        elif move.disable and not any(
                 m.disabled for m in defender.battling_moves) and defender.last_used_move is not None:
             defender.last_used_move.disabled = True
-        if move.force_switch:
+        elif move.force_switch:
             self.state.sides[not side].switch(self.state.sides[not side].get_active_pos(defender),
                                               self.state.sides[not side].first_from_reserve())
 
@@ -197,14 +202,17 @@ class BattleEngine:
             if self.state.weather == Weather.SAND:
                 pkm.deal_damage(calculate_sand_damage(pkm))
 
-    def _on_fainted(self, pkm: BattlingPokemon):
+    def _on_fainted(self,
+                    pkm: BattlingPokemon):
         side = self.state.get_side(pkm)
         if self.state.sides[side].team_fainted():
             raise BattleEngine.TeamFainted()
         self.state.sides[side].switch(self.state.sides[side].get_active_pos(pkm),
                                       self.state.sides[side].first_from_reserve())
 
-    def _on_switch(self, switch_in: BattlingPokemon, switch_out: BattlingPokemon):
+    def _on_switch(self,
+                   switch_in: BattlingPokemon,
+                   switch_out: BattlingPokemon):
         # if a Pokémon switches out it will no longer perform its moves
         self._move_queue = [a for a in self._move_queue if a[1] != switch_out]
         # hazards
