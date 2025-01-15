@@ -1,8 +1,7 @@
 from enum import IntEnum
-from typing import Tuple, List
 
-Stats = Tuple[int, int, int, int, int, int]
-MutableStats = List[int]
+Stats = tuple[int, int, int, int, int, int]
+MutableStats = list[int]
 
 
 class Stat:

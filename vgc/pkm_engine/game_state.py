@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 from vgc.pkm_engine.modifiers import Weather, Terrain
 from vgc.pkm_engine.pokemon import BattlingPokemon
 
@@ -58,8 +56,8 @@ class Side:
                  '_engine')
 
     def __init__(self,
-                 active: List[BattlingPokemon],
-                 reserve: List[BattlingPokemon]):
+                 active: list[BattlingPokemon],
+                 reserve: list[BattlingPokemon]):
         self.active = active
         self._initial_active = active[:]
         self.reserve = reserve
@@ -83,6 +81,8 @@ class Side:
     def switch(self,
                active_pos: int,
                reserve_pos: int):
+        if active_pos < 0 or reserve_pos < 0:
+            return
         old_reserve = self.reserve[reserve_pos]
         if old_reserve.fainted():
             return False
@@ -90,7 +90,7 @@ class Side:
         old_active.on_switch()
         self.reserve[reserve_pos] = old_active
         self.active[active_pos] = old_reserve
-        self._engine._on_switch(old_reserve)
+        self._engine._on_switch(old_reserve, old_active)
 
     def on_turn_end(self):
         self.conditions.on_turn_end()
@@ -100,12 +100,19 @@ class Side:
     def team_fainted(self) -> bool:
         return all(p.fainted() for p in self.active + self.reserve)
 
+    def get_active_pos(self,
+                       pkm: BattlingPokemon) -> int:
+        return next((i for i, p in enumerate(self.active) if p == pkm), -1)
+
+    def first_from_reserve(self) -> int:
+        return next((i for i, p in enumerate(self.reserve) if not p.fainted()), -1)
+
 
 class State:
     __slots__ = ('sides', 'weather', '_weather_turns', 'field', '_field_turns', 'trickroom', '_trickroom_turns')
 
     def __init__(self,
-                 sides: Tuple[Side, Side]):
+                 sides: tuple[Side, Side]):
         self.sides = sides
         self.weather = Weather.CLEAR
         self._weather_turns = 0
@@ -154,3 +161,15 @@ class State:
 
     def terminal(self):
         return any(s.team_fainted() for s in self.sides)
+
+    def get_side(self,
+                 pkm: BattlingPokemon) -> int:
+        if pkm in self.sides[0].active:
+            return 0
+        if pkm in self.sides[0].reserve:
+            return 0
+        if pkm in self.sides[1].active:
+            return 1
+        if pkm in self.sides[0].reserve:
+            return 1
+        return -1

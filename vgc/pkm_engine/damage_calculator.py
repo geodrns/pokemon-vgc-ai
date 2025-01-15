@@ -1,9 +1,7 @@
-from typing import List
-
 from vgc.pkm_engine.constants import DAMAGE_MULTIPLICATION_ARRAY, TERRAIN_DAMAGE_BOOST, BOOST_MULTIPLIER_LOOKUP
 from vgc.pkm_engine.game_state import State
 from vgc.pkm_engine.modifiers import Category, Weather, Terrain, Status, MutableStats
-from vgc.pkm_engine.move import BattlingMove, Move
+from vgc.pkm_engine.move import Move
 from vgc.pkm_engine.pokemon import Stat, BattlingPokemon
 from vgc.pkm_engine.typing import Type
 
@@ -54,7 +52,6 @@ def calculate_boosted_stats(pkm: BattlingPokemon) -> MutableStats:
         BOOST_MULTIPLIER_LOOKUP[pkm.boosts[Stat.DEFENSE]] * pkm.constants.stats[Stat.DEFENSE],
         BOOST_MULTIPLIER_LOOKUP[pkm.boosts[Stat.SPECIAL_ATTACK]] * pkm.constants.stats[Stat.SPECIAL_ATTACK],
         BOOST_MULTIPLIER_LOOKUP[pkm.boosts[Stat.SPECIAL_DEFENSE]] * pkm.constants.stats[Stat.SPECIAL_DEFENSE],
-        BOOST_MULTIPLIER_LOOKUP[pkm.boosts[Stat.SPEED]] * pkm.constants.stats[Stat.SPEED],
     ]
 
 
@@ -75,7 +72,7 @@ def calculate_modifier(attacker: BattlingPokemon,
 
 
 def type_effectiveness_modifier(move_type: Type,
-                                defending_types: List[Type]) -> float:
+                                defending_types: list[Type]) -> float:
     modifier = 1
     for defending_pkm_type in defending_types:
         modifier *= DAMAGE_MULTIPLICATION_ARRAY[move_type][defending_pkm_type]

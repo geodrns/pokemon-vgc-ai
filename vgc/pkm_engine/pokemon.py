@@ -1,5 +1,5 @@
 import math
-from typing import List, Optional
+from typing import Optional
 
 from vgc.pkm_engine.constants import NATURES
 from vgc.pkm_engine.modifiers import Stat, Status, Stats
@@ -13,8 +13,8 @@ class PokemonSpecies:
 
     def __init__(self,
                  base_stats: Stats,
-                 types: List[Type],
-                 moves: List[Move]):
+                 types: list[Type],
+                 moves: list[Move]):
         self.id = -1
         self.base_stats = base_stats
         self.types = types
@@ -28,8 +28,8 @@ class PokemonSpecies:
 
     def edit(self,
              base_stats: Stats,
-             types: List[Type],
-             moves: List[Move]):
+             types: list[Type],
+             moves: list[Move]):
         self.base_stats = base_stats
         self.types = types
         self.moves = moves
@@ -37,7 +37,7 @@ class PokemonSpecies:
             pkm._edit_stats()
 
 
-def update_stats_from_nature(stats: List[int],
+def update_stats_from_nature(stats: list[int],
                              nature: Nature):
     new_stats = stats.copy()
     try:
@@ -107,7 +107,7 @@ class Pokemon:
 
     def __init__(self,
                  species: PokemonSpecies,
-                 move_indexes: List[int],
+                 move_indexes: list[int],
                  level: int = 100,
                  evs: Stats = (85,) * 6,
                  ivs: Stats = (31,) * 6,
@@ -133,7 +133,7 @@ class Pokemon:
         self.stats = calculate_stats(self.species.base_stats, self.level, self.ivs, self.evs, self.nature)
 
     def edit(self,
-             move_indexes: List[int],
+             move_indexes: list[int],
              level: int = 100,
              evs: Stats = (85,) * 6,
              ivs: Stats = (31,) * 6,
