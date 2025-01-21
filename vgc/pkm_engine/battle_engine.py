@@ -1,3 +1,4 @@
+from gymnasium import Env
 from numpy.random import rand
 
 from vgc.pkm_engine.damage_calculator import calculate_damage, calculate_poison_damage, calculate_sand_damage, \
@@ -5,19 +6,14 @@ from vgc.pkm_engine.damage_calculator import calculate_damage, calculate_poison_
 from vgc.pkm_engine.game_state import State, Side
 from vgc.pkm_engine.modifiers import Weather, Terrain, Hazard, Status
 from vgc.pkm_engine.move import Move, BattlingMove
-from vgc.pkm_engine.pokemon import Pokemon, BattlingPokemon
+from vgc.pkm_engine.pokemon import BattlingPokemon
 from vgc.pkm_engine.priority_calculator import priority_calculator
+from vgc.pkm_engine.team import Team
 from vgc.pkm_engine.threshold_calculator import paralysis_threshold, move_hit_threshold, thaw_threshold
 from vgc.pkm_engine.typing import Type
 
-Team = list[Pokemon]
-BattlingTeam = list[BattlingPokemon]
 Command = tuple[int, int]
 FullCommand = tuple[list[Command], list[Command]]
-
-
-def battling_team(team: Team):
-    return [BattlingPokemon(p) for p in team]
 
 
 class BattleEngine:
@@ -27,10 +23,9 @@ class BattleEngine:
     __slots__ = ('n_active', 'state', 'winning_side', '_move_queue', '_switch_queue')
 
     def __init__(self, teams: tuple[Team, Team], n_active: int = 1):
-        battling_teams = (battling_team(teams[0]), battling_team(teams[1]))
         self.n_active = n_active
-        self.state = State((Side(battling_teams[0][:self.n_active], battling_teams[0][self.n_active:]),
-                            Side(battling_teams[1][:self.n_active], battling_teams[1][self.n_active:])))
+        self.state = State((Side(teams[0].members[:self.n_active], teams[0].members[self.n_active:]),
+                            Side(teams[1].members[:self.n_active], teams[1].members[self.n_active:])))
         self.winning_side: int = -1
         self._move_queue: list[tuple[int, BattlingPokemon, BattlingMove, list[BattlingPokemon]]] = []
         self._switch_queue: list[tuple[int, int, int]] = []
@@ -60,9 +55,9 @@ class BattleEngine:
             self._perform_moves()
             self._end_of_turn_state_effects()
         except BattleEngine.TeamFainted:
-            if self.state.sides[1].team_fainted() and not self.state.sides[0].team_fainted():
+            if self.state.sides[1].team.fainted() and not self.state.sides[0].team.fainted():
                 self.winning_side = 0
-            if self.state.sides[0].team_fainted() and not self.state.sides[1].team_fainted():
+            if self.state.sides[0].team.fainted() and not self.state.sides[1].team.fainted():
                 self.winning_side = 1
             return
         self.state.on_turn_end()
@@ -98,6 +93,7 @@ class BattleEngine:
             if move.disabled or move.pp == 0:
                 continue
             damage, protected, failed = 0, False, True
+            move.pp = max(0, move.pp - 1)
             for defender in defenders:
                 if defender.protect:
                     protected = True
@@ -191,7 +187,7 @@ class BattleEngine:
                                               self.state.sides[not side].first_from_reserve())
 
     def _end_of_turn_state_effects(self):
-        all_active = self.state.sides[0].active + self.state.sides[1].active
+        all_active = self.state.sides[0].team.active + self.state.sides[1].team.active
         for pkm in all_active:
             if pkm.status == Status.POISON:
                 pkm.deal_damage(calculate_poison_damage(pkm))
@@ -222,3 +218,9 @@ class BattleEngine:
             switch_in.status = Status.POISON
         if self.state.sides[side].conditions.stealth_rocks:
             switch_in.deal_damage(calculate_stealth_rock_damage(switch_in))
+
+
+class BattleEnv(BattleEngine, Env):
+
+    def __init__(self):
+        pass

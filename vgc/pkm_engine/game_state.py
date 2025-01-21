@@ -1,5 +1,8 @@
+from vgc.pkm_engine.constants import WEATHER_TURNS, TERRAIN_TURNS, TRICKROOM_TURNS, REFLECT_TURNS, LIGHTSCREEN_TURNS, \
+    TAILWIND_TURNS
 from vgc.pkm_engine.modifiers import Weather, Terrain
-from vgc.pkm_engine.pokemon import BattlingPokemon
+from vgc.pkm_engine.pokemon import BattlingPokemon, Pokemon
+from vgc.pkm_engine.team import BattlingTeam
 
 
 class SideConditions:
@@ -36,76 +39,41 @@ class SideConditions:
     def on_turn_end(self):
         if self.reflect:
             self._reflect_turns += 1
-            if self._reflect_turns >= 5:
+            if self._reflect_turns >= REFLECT_TURNS:
                 self.reflect = False
                 self._reflect_turns = 0
         if self.lightscreen:
             self._lightscreen_turns += 1
-            if self._lightscreen_turns >= 5:
+            if self._lightscreen_turns >= LIGHTSCREEN_TURNS:
                 self.lightscreen = False
                 self._lightscreen_turns = 0
         if self.tailwind:
             self._tailwind_turns += 1
-            if self._tailwind_turns >= 5:
+            if self._tailwind_turns >= TAILWIND_TURNS:
                 self.tailwind = False
                 self._tailwind_turns = 0
 
 
 class Side:
-    __slots__ = ('active', '_initial_active', 'reserve', '_initial_reserve', 'wish', 'conditions', 'future_sight',
-                 '_engine')
+    __slots__ = ('team', 'conditions', '_engine')
 
     def __init__(self,
-                 active: list[BattlingPokemon],
-                 reserve: list[BattlingPokemon]):
-        self.active = active
-        self._initial_active = active[:]
-        self.reserve = reserve
-        self._initial_reserve = active[:]
+                 active: list[Pokemon],
+                 reserve: list[Pokemon]):
+        self.team = BattlingTeam(active, reserve)
         self.conditions = SideConditions()
         self._engine = None
 
     def __str__(self):
-        return ("Active " + str([str(a) for a in self.active]) + ", Reserve " + str([str(r) for r in self.reserve]) +
-                str(self.conditions))
+        return str(self.team) + str(self.conditions)
 
     def reset(self):
-        self.active = self._initial_active[:]
-        self.reserve = self._initial_reserve[:]
-        for pkm in self.active:
-            pkm.reset()
-        for pkm in self.reserve:
-            pkm.reset()
+        self.team.reset()
         self.conditions.reset()
-
-    def switch(self,
-               active_pos: int,
-               reserve_pos: int):
-        if active_pos < 0 or reserve_pos < 0:
-            return
-        old_reserve = self.reserve[reserve_pos]
-        if old_reserve.fainted():
-            return False
-        old_active = self.active[active_pos]
-        old_active.on_switch()
-        self.reserve[reserve_pos] = old_active
-        self.active[active_pos] = old_reserve
-        self._engine._on_switch(old_reserve, old_active)
 
     def on_turn_end(self):
         self.conditions.on_turn_end()
-        for active in self.active:
-            active.on_turn_end()
-
-    def team_fainted(self) -> bool:
-        return all(p.fainted() for p in self.active + self.reserve)
-
-    def get_active_pos(self,
-                       pkm: BattlingPokemon) -> int:
-        return next((i for i, p in enumerate(self.active) if p == pkm), -1)
-
-    def first_from_reserve(self) -> int:
-        return next((i for i, p in enumerate(self.reserve) if not p.fainted()), -1)
+        self.team.on_turn_end()
 
 
 class State:
@@ -141,35 +109,27 @@ class State:
         # weather advance
         if self.weather != Weather.CLEAR:
             self._weather_turns += 1
-            if self._weather_turns >= 5:
+            if self._weather_turns >= WEATHER_TURNS:
                 self._weather_turns = 0
                 self.weather = Weather.CLEAR
         # terrain advance
         if self.field != Terrain.NONE:
             self._field_turns += 1
-            if self._field_turns >= 5:
+            if self._field_turns >= TERRAIN_TURNS:
                 self._field_turns = 0
                 self.field = Terrain.NONE
         # trickroom advance
         if self.trickroom:
             self._trickroom_turns += 1
-            if self._trickroom_turns >= 5:
+            if self._trickroom_turns >= TRICKROOM_TURNS:
                 self.trickroom = False
                 self._trickroom_turns = 0
         for side in self.sides:
             side.on_turn_end()
 
     def terminal(self):
-        return any(s.team_fainted() for s in self.sides)
+        return any(s.team.fainted() for s in self.sides)
 
     def get_side(self,
                  pkm: BattlingPokemon) -> int:
-        if pkm in self.sides[0].active:
-            return 0
-        if pkm in self.sides[0].reserve:
-            return 0
-        if pkm in self.sides[1].active:
-            return 1
-        if pkm in self.sides[0].reserve:
-            return 1
-        return -1
+        return 0 if pkm in self.sides[0].team.active or pkm in self.sides[0].team.reserve else 1

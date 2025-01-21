@@ -103,7 +103,7 @@ def calculate_stats(base_stats: Stats,
 
 
 class Pokemon:
-    __slots__ = ('species', 'moves', 'level', 'evs', 'ivs', 'nature', 'stats')
+    __slots__ = ('species', 'moves', 'level', 'evs', 'ivs', 'nature', 'stats', '_views')
 
     def __init__(self,
                  species: PokemonSpecies,
@@ -120,6 +120,7 @@ class Pokemon:
         self.nature = nature
         self.stats = calculate_stats(self.species.base_stats, self.level, self.ivs, self.evs, self.nature)
         self.species._instances += [self]
+        self._views = []
 
     def __str__(self):
         return ("Stats " + str(self.stats) +
@@ -145,10 +146,14 @@ class Pokemon:
         self.nature = nature
         self.stats = calculate_stats(self.species.base_stats, self.level, self.ivs, self.evs, self.nature)
 
+    def on_move_used(self, i: int):
+        for v in self._views:
+            v._on_move_used(i)
+
 
 class BattlingPokemon:
     __slots__ = ('constants', 'hp', 'types', 'boosts', 'status', '_wake_turns', 'battling_moves', 'last_used_move',
-                 'protect', '_consecutive_protect')
+                 'protect', '_consecutive_protect', '_engine')
 
     def __init__(self,
                  constants: Pokemon):
@@ -211,3 +216,63 @@ class BattlingPokemon:
             self._consecutive_protect = 0
         if self.status == Status.SLEEP:
             self._wake_turns -= 1
+
+
+class InvalidAttrAccessException(Exception):
+    pass
+
+
+class PokemonView(Pokemon):
+
+    def __init__(self,
+                 pkm: Pokemon):
+        self._pkm = pkm
+        self._pkm._views += [self]
+        self._revealed: list[int] = []
+
+    def __del__(self):
+        self._pkm._views.remove(self)
+
+    def __getattr__(self,
+                    attr):
+        if attr == "moves":
+            return [self._pkm.moves[i] for i in self._revealed]
+        elif attr == "_pkm":
+            raise InvalidAttrAccessException()
+        return getattr(self._pkm, attr)
+
+    def _on_move_used(self,
+                      i: int):
+        if i not in self._revealed:
+            self._revealed += [i]
+
+    def hide(self):
+        self._revealed = []
+
+
+class BattlingPokemonView(BattlingPokemon):
+
+    def __init__(self,
+                 pkm: BattlingPokemon):
+        self._pkm = pkm
+        self._pkm.constants._views += [self]
+        self._revealed: list[int] = []
+
+    def __del__(self):
+        self._pkm.constants._views.remove(self)
+
+    def __getattr__(self,
+                    attr):
+        if attr == "battling_moves":
+            return [self._pkm.battling_moves[i] for i in self._revealed]
+        elif attr == "_pkm":
+            raise InvalidAttrAccessException()
+        return getattr(self._pkm, attr)
+
+    def _on_move_used(self,
+                      i: int):
+        if i not in self._revealed:
+            self._revealed += [i]
+
+    def hide(self):
+        self._revealed = []
