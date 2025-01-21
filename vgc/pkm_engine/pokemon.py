@@ -223,6 +223,7 @@ class InvalidAttrAccessException(Exception):
 
 
 class PokemonView(Pokemon):
+    __slots__ = ('_pkm', '_revealed')
 
     def __init__(self,
                  pkm: Pokemon):
@@ -237,7 +238,7 @@ class PokemonView(Pokemon):
                     attr):
         if attr == "moves":
             return [self._pkm.moves[i] for i in self._revealed]
-        elif attr == "_pkm":
+        if attr in ["evs", "ivs", "nature", "stats", "_pkm"]:
             raise InvalidAttrAccessException()
         return getattr(self._pkm, attr)
 
@@ -251,10 +252,12 @@ class PokemonView(Pokemon):
 
 
 class BattlingPokemonView(BattlingPokemon):
+    __slots__ = ('_pkm', '_constants_view', '_revealed')
 
     def __init__(self,
                  pkm: BattlingPokemon):
         self._pkm = pkm
+        self._constants_view = PokemonView(self._pkm.constants)
         self._pkm.constants._views += [self]
         self._revealed: list[int] = []
 
@@ -265,6 +268,8 @@ class BattlingPokemonView(BattlingPokemon):
                     attr):
         if attr == "battling_moves":
             return [self._pkm.battling_moves[i] for i in self._revealed]
+        elif attr == "constants":
+            return self._constants_view
         elif attr == "_pkm":
             raise InvalidAttrAccessException()
         return getattr(self._pkm, attr)

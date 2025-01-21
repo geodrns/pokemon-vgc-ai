@@ -1,8 +1,8 @@
 from vgc.pkm_engine.constants import WEATHER_TURNS, TERRAIN_TURNS, TRICKROOM_TURNS, REFLECT_TURNS, LIGHTSCREEN_TURNS, \
     TAILWIND_TURNS
 from vgc.pkm_engine.modifiers import Weather, Terrain
-from vgc.pkm_engine.pokemon import BattlingPokemon, Pokemon
-from vgc.pkm_engine.team import BattlingTeam
+from vgc.pkm_engine.pokemon import BattlingPokemon, Pokemon, InvalidAttrAccessException
+from vgc.pkm_engine.team import BattlingTeam, BattlingTeamView
 
 
 class SideConditions:
@@ -133,3 +133,35 @@ class State:
     def get_side(self,
                  pkm: BattlingPokemon) -> int:
         return 0 if pkm in self.sides[0].team.active or pkm in self.sides[0].team.reserve else 1
+
+
+class SideView(Side):
+    __slots__ = ('_side', '_team')
+
+    def __init__(self, side: Side):
+        self._side = side
+        self._team = BattlingTeamView(self._side.team)
+
+    def __getattr__(self,
+                    attr):
+        if attr == "_side":
+            raise InvalidAttrAccessException()
+        if attr == "team":
+            return self._team
+        return getattr(self._pkm, attr)
+
+
+class StateView(State):
+    __slots__ = ('_state', '_sides')
+
+    def __init__(self, state: State, side: int):
+        self._state = state
+        self._sides = (state.sides[side], SideView(state.sides[not side]))
+
+    def __getattr__(self,
+                    attr):
+        if attr == "_state":
+            raise InvalidAttrAccessException()
+        if attr == "sides":
+            return self._sides
+        return getattr(self._pkm, attr)
