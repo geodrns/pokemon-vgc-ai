@@ -1,3 +1,5 @@
+from numpy import array
+
 from vgc.pkm_engine.team import Team
 from vgc.pkm_engine.threshold_calculator import move_hit_threshold
 from vgc.pkm_engine.battle_engine import BattleEngine
@@ -7,6 +9,7 @@ from vgc.pkm_engine.move import Move
 from vgc.pkm_engine.nature import Nature
 from vgc.pkm_engine.pokemon import PokemonSpecies, Pokemon, BattlingPokemon, PokemonView
 from vgc.pkm_engine.typing import Type
+from vgc.util.encoding import encode_move, EncodeContext
 
 m = Move(Type.FIRE, 60, 1., 10, Category.PHYSICAL, toggle_trickroom=True)
 print(m)
@@ -38,3 +41,7 @@ pv.hide()
 print(pv)
 t = Team([p, p2])
 print(t)
+e = array([0.] * 55)
+ctx = EncodeContext()
+size = encode_move(e, m, ctx)
+print(size, e)

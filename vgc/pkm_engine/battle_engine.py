@@ -1,4 +1,7 @@
+from typing import SupportsFloat, Any
+
 from gymnasium import Env
+from gymnasium.core import ActType, ObsType, RenderFrame
 from numpy.random import rand
 
 from vgc.pkm_engine.damage_calculator import calculate_damage, calculate_poison_damage, calculate_sand_damage, \
@@ -8,7 +11,7 @@ from vgc.pkm_engine.modifiers import Weather, Terrain, Hazard, Status
 from vgc.pkm_engine.move import Move, BattlingMove
 from vgc.pkm_engine.pokemon import BattlingPokemon
 from vgc.pkm_engine.priority_calculator import priority_calculator
-from vgc.pkm_engine.team import Team
+from vgc.pkm_engine.team import Team, BattlingTeam
 from vgc.pkm_engine.threshold_calculator import paralysis_threshold, move_hit_threshold, thaw_threshold
 from vgc.pkm_engine.typing import Type
 
@@ -41,11 +44,8 @@ class BattleEngine:
 
     def change_teams(self,
                      teams: tuple[Team, Team]):
-        battling_teams = (battling_team(teams[0]), battling_team(teams[1]))
-        self.state.sides[0].active = battling_teams[0][:self.n_active]
-        self.state.sides[0].reserve = battling_teams[0][self.n_active:]
-        self.state.sides[1].active = battling_teams[1][:self.n_active]
-        self.state.sides[1].reserve = battling_teams[1][self.n_active:]
+        self.state.sides[0].team = BattlingTeam(teams[0][:self.n_active], teams[0][self.n_active:])
+        self.state.sides[1].team = BattlingTeam(teams[1][:self.n_active], teams[1][self.n_active:])
 
     def run_turn(self,
                  commands: FullCommand):
@@ -220,7 +220,26 @@ class BattleEngine:
             switch_in.deal_damage(calculate_stealth_rock_damage(switch_in))
 
 
-class BattleEnv(BattleEngine, Env):
+class BattleEnv(Env):
 
     def __init__(self):
+        pass
+
+    def step(
+        self, action: ActType
+    ) -> tuple[ObsType, SupportsFloat, bool, bool, dict[str, Any]]:
+        pass
+
+    def reset(
+        self,
+        *,
+        seed: int | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> tuple[ObsType, dict[str, Any]]:
+        pass
+
+    def render(self) -> RenderFrame | list[RenderFrame] | None:
+        pass
+
+    def close(self):
         pass

@@ -234,6 +234,9 @@ class PokemonView(Pokemon):
     def __del__(self):
         self._pkm._views.remove(self)
 
+    def __str__(self):
+        return "Types " + str([t.name for t in self.species.types]) + ", Moves " + str([str(m) for m in self.moves])
+
     def __getattr__(self,
                     attr):
         if attr == "moves":
@@ -266,12 +269,12 @@ class BattlingPokemonView(BattlingPokemon):
 
     def __getattr__(self,
                     attr):
+        if attr == "_pkm":
+            raise InvalidAttrAccessException()
+        if attr == "constants":
+            return self._constants_view
         if attr == "battling_moves":
             return [self._pkm.battling_moves[i] for i in self._revealed]
-        elif attr == "constants":
-            return self._constants_view
-        elif attr == "_pkm":
-            raise InvalidAttrAccessException()
         return getattr(self._pkm, attr)
 
     def _on_move_used(self,
