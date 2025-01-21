@@ -7,8 +7,9 @@ from vgc.pkm_engine.modifiers import Status, Category, Stat
 from vgc.pkm_engine.move import Move
 
 from vgc.pkm_engine.nature import Nature
-from vgc.pkm_engine.pokemon import PokemonSpecies, Pokemon, BattlingPokemon, PokemonView
+from vgc.pkm_engine.pokemon import PokemonSpecies, Pokemon, BattlingPokemon
 from vgc.pkm_engine.typing import Type
+from vgc.pkm_engine.view import PokemonView
 from vgc.util.encoding import encode_move, EncodeContext
 
 m = Move(Type.FIRE, 60, 1., 10, Category.PHYSICAL, toggle_trickroom=True)

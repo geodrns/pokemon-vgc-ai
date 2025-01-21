@@ -1,5 +1,6 @@
 from numpy import array
 
+from vgc.pkm_engine.game_state import Side, State
 from vgc.pkm_engine.modifiers import Weather, Terrain, Hazard, Status
 from vgc.pkm_engine.move import Move, BattlingMove
 from vgc.pkm_engine.pokemon import Pokemon, BattlingPokemon
@@ -31,7 +32,7 @@ def multi_hot(e: array, pos: list[int], n: int):
 class EncodeContext:
 
     def __init__(self,
-                 max_hp: int = 400,
+                 max_hp: int = 500,
                  max_pp: int = 20,
                  max_stage: int = 5,
                  max_priority: int = 1,
@@ -171,4 +172,35 @@ def encode_battling_team(e: array, team: BattlingTeam, ctx: EncodeContext) -> in
         i += encode_pokemon(e[i:], m, ctx)
     for m in team.reserve:
         i += encode_pokemon(e[i:], m, ctx)
+    return i
+
+
+def encode_side(e: array, side: Side, ctx: EncodeContext) -> int:
+    i = 0
+    i += encode_battling_team(e[i:], side.team, ctx)
+    e[i] = float(side.conditions.reflect)
+    i += 1
+    e[i] = float(side.conditions.lightscreen)
+    i += 1
+    e[i] = float(side.conditions.tailwind)
+    i += 1
+    e[i] = float(side.conditions.stealth_rock)
+    i += 1
+    e[i] = float(side.conditions.poison_spikes)
+    i += 1
+    return i
+
+
+def encode_state(e: array, state: State, ctx: EncodeContext) -> int:
+    i = 0
+    for s in state.sides:
+        i += encode_side(e[i:], s, ctx)
+    if state.weather != Weather.CLEAR:
+        one_hot(e[i:], state.weather - 1, ctx.n_weather)
+    i += ctx.n_weather
+    if state.field != Terrain.NONE:
+        one_hot(e[i:], state.field - 1, ctx.n_terrain)
+    i += ctx.n_terrain
+    e[i] += float(state.trickroom)
+    i += 1
     return i
