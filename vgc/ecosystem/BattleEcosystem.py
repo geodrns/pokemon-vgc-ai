@@ -4,8 +4,8 @@ from typing import List, Tuple
 
 from vgc.balance.meta import MetaData
 from vgc.competition.BattleMatch import BattleMatch
-from vgc.competition.Competitor import CompetitorManager
-from vgc.competition.Elo import elo_rating
+from vgc.competition.competitor import CompetitorManager
+from vgc.competition.elo import elo_rating
 from vgc.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
 
 

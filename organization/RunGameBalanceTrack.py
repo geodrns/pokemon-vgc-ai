@@ -3,9 +3,9 @@ from multiprocessing.connection import Client
 
 from vgc.balance.meta import StandardMetaData, BaseMetaEvaluator
 from vgc.balance.restriction import VGCDesignConstraints
-from vgc.behaviour import BattlePolicy
-from vgc.behaviour.BattlePolicies import TypeSelector
-from vgc.competition.Competitor import CompetitorManager, Competitor
+from vgc.agent import BattlePolicy
+from vgc.agent.BattlePolicies import TypeSelector
+from vgc.competition.competitor import CompetitorManager, Competitor
 from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
 from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
 from vgc.network.ProxyCompetitor import ProxyCompetitor

@@ -8,7 +8,7 @@ from typing import List
 import numpy as np
 from customtkinter import CTk, CTkButton, CTkRadioButton, CTkLabel
 
-from vgc.behaviour import BattlePolicy
+from vgc.agent import BattlePolicy
 from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, DEFAULT_PARTY_SIZE, TYPE_CHART_MULTIPLIER, DEFAULT_N_ACTIONS
 from vgc.datatypes.Objects import GameState, PkmTeam
 from vgc.datatypes.Types import PkmStat, PkmType, WeatherCondition
@@ -434,7 +434,7 @@ class GUIPlayer(BattlePolicy):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.title("VGC Battle GUI")
-            #self.iconbitmap(r"vgc/ux/vgc_v2_01_Uw5_icon.ico")
+            # self.iconbitmap(r"vgc/ux/vgc_v2_01_Uw5_icon.ico")
             self.geometry("650x200")
             self.protocol("WM_DELETE_WINDOW", disable_event)
             CTkLabel(self, text="Actions").pack(anchor='w')

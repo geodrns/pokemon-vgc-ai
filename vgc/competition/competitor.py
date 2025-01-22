@@ -1,12 +1,12 @@
 from abc import ABC
 from typing import Optional
 
-from vgc.behaviour import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, BalancePolicy
-from vgc.behaviour.BalancePolicies import IdleBalancePolicy
-from vgc.behaviour.BattlePolicies import RandomPlayer
-from vgc.behaviour.TeamBuildPolicies import RandomTeamBuilder
-from vgc.behaviour.TeamPredictors import NullTeamPredictor
-from vgc.behaviour.TeamSelectionPolicies import RandomTeamSelectionPolicy
+from vgc.agent import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, BalancePolicy
+from vgc.agent.BalancePolicies import IdleBalancePolicy
+from vgc.agent.BattlePolicies import RandomPlayer
+from vgc.agent.TeamBuildPolicies import RandomTeamBuilder
+from vgc.agent.TeamPredictors import NullTeamPredictor
+from vgc.agent.TeamSelectionPolicies import RandomTeamSelectionPolicy
 from vgc.datatypes.Objects import PkmFullTeam
 
 random_battle_policy = RandomPlayer()

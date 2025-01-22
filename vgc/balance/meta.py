@@ -12,6 +12,10 @@ PkmId = int
 MoveId = int
 
 
+class History:
+    pass
+
+
 class MetaData(ABC):
 
     @abstractmethod

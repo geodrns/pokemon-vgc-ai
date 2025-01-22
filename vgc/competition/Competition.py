@@ -2,10 +2,10 @@ import random
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
+from vgc.agent.TeamBuildPolicies import RandomTeamBuilder
 from vgc.balance.meta import MetaData
-from vgc.behaviour.TeamBuildPolicies import RandomTeamBuilder
 from vgc.competition.BattleMatch import BattleMatch, RandomTeamsBattleMatch
-from vgc.competition.Competitor import Competitor, CompetitorManager
+from vgc.competition.competitor import Competitor, CompetitorManager
 from vgc.datatypes.Objects import PkmRoster
 from vgc.util.generator.PkmTeamGenerators import PkmTeamGenerator
 

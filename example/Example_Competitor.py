@@ -1,8 +1,8 @@
-from vgc.behaviour import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy
-from vgc.behaviour.BattlePolicies import RandomPlayer, TerminalPlayer
-from vgc.behaviour.TeamBuildPolicies import TerminalTeamBuilder, RandomTeamBuilder
-from vgc.behaviour.TeamSelectionPolicies import FirstEditionTeamSelectionPolicy
-from vgc.competition.Competitor import Competitor
+from vgc.agent import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy
+from vgc.agent.BattlePolicies import RandomPlayer, TerminalPlayer
+from vgc.agent.TeamBuildPolicies import TerminalTeamBuilder, RandomTeamBuilder
+from vgc.agent.TeamSelectionPolicies import FirstEditionTeamSelectionPolicy
+from vgc.competition.competitor import Competitor
 
 
 class ExampleCompetitor(Competitor):

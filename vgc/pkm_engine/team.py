@@ -1,5 +1,4 @@
-from vgc.pkm_engine.pokemon import BattlingPokemon, Pokemon, PokemonView, InvalidAttrAccessException, \
-    BattlingPokemonView
+from vgc.pkm_engine.pokemon import BattlingPokemon, Pokemon
 
 
 class Team:

@@ -7,6 +7,10 @@ from vgc.datatypes.Objects import PkmTemplate, PkmRoster, PkmMoveRoster
 from vgc.datatypes.Types import PkmType
 
 
+class Constraints:
+    pass
+
+
 class RuleType(Enum):
     ROSTER_BOUNDED_SIZE = 0
     ROSTER_FIXED_SIZE = 1

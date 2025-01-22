@@ -7,9 +7,9 @@ from pygad import pygad
 from scipy.optimize import linprog
 from torch import nn
 
+from vgc.agent import TeamBuildPolicy, BattlePolicy
+from vgc.agent.BattlePolicies import TypeSelector
 from vgc.balance.meta import MetaData
-from vgc.behaviour import TeamBuildPolicy, BattlePolicy
-from vgc.behaviour.BattlePolicies import TypeSelector
 from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
 from vgc.datatypes.Constants import DEFAULT_PKM_N_MOVES, MAX_HIT_POINTS
 from vgc.datatypes.Objects import Pkm, PkmTemplate, PkmFullTeam, PkmRoster, PkmTeam, PkmMove
@@ -129,6 +129,7 @@ class IndividualPkmCounter(TeamBuildPolicy):
         members: List[int] = np.random.choice(IndividualPkmCounter.n_pkms, 3, False, p=self.policy)
         return PkmFullTeam([IndividualPkmCounter.pkms[members[0]], IndividualPkmCounter.pkms[members[1]],
                             IndividualPkmCounter.pkms[members[2]]])
+
 
 def select_next(matchup_table, n_pkms, members, coverage_weight, t=0.5, r=0.5):
     """
@@ -294,6 +295,7 @@ def encode_full_team(team: PkmFullTeam):
 
 FULL_TEAM_ENCODE_LEN = len(encode_full_team(PkmFullTeam()))
 
+
 def get_counter(opponent_teams, usage, pkms: List[Pkm], mlp, conf: GAConfigs):
     encoded_teams = []
     for team in opponent_teams:
@@ -457,6 +459,7 @@ class MaxTeamCoverage(IndividualPkmCounter):
         policy /= sum(policy)
         p: int = np.random.choice(n_teams, 1, p=policy)
         return all_teams[p]
+
 
 class TerminalTeamBuilder(TeamBuildPolicy):
     """

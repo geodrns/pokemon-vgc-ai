@@ -1,4 +1,4 @@
-from vgc.behaviour.BattlePolicies import RandomPlayer
+from vgc.agent.BattlePolicies import RandomPlayer
 from vgc.datatypes.Objects import PkmTeam
 from vgc.engine.PkmBattleEnv import PkmBattleEnv
 

@@ -101,7 +101,7 @@ def encode_move(e: array, move: Move, ctx: EncodeContext) -> int:
     e[i] = float(move.disable)
     i += 1
     for j in range(0, ctx.n_boosts):
-        e[j+i] = move.boosts[j] / ctx.max_boost
+        e[j + i] = move.boosts[j] / ctx.max_boost
     i += ctx.n_boosts
     i += one_hot(e[i:], move.pkm_type, ctx.n_types)
     i += one_hot(e[i:], move.category, ctx.n_category)
@@ -131,7 +131,7 @@ def encode_pokemon(e: array, pokemon: Pokemon, ctx: EncodeContext) -> int:
     for m in pokemon.moves:
         i += encode_move(e[i:], m, ctx)
     for j in range(0, ctx.n_stats):
-        e[j+i] = pokemon.stats[j] / ctx.max_hp
+        e[j + i] = pokemon.stats[j] / ctx.max_hp
     i += ctx.n_stats
     i += multi_hot(e, pokemon.species.types, ctx.n_types)
     return i
@@ -140,14 +140,14 @@ def encode_pokemon(e: array, pokemon: Pokemon, ctx: EncodeContext) -> int:
 def encode_battling_pokemon(e: array, pokemon: BattlingPokemon, ctx: EncodeContext) -> int:
     i = 0
     for j in range(0, ctx.n_stats):
-        e[j+i] = pokemon.constants.stats[j] / ctx.max_hp
+        e[j + i] = pokemon.constants.stats[j] / ctx.max_hp
     i += ctx.n_stats
     for m in pokemon.battling_moves:
         i += encode_battling_move(e[i:], m, ctx)
     e[i] = pokemon.hp / ctx.max_hp
     i += multi_hot(e, pokemon.types, ctx.n_types)
     for j in range(0, ctx.n_boosts):
-        e[j+i] = pokemon.boosts[j] / ctx.max_boost
+        e[j + i] = pokemon.boosts[j] / ctx.max_boost
     i += ctx.n_boosts
     if pokemon.status != Status.NONE:
         one_hot(e[i:], pokemon.status, ctx.n_status)

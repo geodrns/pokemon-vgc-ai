@@ -202,11 +202,11 @@ class PkmBattleUX(arcade.Window):
         arcade.draw_text(self.atk[0], 130.0, 160.0, arcade.color.WHITE, 12, 180, 'left')
         arcade.draw_text(self.hp[0], 130.0, 140.0, arcade.color.WHITE, 12, 180, 'left')
 
-        #arcade.draw_text(self.moves, 10.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
-        #arcade.draw_text(self.a[0], 80.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
-        #arcade.draw_text(self.a[1], 120.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
-        #arcade.draw_text(self.a[2], 160.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
-        #arcade.draw_text(self.a[3], 200.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
+        # arcade.draw_text(self.moves, 10.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
+        # arcade.draw_text(self.a[0], 80.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
+        # arcade.draw_text(self.a[1], 120.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
+        # arcade.draw_text(self.a[2], 160.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
+        # arcade.draw_text(self.a[3], 200.0, 40.0, arcade.color.WHITE, 12, 180, 'left')
 
         arcade.draw_text(self.spd[1], 210.0, 200.0, arcade.color.WHITE, 12, 180, 'left')
         arcade.draw_text(self.dfs[1], 210.0, 180.0, arcade.color.WHITE, 12, 180, 'left')

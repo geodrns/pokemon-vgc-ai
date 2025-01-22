@@ -2,9 +2,9 @@ import random
 from random import sample
 from typing import Tuple, List, Optional
 
+from vgc.agent import BattlePolicy
 from vgc.balance.meta import MetaData
-from vgc.behaviour import BattlePolicy
-from vgc.competition.Competitor import Competitor, CompetitorManager
+from vgc.competition.competitor import Competitor, CompetitorManager
 from vgc.datatypes.Constants import DEFAULT_MATCH_N_BATTLES, DEFAULT_TEAM_SIZE, DEFAULT_N_ACTIONS
 from vgc.datatypes.Objects import PkmFullTeam, PkmTeam
 from vgc.engine.HiddenInformation import hide_team

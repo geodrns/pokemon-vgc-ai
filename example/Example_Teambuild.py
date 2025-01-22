@@ -4,7 +4,7 @@ import time
 import numpy as np
 
 from vgc.balance.meta import StandardMetaData
-from vgc.behaviour.TeamBuildPolicies import TerminalTeamBuilder
+from vgc.agent.TeamBuildPolicies import TerminalTeamBuilder
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 np.set_printoptions(threshold=sys.maxsize)

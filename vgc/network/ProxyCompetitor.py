@@ -2,8 +2,8 @@
 from multiprocessing.connection import Client
 from typing import Set
 
+from vgc.agent import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, BalancePolicy
 from vgc.balance import DeltaRoster
-from vgc.behaviour import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, BalancePolicy
 from vgc.competition.Competition import Competitor
 from vgc.datatypes.Objects import PkmFullTeam, PkmTeam, PkmRoster
 

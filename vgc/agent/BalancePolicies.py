@@ -1,9 +1,9 @@
 from typing import Tuple
 
+from vgc.agent import BalancePolicy
 from vgc.balance import DeltaRoster
 from vgc.balance.meta import MetaData
 from vgc.balance.restriction import DesignConstraints
-from vgc.behaviour import BalancePolicy
 from vgc.datatypes.Objects import PkmRoster
 
 

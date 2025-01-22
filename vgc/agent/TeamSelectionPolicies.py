@@ -1,7 +1,7 @@
 import random
 from typing import Set, Tuple
 
-from vgc.behaviour import TeamSelectionPolicy
+from vgc.agent import TeamSelectionPolicy
 from vgc.datatypes.Constants import DEFAULT_TEAM_SIZE
 from vgc.datatypes.Objects import PkmFullTeam
 
@@ -67,6 +67,5 @@ class TerminalTeamSelection(TeamSelectionPolicy):
                 print('Invalid action. Select again.')
         print()
         return {int(t[0]), int(t[1]), int(t[2])}
-
 
 # class GUITeamSelection TODO

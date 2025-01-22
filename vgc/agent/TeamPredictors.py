@@ -1,7 +1,7 @@
 from typing import Tuple
 
+from vgc.agent import TeamPredictor
 from vgc.balance.meta import MetaData
-from vgc.behaviour import TeamPredictor
 from vgc.datatypes.Objects import PkmFullTeam
 
 

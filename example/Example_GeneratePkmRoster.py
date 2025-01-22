@@ -1,5 +1,5 @@
 from vgc.balance.meta import StandardMetaData
-from vgc.behaviour.TeamBuildPolicies import RandomTeamBuilder
+from vgc.agent.TeamBuildPolicies import RandomTeamBuilder
 from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 

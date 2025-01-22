@@ -15,8 +15,8 @@ from vgc.pkm_engine.team import Team, BattlingTeam
 from vgc.pkm_engine.threshold_calculator import paralysis_threshold, move_hit_threshold, thaw_threshold
 from vgc.pkm_engine.typing import Type
 
-Command = tuple[int, int]
-FullCommand = tuple[list[Command], list[Command]]
+BattleCommand = tuple[int, int]
+FullCommand = tuple[list[BattleCommand], list[BattleCommand]]
 
 
 class BattleEngine:
@@ -226,15 +226,15 @@ class BattleEnv(Env):
         pass
 
     def step(
-        self, action: ActType
+            self, action: ActType
     ) -> tuple[ObsType, SupportsFloat, bool, bool, dict[str, Any]]:
         pass
 
     def reset(
-        self,
-        *,
-        seed: int | None = None,
-        options: dict[str, Any] | None = None,
+            self,
+            *,
+            seed: int | None = None,
+            options: dict[str, Any] | None = None,
     ) -> tuple[ObsType, dict[str, Any]]:
         pass
 

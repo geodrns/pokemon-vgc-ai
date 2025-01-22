@@ -4,7 +4,7 @@ from typing import List
 from vgc.balance.meta import StandardMetaData, MetaEvaluator
 from vgc.balance.restriction import VGCDesignConstraints
 from vgc.competition.Competition import Competitor
-from vgc.competition.Competitor import CompetitorManager
+from vgc.competition.competitor import CompetitorManager
 from vgc.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
 from vgc.datatypes.Objects import PkmRoster
 from vgc.ecosystem.BattleEcosystem import Strategy
