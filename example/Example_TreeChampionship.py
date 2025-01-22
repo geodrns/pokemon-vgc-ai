@@ -1,9 +1,9 @@
 from Example_Competitor import ExampleCompetitor
-from vgc.competition.Competition import TreeChampionship
-from vgc.competition.competitor import CompetitorManager
-from vgc.datatypes.Objects import PkmRoster
-from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
-from vgc.util.generator.PkmTeamGenerators import RandomTeamGenerator
+from vgc2.competition.Competition import TreeChampionship
+from vgc2.competition.competitor import CompetitorManager
+from vgc2.datatypes.Objects import PkmRoster
+from vgc2.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from vgc2.util.generator.PkmTeamGenerators import RandomTeamGenerator
 
 N_COMPETITORS = 16
 

@@ -1,7 +1,7 @@
 import unittest
 
-from vgc.balance.archtype import std_move_dist
-from vgc.competition.StandardPkmMoves import SunnyDay, FireBlast, Flamethrower, HydroPump, STANDARD_MOVE_ROSTER
+from vgc2.balance.archtype import std_move_dist
+from vgc2.competition.StandardPkmMoves import SunnyDay, FireBlast, Flamethrower, HydroPump, STANDARD_MOVE_ROSTER
 
 
 class TestDistance(unittest.TestCase):

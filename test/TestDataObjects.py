@@ -6,10 +6,10 @@ from random import sample
 
 import numpy as np
 
-from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
-from vgc.datatypes.Constants import BASE_HIT_POINTS, MAX_HIT_POINTS
-from vgc.datatypes.Objects import PkmTemplate
-from vgc.datatypes.Types import PkmType
+from vgc2.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
+from vgc2.datatypes.Constants import BASE_HIT_POINTS, MAX_HIT_POINTS
+from vgc2.datatypes.Objects import PkmTemplate
+from vgc2.datatypes.Types import PkmType
 
 
 class TestEncodingMethods(unittest.TestCase):

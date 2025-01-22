@@ -1,10 +1,10 @@
 import unittest
 from copy import deepcopy
 
-from vgc.competition.StandardPkmMoves import Psychic, HydroPump, Thunder, FireBlast
-from vgc.datatypes.Objects import Pkm
-from vgc.datatypes.Types import PkmType
-from vgc.engine.HiddenInformation import set_pkm, hide_pkm
+from vgc2.competition.StandardPkmMoves import Psychic, HydroPump, Thunder, FireBlast
+from vgc2.datatypes.Objects import Pkm
+from vgc2.datatypes.Types import PkmType
+from vgc2.engine.HiddenInformation import set_pkm, hide_pkm
 
 
 class TestHiddenInformation(unittest.TestCase):

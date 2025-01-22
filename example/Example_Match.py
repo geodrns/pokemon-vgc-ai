@@ -1,9 +1,9 @@
 from Example_Competitor import ExampleCompetitor
-from vgc.agent.BattlePolicies import GUIPlayer, TunedTreeTraversal
-from vgc.competition.BattleMatch import BattleMatch
-from vgc.competition.competitor import CompetitorManager
-from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
-from vgc.util.generator.PkmTeamGenerators import RandomTeamFromRoster
+from vgc2.agent.BattlePolicies import GUIPlayer, TunedTreeTraversal
+from vgc2.competition.BattleMatch import BattleMatch
+from vgc2.competition.competitor import CompetitorManager
+from vgc2.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from vgc2.util.generator.PkmTeamGenerators import RandomTeamFromRoster
 
 
 def main():

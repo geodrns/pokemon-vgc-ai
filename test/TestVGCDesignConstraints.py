@@ -1,10 +1,10 @@
 import unittest
 
-from vgc.balance.restriction import VGCDesignConstraints, RosterBoundedSizeRule, RosterFixedSizeRule, \
+from vgc2.balance.restriction import VGCDesignConstraints, RosterBoundedSizeRule, RosterFixedSizeRule, \
     UnbannableRule, MoveRosterBoundedSizeRule, MoveRosterFixedSizeRule, MovesUnchangeableRule, TypeUnchangeableRule, \
     MaxHPUnchangeableRule
-from vgc.datatypes.Types import PkmType
-from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from vgc2.datatypes.Types import PkmType
+from vgc2.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 
 class TestVGCDesignConstraints(unittest.TestCase):

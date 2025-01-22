@@ -1,11 +1,11 @@
 import unittest
 from copy import deepcopy
 
-from vgc.balance import DeltaPkm, DeltaRoster
-from vgc.balance.meta import StandardMetaData
-from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
-from vgc.datatypes.Objects import PkmFullTeam
-from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from vgc2.balance import DeltaPkm, DeltaRoster
+from vgc2.balance.meta import StandardMetaData
+from vgc2.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
+from vgc2.datatypes.Objects import PkmFullTeam
+from vgc2.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 
 class TestStandardMetaData(unittest.TestCase):

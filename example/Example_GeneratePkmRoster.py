@@ -1,6 +1,6 @@
-from vgc.balance.meta import StandardMetaData
-from vgc.agent.TeamBuildPolicies import RandomTeamBuilder
-from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from vgc2.balance.meta import StandardMetaData
+from vgc2.agent.TeamBuildPolicies import RandomTeamBuilder
+from vgc2.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 
 def main():

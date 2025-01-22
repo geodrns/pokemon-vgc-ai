@@ -1,15 +1,15 @@
 import argparse
 from multiprocessing.connection import Client
 
-from vgc.balance.meta import StandardMetaData, BaseMetaEvaluator
-from vgc.balance.restriction import VGCDesignConstraints
-from vgc.agent import BattlePolicy
-from vgc.agent.BattlePolicies import TypeSelector
-from vgc.competition.competitor import CompetitorManager, Competitor
-from vgc.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
-from vgc.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
-from vgc.network.ProxyCompetitor import ProxyCompetitor
-from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from vgc2.balance.meta import StandardMetaData, BaseMetaEvaluator
+from vgc2.balance.restriction import VGCDesignConstraints
+from vgc2.agent import BattlePolicy
+from vgc2.agent.BattlePolicies import TypeSelector
+from vgc2.competition.competitor import CompetitorManager, Competitor
+from vgc2.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
+from vgc2.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
+from vgc2.network.ProxyCompetitor import ProxyCompetitor
+from vgc2.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 
 class SurrogateCompetitor(Competitor):

@@ -1,10 +1,10 @@
 import unittest
 
-from vgc.datatypes.Objects import PkmFullTeam
-from vgc.datatypes.Types import PkmType, PkmStatus
-from vgc.engine.HiddenInformation import null_pkm
-from vgc.engine.PkmBattleEnv import PkmBattleEnv
-from vgc.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from vgc2.datatypes.Objects import PkmFullTeam
+from vgc2.datatypes.Types import PkmType, PkmStatus
+from vgc2.engine.HiddenInformation import null_pkm
+from vgc2.engine.PkmBattleEnv import PkmBattleEnv
+from vgc2.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 
 class TestForwardModel(unittest.TestCase):

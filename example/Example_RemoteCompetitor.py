@@ -1,7 +1,7 @@
 import argparse
 
 from Example_Competitor import ExampleCompetitor
-from vgc.network.RemoteCompetitorManager import RemoteCompetitorManager
+from vgc2.network.RemoteCompetitorManager import RemoteCompetitorManager
 
 
 def main(args):

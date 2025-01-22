@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='vgc',
+    name='vgc2',
     version='3.0.5.7',
-    description='The VGC AI Framework aims to emulate the Esports scenario of human video game championships of Pokémon with AI agents, including the game balance aspect.',
+    description='The VGC AI Framework emulates the Video Game Championships of Pokémon with Pokémon AI Trainer agents.',
     url='https://gitlab.com/DracoStriker/pokemon-vgc-engine',
     author='Simão Reis',
     author_email='simao.reis@outlook.pt',

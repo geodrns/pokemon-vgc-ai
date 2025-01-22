@@ -1,6 +1,6 @@
-from vgc.agent.BattlePolicies import RandomPlayer
-from vgc.datatypes.Objects import PkmTeam
-from vgc.engine.PkmBattleEnv import PkmBattleEnv
+from vgc2.agent.BattlePolicies import RandomPlayer
+from vgc2.datatypes.Objects import PkmTeam
+from vgc2.engine.PkmBattleEnv import PkmBattleEnv
 
 
 def main():
