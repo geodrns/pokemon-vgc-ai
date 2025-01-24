@@ -4,9 +4,10 @@ from typing import List, Tuple
 
 from vgc2.balance.meta import MetaData
 from vgc2.competition.BattleMatch import BattleMatch
+from vgc2.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
+
 from vgc2.competition.competitor import CompetitorManager
 from vgc2.competition.elo import elo_rating
-from vgc2.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
 
 
 class Strategy(Enum):

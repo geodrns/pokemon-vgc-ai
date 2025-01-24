@@ -1,6 +1,6 @@
 import numpy as np
-
 from vgc2.datatypes.Constants import MAX_HIT_POINTS, MOVE_POWER_MIN, MOVE_POWER_MAX, BASE_HIT_POINTS
+
 from vgc2.util import softmax
 
 

@@ -4,7 +4,6 @@ from typing import Any, Set, Union, List, Tuple
 from vgc2.balance import DeltaRoster
 from vgc2.balance.meta import MetaData
 from vgc2.balance.restriction import VGCDesignConstraints
-
 from vgc2.datatypes.Objects import PkmFullTeam, GameState, PkmRoster
 
 

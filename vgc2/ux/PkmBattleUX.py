@@ -5,7 +5,6 @@ from multiprocessing.connection import Listener
 from typing import List, Tuple
 
 import arcade
-
 from vgc2.datatypes.Types import PkmType, PkmStat
 from vgc2.util.Networking import non_blocking_lock
 

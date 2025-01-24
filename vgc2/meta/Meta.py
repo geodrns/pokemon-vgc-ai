@@ -3,11 +3,10 @@ from abc import ABC, abstractmethod
 from typing import Dict, Tuple, List
 
 import numpy as np
-
-
 from vgc2.datatypes.Objects import PkmMove, PkmFullTeam, PkmRoster, PkmMoveRoster
-from vgc2.meta import DeltaRoster
 from vgc2.meta.Archtype import std_pkm_dist, std_move_dist, std_team_dist
+
+from vgc2.meta import DeltaRoster
 
 PkmId = int
 MoveId = int

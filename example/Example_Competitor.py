@@ -22,7 +22,7 @@ class ExampleCompetitor(Competitor):
         return self._team_build_policy
 
     @property
-    def team_selection_policy(self) -> TeamSelectionPolicy:
+    def selection_policy(self) -> TeamSelectionPolicy:
         return self._team_selection_policy
 
     @property
@@ -47,7 +47,7 @@ class TerminalExampleCompetitor(ExampleCompetitor):
         return self._team_build_policy
 
     @property
-    def team_selection_policy(self) -> TeamSelectionPolicy:
+    def selection_policy(self) -> TeamSelectionPolicy:
         return self._team_selection_policy
 
     @property

@@ -1,42 +1,22 @@
 from abc import ABC
-from typing import Optional
 
-from vgc2.agent import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, BalancePolicy
-from vgc2.agent.BalancePolicies import IdleBalancePolicy
-from vgc2.agent.BattlePolicies import RandomPlayer
-from vgc2.agent.TeamBuildPolicies import RandomTeamBuilder
-from vgc2.agent.TeamPredictors import NullTeamPredictor
-from vgc2.agent.TeamSelectionPolicies import RandomTeamSelectionPolicy
-from vgc2.datatypes.Objects import PkmFullTeam
-
-random_battle_policy = RandomPlayer()
-random_selector_policy = RandomTeamSelectionPolicy()
-random_team_build_policy = RandomTeamBuilder()
-idle_balance_policy = IdleBalancePolicy()
-null_team_predictor = NullTeamPredictor()
+from vgc2.agent.policies import BattlePolicy, SelectionPolicy, TeamBuildPolicy, MetaBalancePolicy, RuleBalancePolicy
+from vgc2.pkm_engine.team import Team
 
 
 class Competitor(ABC):
 
     @property
-    def battle_policy(self) -> BattlePolicy:
-        return random_battle_policy
+    def battle_policy(self) -> BattlePolicy | None:
+        return None
 
     @property
-    def team_selection_policy(self) -> TeamSelectionPolicy:
-        return random_selector_policy
+    def selection_policy(self) -> SelectionPolicy | None:
+        return None
 
     @property
-    def team_build_policy(self) -> TeamBuildPolicy:
-        return random_team_build_policy
-
-    @property
-    def team_predictor(self) -> TeamPredictor:
-        return null_team_predictor
-
-    @property
-    def balance_policy(self) -> BalancePolicy:
-        return idle_balance_policy
+    def team_build_policy(self) -> TeamBuildPolicy | None:
+        return None
 
     @property
     def name(self) -> str:
@@ -45,7 +25,23 @@ class Competitor(ABC):
 
 class CompetitorManager:
 
-    def __init__(self, c: Competitor):
+    def __init__(self,
+                 c: Competitor):
         self.competitor: Competitor = c
-        self.team: Optional[PkmFullTeam] = None
+        self.team: Team | None = None
         self.elo = 1200
+
+
+class DesignCompetitor(ABC):
+
+    @property
+    def meta_balance_policy(self) -> MetaBalancePolicy | None:
+        return None
+
+    @property
+    def rule_balance_policy(self) -> RuleBalancePolicy | None:
+        return None
+
+    @property
+    def name(self) -> str:
+        return ""

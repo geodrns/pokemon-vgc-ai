@@ -1,4 +1,4 @@
-from vgc2.pkm_engine.modifiers import Category, Status, Hazard, Weather, Terrain, Stats
+from vgc2.pkm_engine.modifiers import Category, Status, Hazard, Weather, Terrain
 from vgc2.pkm_engine.typing import Type
 
 
@@ -6,7 +6,7 @@ class Move:
     __slots__ = ('id', 'pkm_type', 'base_power', 'accuracy', 'max_pp', 'category', 'priority', 'effect_prob',
                  'force_switch', 'self_switch', 'ignore_evasion', 'protect', 'boosts', 'heal', 'recoil',
                  'weather_start', 'field_start', 'toggle_trickroom', 'change_type', 'toggle_reflect',
-                 'toggle_lightscreen', 'toggle_tailwind', 'hazard', 'status', 'disable')
+                 'toggle_lightscreen', 'toggle_tailwind', 'hazard', 'status', 'disable', 'name')
 
     def __init__(self,
                  pkm_type: Type,
@@ -20,7 +20,7 @@ class Move:
                  self_switch: bool = False,
                  ignore_evasion: bool = False,
                  protect: bool = False,
-                 boosts: Stats = (0,) * 8,
+                 boosts: tuple[int, int, int, int, int, int, int, int] = (0,) * 8,
                  heal: float = 0.,
                  recoil: float = 0.,
                  weather_start: Weather = Weather.CLEAR,
@@ -32,7 +32,8 @@ class Move:
                  toggle_tailwind: bool = False,
                  hazard: Hazard = Hazard.NONE,
                  status: Status = Status.NONE,
-                 disable: bool = False):
+                 disable: bool = False,
+                 name: str = ""):
         self.id = -1
         self.pkm_type = pkm_type
         self.base_power = base_power
@@ -66,8 +67,11 @@ class Move:
         self.status = status
         self.disable = disable
         # what is the special ability, dimension, probability, percentage, target/signal
+        self.name = name
 
     def __str__(self):
+        if self.name:
+            return self.name
         return ("Type " + str(self.pkm_type.name) +
                 ", Power " + str(self.base_power) +
                 ", Accuracy " + str(self.accuracy) +

@@ -1,10 +1,11 @@
 from vgc2.balance.meta import MetaData
-from vgc2.competition import legal_team
-from vgc2.competition.competitor import CompetitorManager
 from vgc2.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
 from vgc2.datatypes.Objects import PkmRoster
-from vgc2.ecosystem.BattleEcosystem import BattleEcosystem, Strategy
 from vgc2.util.generator.PkmTeamGenerators import RandomTeamFromRoster
+
+from vgc2.competition import legal_team
+from vgc2.competition.competitor import CompetitorManager
+from vgc2.ecosystem.BattleEcosystem import BattleEcosystem, Strategy
 
 
 class ChampionshipEcosystem:

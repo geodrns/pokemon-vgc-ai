@@ -1,5 +1,4 @@
 import math
-from typing import Optional
 
 from vgc2.pkm_engine.constants import NATURES
 from vgc2.pkm_engine.modifiers import Stat, Status, Stats
@@ -9,19 +8,23 @@ from vgc2.pkm_engine.typing import Type
 
 
 class PokemonSpecies:
-    __slots__ = ('id', 'base_stats', 'types', 'moves', '_instances')
+    __slots__ = ('id', 'base_stats', 'types', 'moves', '_instances', 'name')
 
     def __init__(self,
                  base_stats: Stats,
                  types: list[Type],
-                 moves: list[Move]):
+                 moves: list[Move],
+                 name: str = ""):
         self.id = -1
         self.base_stats = base_stats
         self.types = types
         self.moves = moves
+        self.name = name
         self._instances = []
 
     def __str__(self):
+        if self.name:
+            return self.name
         return ("Base Stats " + str(self.base_stats) +
                 ", Types " + str([t.name for t in self.types]) +
                 ", Moves " + str([str(m) for m in self.moves]))
@@ -164,7 +167,7 @@ class BattlingPokemon:
         self.status = Status.NONE
         self._wake_turns = 0
         self.battling_moves = [BattlingMove(m) for m in constants.moves]
-        self.last_used_move: Optional[BattlingMove] = None
+        self.last_used_move: BattlingMove | None = None
         self.protect = False
         self._consecutive_protect = 0
         self._engine = None

@@ -6,7 +6,7 @@ setup(
     description='The VGC AI Framework emulates the Video Game Championships of Pokémon with Pokémon AI Trainer agents.',
     url='https://gitlab.com/DracoStriker/pokemon-vgc-engine',
     author='Simão Reis',
-    author_email='simao.reis@outlook.pt',
+    author_email='simao.reis@vortex-colab.com, simao.reis@outlook.pt',
     license='MIT License',
     packages=find_packages(),
     include_package_data=True,

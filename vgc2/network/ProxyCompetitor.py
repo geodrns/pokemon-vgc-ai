@@ -2,10 +2,11 @@
 from multiprocessing.connection import Client
 from typing import Set
 
-from vgc2.agent import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, BalancePolicy
 from vgc2.balance import DeltaRoster
 from vgc2.competition.Competition import Competitor
 from vgc2.datatypes.Objects import PkmFullTeam, PkmTeam, PkmRoster
+
+from vgc2.agent import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy, TeamPredictor, BalancePolicy
 
 ENCODE_TIMEOUT = 1.0
 CLOSE_TIMEOUT = 1.0
@@ -153,7 +154,7 @@ class ProxyCompetitor(Competitor):
         return self.battlePolicy
 
     @property
-    def team_selection_policy(self) -> TeamSelectionPolicy:
+    def selection_policy(self) -> TeamSelectionPolicy:
         return self.teamSelectionPolicy
 
     @property

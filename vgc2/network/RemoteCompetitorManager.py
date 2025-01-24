@@ -39,11 +39,11 @@ class RemoteCompetitorManager:
                 self.competitor.battle_policy.close()
         elif msg[0] == 'TeamSelectionPolicy':
             if msg[1] == 'get_action':
-                self.conn.send(self.competitor.team_selection_policy.get_action(msg[2]))
+                self.conn.send(self.competitor.selection_policy.get_action(msg[2]))
             elif msg[1] == 'requires_encode':
-                self.conn.send(self.competitor.team_selection_policy.requires_encode())
+                self.conn.send(self.competitor.selection_policy.requires_encode())
             elif msg[1] == 'close':
-                self.competitor.team_selection_policy.close()
+                self.competitor.selection_policy.close()
         elif msg[0] == 'TeamBuildPolicy':
             if msg[1] == 'get_action':
                 self.conn.send(self.competitor.team_build_policy.get_action(msg[2]))

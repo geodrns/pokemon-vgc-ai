@@ -48,7 +48,8 @@ class TerminalBattle(BattlePolicy):
     Terminal battle interface. Tailored for single and double battles.
     """
 
-    def decision(self, state: State) -> list[BattleCommand]:
+    def decision(self,
+                 state: State) -> list[BattleCommand]:
         cmds: list[BattleCommand] = []
         team = state.sides[0].team
         print('~ Actions ~')
@@ -66,7 +67,7 @@ class TerminalBattle(BattlePolicy):
                 print('~ Targets ~')
                 for i, a in enumerate(targets):
                     print(i, '-> ', a)
-                cmds += [(act,  select(len(targets)))]
+                cmds += [(act, select(len(targets)))]
             else:
                 cmds += [(-1, act - n_moves)]
         print()

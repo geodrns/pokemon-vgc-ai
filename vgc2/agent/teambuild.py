@@ -6,10 +6,13 @@ from vgc2.pkm_engine.nature import Nature
 
 
 class RandomTeamBuildPolicy(TeamBuildPolicy):
+    """
+    random team builder.
+    """
 
     def decision(self,
                  roster: Roster,
-                 meta: Meta,
+                 meta: Meta | None,
                  max_size: int,
                  max_moves: int) -> TeamBuildCommand:
         ivs = (31,) * 6
@@ -31,7 +34,7 @@ class TerminalTeamBuild(TeamBuildPolicy):
 
     def decision(self,
                  roster: Roster,
-                 meta: Meta,
+                 meta: Meta | None,
                  max_size: int,
                  max_moves: int) -> TeamBuildCommand:
         pass  # TODO

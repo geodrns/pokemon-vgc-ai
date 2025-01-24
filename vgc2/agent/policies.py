@@ -19,7 +19,8 @@ Roster = list[PokemonSpecies]
 class BattlePolicy(ABC):
 
     @abstractmethod
-    def decision(self, state: State) -> list[BattleCommand]:
+    def decision(self,
+                 state: State) -> list[BattleCommand]:
         pass
 
 
@@ -37,7 +38,7 @@ class TeamBuildPolicy(ABC):
     @abstractmethod
     def decision(self,
                  roster: Roster,
-                 meta: Meta,
+                 meta: Meta | None,
                  max_size: int,
                  max_moves: int) -> TeamBuildCommand:
         pass
