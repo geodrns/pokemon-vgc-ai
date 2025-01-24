@@ -4,12 +4,21 @@ from typing import Callable
 from numpy import clip
 from numpy.random import default_rng, Generator
 
+from vgc2.agent.policies import Roster
 from vgc2.pkm_engine.modifiers import Category, Weather, Terrain, Hazard, Status
 from vgc2.pkm_engine.move import Move
+from vgc2.pkm_engine.nature import Nature
+from vgc2.pkm_engine.pokemon import PokemonSpecies, Pokemon
+from vgc2.pkm_engine.team import Team
 from vgc2.pkm_engine.typing import Type
 
 MoveGenerator = Callable[[Generator], Move]
 MoveSetGenerator = Callable[[int, Generator], list[Move]]
+PokemonSpeciesGenerator = Callable[[list[Move], int, Generator], PokemonSpecies]
+PokemonGenerator = Callable[[PokemonSpecies, int, Generator], Pokemon]
+RosterGenerator = Callable[[int, list[Move], int, Generator], Roster]
+TeamGenerator = Callable[[int, int, Generator], Team]
+RosterTeamGenerator = Callable[[Roster, int, int, Generator], Team]
 
 _rng = default_rng()
 
@@ -53,3 +62,52 @@ def gen_move_set(n: int, rng: Generator = _rng) -> list[Move]:
 def gen_move_subset(n: int,
                     moves: list[Move]) -> list[Move]:
     return sample(moves, min(n, len(moves)))
+
+
+def gen_pkm_species(moves: list[Move],
+                    n_moves: int = 4,
+                    rng: Generator = _rng) -> PokemonSpecies:
+    n_types = 1 if rng.random() < 0.5 else 2
+    return PokemonSpecies(
+        base_stats=(
+            clip(int(rng.normal(120, 0.2, 1)[0]), 0, 160),
+            clip(int(rng.normal(100, 0.2, 1)[0]), 0, 140),
+            clip(int(rng.normal(100, 0.2, 1)[0]), 0, 140),
+            clip(int(rng.normal(100, 0.2, 1)[0]), 0, 140),
+            clip(int(rng.normal(100, 0.2, 1)[0]), 0, 140),
+            clip(int(rng.normal(100, 0.2, 1)[0]), 0, 140)),
+        types=[Type(x) for x in rng.choice(len(Type), n_types)],
+        moves=gen_move_subset(n_moves, moves))
+
+
+def gen_pkm(species: PokemonSpecies,
+            max_moves: int = 4,
+            rng: Generator = _rng) -> Pokemon:
+    n_moves = len(species.moves)
+    return Pokemon(
+        species=species,
+        move_indexes=list(rng.choice(n_moves, min(max_moves, n_moves))),
+        level=100,
+        ivs=(31,) * 6,
+        evs=tuple(rng.multinomial(510, [1 / 6] * 6)),
+        nature=Nature(rng.choice(len(Nature), 1)[0]))
+
+
+def gen_pkm_roster(n: int,
+                   moves: list[Move],
+                   n_moves: int = 4,
+                   rng: Generator = _rng) -> Roster:
+    return [gen_pkm_species(moves, n_moves, rng) for _ in range(n)]
+
+
+def gen_team(n: int,
+             n_moves: int,
+             rng: Generator = _rng) -> Team:
+    return Team([gen_pkm(gen_pkm_species(gen_move_set(n_moves), n_moves, rng), n_moves, rng) for _ in range(n)])
+
+
+def gen_team_from_roster(roster: Roster,
+                         n: int,
+                         n_moves: int,
+                         rng: Generator = _rng) -> Team:
+    return Team([gen_pkm(roster[i], n_moves, rng) for i in rng.choice(len(roster), n)])
