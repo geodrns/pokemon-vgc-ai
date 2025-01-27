@@ -6,7 +6,7 @@ from vgc2.agent.TeamPredictors import NullTeamPredictor
 from vgc2.agent.TeamSelectionPolicies import FirstEditionTeamSelectionPolicy
 from vgc2.competition import CompetitorManager
 from vgc2.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
-from vgc2.network.proxy import ProxyCompetitor
+from vgc2.network.client import ProxyCompetitor
 from vgc2.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 

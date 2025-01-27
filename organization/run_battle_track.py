@@ -3,7 +3,8 @@ from multiprocessing.connection import Client
 
 from vgc2.competition import CompetitorManager
 from vgc2.competition.tournament import TreeTournament
-from vgc2.network.proxy import ProxyCompetitor
+from vgc2.network.client import ProxyCompetitor
+from vgc2.network.server import BASE_PORT
 
 
 def main(args):
@@ -29,6 +30,6 @@ if __name__ == '__main__':
     parser.add_argument('--max_team_size', type=int, default=4)
     parser.add_argument('--n_active', type=int, default=2)
     parser.add_argument('--max_pkm_moves', type=int, default=4)
-    parser.add_argument('--base_port', type=int, default=5000)
+    parser.add_argument('--base_port', type=int, default=BASE_PORT)
     args = parser.parse_args()
     main(args)

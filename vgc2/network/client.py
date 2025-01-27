@@ -12,25 +12,25 @@ class ProxyBattlePolicy(BattlePolicy):
 
     def __init__(self,
                  conn: Client):
-        self.conn: Client = conn
+        self.__conn: Client = conn
 
     def decision(self,
                  state: State) -> list[BattleCommand]:
-        self.conn.send(('BattlePolicy', state))
-        return self.conn.recv()
+        self.__conn.send(('BattlePolicy', state))
+        return self.__conn.recv()
 
 
 class ProxySelectionPolicy(SelectionPolicy):
 
     def __init__(self,
                  conn: Client):
-        self.conn: Client = conn
+        self.__conn: Client = conn
 
     def decision(self,
                  teams: tuple[Team, Team],
                  max_size: int) -> SelectionCommand:
-        self.conn.send(('SelectionPolicy', teams, max_size))
-        return self.conn.recv()
+        self.__conn.send(('SelectionPolicy', teams, max_size))
+        return self.__conn.recv()
 
 
 class ProxyTeamBuildPolicy(TeamBuildPolicy):
@@ -52,67 +52,72 @@ class ProxyMetaBalancePolicy(MetaBalancePolicy):
 
     def __init__(self,
                  conn: Client):
-        self.conn: Client = conn
+        self.__conn: Client = conn
 
     def decision(self,
                  roster: Roster,
                  meta: Meta,
                  constraints: Constraints) -> RosterBalanceCommand:
-        self.conn.send(('BalancePolicy', roster, meta, constraints))
-        return self.conn.recv()
+        self.__conn.send(('BalancePolicy', roster, meta, constraints))
+        return self.__conn.recv()
 
 
 class ProxyRuleBalancePolicy(RuleBalancePolicy):
 
     def __init__(self,
                  conn: Client):
-        self.conn: Client = conn
+        self.__conn: Client = conn
 
     def decision(self,
                  rules: RuleBalanceCommand) -> RuleBalanceCommand:
-        self.conn.send(('RuleBalancePolicy', rules))
-        return self.conn.recv()
+        self.__conn.send(('RuleBalancePolicy', rules))
+        return self.__conn.recv()
 
 
 class ProxyCompetitor(Competitor):
 
     def __init__(self,
                  conn: Client):
-        self.conn = conn
-        self._battle_policy = ProxyBattlePolicy(conn)
-        self._selection_policy = ProxySelectionPolicy(conn)
-        self._team_build_policy = ProxyTeamBuildPolicy(conn)
+        self.__conn = conn
+        self.__battle_policy = ProxyBattlePolicy(conn)
+        self.__selection_policy = ProxySelectionPolicy(conn)
+        self.__team_build_policy = ProxyTeamBuildPolicy(conn)
 
     @property
     def battle_policy(self) -> BattlePolicy:
-        return self._battle_policy
+        return self.__battle_policy
 
     @property
     def selection_policy(self) -> SelectionPolicy:
-        return self._selection_policy
+        return self.__selection_policy
 
     @property
     def team_build_policy(self) -> TeamBuildPolicy:
-        return self._team_build_policy
+        return self.__team_build_policy
 
     @property
     def name(self) -> str:
-        self.conn.send(('name',))
-        return self.conn.recv()
+        self.__conn.send(('name',))
+        return self.__conn.recv()
 
 
 class ProxyDesignCompetitor(DesignCompetitor):
 
     def __init__(self,
                  conn: Client):
-        self.conn = conn
-        self._meta_balance = ProxyMetaBalancePolicy(conn)
-        self._rule_balance = ProxyRuleBalancePolicy(conn)
+        self.__conn = conn
+        self.__meta_balance = ProxyMetaBalancePolicy(conn)
+        self.__rule_balance = ProxyRuleBalancePolicy(conn)
 
     @property
-    def team_predictor(self) -> MetaBalancePolicy:
-        return self._meta_balance
+    def meta_balance_policy(self) -> MetaBalancePolicy:
+        return self.__meta_balance
 
     @property
-    def balance_policy(self) -> RuleBalancePolicy:
-        return self._rule_balance
+    def rule_balance_policy(self) -> RuleBalancePolicy:
+        return self.__rule_balance
+
+    @property
+    def name(self) -> str:
+        self.__conn.send(('name',))
+        return self.__conn.recv()
