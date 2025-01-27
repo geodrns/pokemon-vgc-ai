@@ -5,6 +5,7 @@ from vgc2.battle_engine import BattleEngine
 from vgc2.battle_engine.team import Team
 from vgc2.battle_engine.view import TeamView
 from vgc2.competition import CompetitorManager
+from vgc2.util.generator import TeamGenerator
 
 
 def subteam(team: Team,
@@ -28,15 +29,15 @@ class Match:
                  cm: tuple[CompetitorManager, CompetitorManager],
                  n_active: int = 2,
                  n_battles: int = 3,
-                 team_size: int = 4,
-                 n_moves: int = 4,
-                 random_teams: bool = False,
-                 gen: Callable[[int, int], Team] | None = None):
+                 max_team_size: int = 4,
+                 max_pkm_moves: int = 4,
+                 random_teams: bool = True,
+                 gen: TeamGenerator | None = None):
         self.cm = cm
         self.n_active = n_active
         self.n_battles = n_battles
-        self.team_size = team_size
-        self.n_moves = n_moves
+        self.max_team_size = max_team_size
+        self.max_pkm_moves = max_pkm_moves
         self.random_teams = random_teams
         self.gen = gen
         self.wins = [0, 0]
@@ -53,7 +54,7 @@ class Match:
         runs = 0
         engine = BattleEngine(self.n_active)
         while tie or runs < self.n_battles:
-            team = self.gen(self.team_size, self.n_moves), self.gen(self.team_size, self.n_moves)
+            team = self.gen(self.max_team_size, self.max_pkm_moves), self.gen(self.max_team_size, self.max_pkm_moves)
             view = TeamView(team[0]), TeamView(team[1])
             engine.set_teams(team, view)
             self.wins[run_battle(engine, agent)] += 1
@@ -74,8 +75,8 @@ class Match:
         tie = True
         runs = 0
         while tie or runs < self.n_battles:
-            idx = (selector[0].decision((base_team[0], base_view[1]), self.team_size),
-                   selector[1].decision((base_team[1], base_view[0]), self.team_size))
+            idx = (selector[0].decision((base_team[0], base_view[1]), self.max_team_size),
+                   selector[1].decision((base_team[1], base_view[0]), self.max_team_size))
             sub = subteam(base_team[0], base_view[0], idx[0]), subteam(base_team[1], base_view[1], idx[1])
             team = sub[0][0], sub[1][0]
             view = sub[0][1], sub[1][1]

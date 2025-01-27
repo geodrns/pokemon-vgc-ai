@@ -14,7 +14,8 @@ class RandomTeamBuildPolicy(TeamBuildPolicy):
                  roster: Roster,
                  meta: Meta | None,
                  max_team_size: int,
-                 max_pkm_moves: int) -> TeamBuildCommand:
+                 max_pkm_moves: int,
+                 n_active: int) -> TeamBuildCommand:
         ivs = (31,) * 6
         ids = choice(len(roster), 3, False)
         cmds: TeamBuildCommand = []
@@ -36,5 +37,6 @@ class TerminalTeamBuild(TeamBuildPolicy):
                  roster: Roster,
                  meta: Meta | None,
                  max_team_size: int,
-                 max_pkm_moves: int) -> TeamBuildCommand:
+                 max_pkm_moves: int,
+                 n_active: int) -> TeamBuildCommand:
         pass  # TODO

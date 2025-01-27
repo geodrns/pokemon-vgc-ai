@@ -8,7 +8,7 @@ from vgc2.agent.BattlePolicies import TypeSelector
 from vgc2.competition import Competitor, CompetitorManager
 from vgc2.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
 from vgc2.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
-from vgc2.network.client import ProxyCompetitor
+from vgc2.net.client import ProxyCompetitor
 from vgc2.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 
 

@@ -43,8 +43,9 @@ class ProxyTeamBuildPolicy(TeamBuildPolicy):
                  roster: Roster,
                  meta: Meta | None,
                  max_team_size: int,
-                 max_pkm_moves: int) -> TeamBuildCommand:
-        self.conn.send(('TeamBuildPolicy', roster, meta, max_team_size, max_pkm_moves))
+                 max_pkm_moves: int,
+                 n_active: int) -> TeamBuildCommand:
+        self.conn.send(('TeamBuildPolicy', roster, meta, max_team_size, max_pkm_moves, n_active))
         return self.conn.recv()
 
 

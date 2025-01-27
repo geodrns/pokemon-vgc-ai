@@ -48,7 +48,7 @@ class RemoteCompetitorManager(RemoteManager):
             case 'SelectionPolicy':
                 self.conn.send(self.competitor.selection_policy.decision(msg[1], msg[2]))
             case 'TeamBuildPolicy':
-                self.conn.send(self.competitor.team_build_policy.decision(msg[1], msg[2], msg[3], msg[4]))
+                self.conn.send(self.competitor.team_build_policy.decision(msg[1], msg[2], msg[3], msg[4], msg[5]))
             case 'name':
                 self.conn.send(self.competitor.name)
 
