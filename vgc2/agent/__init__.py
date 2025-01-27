@@ -39,8 +39,8 @@ class TeamBuildPolicy(ABC):
     def decision(self,
                  roster: Roster,
                  meta: Meta | None,
-                 max_size: int,
-                 max_moves: int) -> TeamBuildCommand:
+                 max_team_size: int,
+                 max_pkm_moves: int) -> TeamBuildCommand:
         pass
 
 
@@ -58,5 +58,5 @@ class RuleBalancePolicy(ABC):
 
     @abstractmethod
     def decision(self,
-                 obs: RuleBalanceCommand) -> RuleBalanceCommand:
+                 rules: RuleBalanceCommand) -> RuleBalanceCommand:
         pass

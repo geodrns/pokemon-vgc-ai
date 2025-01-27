@@ -36,34 +36,32 @@ class MatchHandler:
 
 
 class TreeTournament:
-    __slots__ = ('cms', 'random_teams', 'roster', 'max_size', 'max_moves', 'gen', 'mh')
+    __slots__ = ('cms', 'random_teams', 'roster', 'max_team_size', 'max_pkm_moves', 'gen', 'mh')
 
     def __init__(self,
                  cms: list[CompetitorManager],
                  roster: Roster | None = None,
-                 max_size: int = 4,
-                 max_moves: int = 4,
+                 max_team_size: int = 4,
+                 max_pkm_moves: int = 4,
                  gen: TeamGenerator = gen_team):
         self.cms = cms
         self.random_teams = roster is None
         self.roster = roster
-        self.max_size = max_size
-        self.max_moves = max_moves
+        self.max_team_size = max_team_size
+        self.max_pkm_moves = max_pkm_moves
         self.gen = gen
         self.mh = MatchHandler()
 
     def set_teams(self):
         if not self.random_teams:
             for cm in self.cms:
-                cm.team = cm.competitor.team_build_policy.decision(self.roster, None, self.max_size,
-                                                                   self.max_moves)
+                cm.team = cm.competitor.team_build_policy.decision(self.roster, None, self.max_team_size,
+                                                                   self.max_pkm_moves)
 
     def build_tree(self):
         shuffle(self.cms)
         self.mh.setup(self.cms)
 
-    def run(self):
+    def run(self) -> CompetitorManager:
         self.mh.run()
-
-    def winner(self) -> CompetitorManager:
         return self.mh.winner
