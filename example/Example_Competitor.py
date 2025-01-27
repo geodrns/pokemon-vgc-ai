@@ -2,7 +2,7 @@ from vgc2.agent import BattlePolicy, TeamSelectionPolicy, TeamBuildPolicy
 from vgc2.agent.BattlePolicies import RandomPlayer, TerminalPlayer
 from vgc2.agent.TeamBuildPolicies import TerminalTeamBuilder, RandomTeamBuilder
 from vgc2.agent.TeamSelectionPolicies import FirstEditionTeamSelectionPolicy
-from vgc2.competition.competitor import Competitor
+from vgc2.competition import Competitor
 
 
 class ExampleCompetitor(Competitor):

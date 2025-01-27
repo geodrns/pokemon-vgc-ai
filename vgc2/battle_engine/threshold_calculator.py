@@ -1,7 +1,7 @@
-from vgc2.pkm_engine.constants import ACCURACY_MULTIPLIER_LOOKUP
-from vgc2.pkm_engine.modifiers import Stat
-from vgc2.pkm_engine.move import Move
-from vgc2.pkm_engine.pokemon import BattlingPokemon
+from vgc2.battle_engine.constants import ACCURACY_MULTIPLIER_LOOKUP
+from vgc2.battle_engine.modifiers import Stat
+from vgc2.battle_engine.move import Move
+from vgc2.battle_engine.pokemon import BattlingPokemon
 
 
 def accuracy_evasion_modifier(move: Move,

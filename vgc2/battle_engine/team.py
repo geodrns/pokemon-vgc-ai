@@ -1,4 +1,4 @@
-from vgc2.pkm_engine.pokemon import BattlingPokemon, Pokemon
+from vgc2.battle_engine.pokemon import BattlingPokemon, Pokemon
 
 
 class Team:

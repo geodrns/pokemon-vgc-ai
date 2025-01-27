@@ -1,9 +1,9 @@
-from vgc2.pkm_engine.constants import DAMAGE_MULTIPLICATION_ARRAY, TERRAIN_DAMAGE_BOOST, BOOST_MULTIPLIER_LOOKUP
-from vgc2.pkm_engine.game_state import State
-from vgc2.pkm_engine.modifiers import Category, Weather, Terrain, Status, MutableStats
-from vgc2.pkm_engine.move import Move
-from vgc2.pkm_engine.pokemon import Stat, BattlingPokemon
-from vgc2.pkm_engine.typing import Type
+from vgc2.battle_engine.constants import DAMAGE_MULTIPLICATION_ARRAY, TERRAIN_DAMAGE_BOOST, BOOST_MULTIPLIER_LOOKUP
+from vgc2.battle_engine.game_state import State
+from vgc2.battle_engine.modifiers import Category, Weather, Terrain, Status, MutableStats
+from vgc2.battle_engine.move import Move
+from vgc2.battle_engine.pokemon import Stat, BattlingPokemon
+from vgc2.battle_engine.typing import Type
 
 
 def calculate_damage(attacking_side: int,

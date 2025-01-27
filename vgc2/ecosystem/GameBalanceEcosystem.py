@@ -7,7 +7,7 @@ from vgc2.competition.Competition import Competitor
 from vgc2.datatypes.Constants import DEFAULT_MATCH_N_BATTLES
 from vgc2.datatypes.Objects import PkmRoster
 
-from vgc2.competition.competitor import CompetitorManager
+from vgc2.competition import CompetitorManager
 from vgc2.ecosystem.BattleEcosystem import Strategy
 from vgc2.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
 

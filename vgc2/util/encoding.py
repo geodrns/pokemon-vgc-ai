@@ -1,10 +1,10 @@
 from numpy import array
 
-from vgc2.pkm_engine.game_state import Side, State
-from vgc2.pkm_engine.modifiers import Weather, Terrain, Hazard, Status
-from vgc2.pkm_engine.move import Move, BattlingMove
-from vgc2.pkm_engine.pokemon import Pokemon, BattlingPokemon
-from vgc2.pkm_engine.team import Team, BattlingTeam
+from vgc2.battle_engine.game_state import Side, State
+from vgc2.battle_engine.modifiers import Weather, Terrain, Hazard, Status
+from vgc2.battle_engine.move import Move, BattlingMove
+from vgc2.battle_engine.pokemon import Pokemon, BattlingPokemon
+from vgc2.battle_engine.team import Team, BattlingTeam
 
 
 def one_hot(e: array, pos: int, n: int) -> int:

@@ -1,10 +1,10 @@
 from typing import Callable
 
-from vgc2.agent.policies import BattlePolicy
-from vgc2.competition.competitor import CompetitorManager
-from vgc2.pkm_engine.battle_engine import BattleEngine
-from vgc2.pkm_engine.team import Team
-from vgc2.pkm_engine.view import TeamView, StateView
+from vgc2.agent import BattlePolicy
+from vgc2.battle_engine import BattleEngine
+from vgc2.battle_engine.team import Team
+from vgc2.battle_engine.view import TeamView, StateView
+from vgc2.competition import CompetitorManager
 
 
 class Match:

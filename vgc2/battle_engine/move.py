@@ -1,5 +1,5 @@
-from vgc2.pkm_engine.modifiers import Category, Status, Hazard, Weather, Terrain
-from vgc2.pkm_engine.typing import Type
+from vgc2.battle_engine.modifiers import Category, Status, Hazard, Weather, Terrain
+from vgc2.battle_engine.typing import Type
 
 
 class Move:

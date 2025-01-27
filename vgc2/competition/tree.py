@@ -1,9 +1,10 @@
 from random import shuffle
 
 from vgc2.agent.policies import Roster
-from vgc2.competition.competitor import CompetitorManager
-from vgc2.competition.match import Match
 from vgc2.util.generator.team import TeamGenerator, gen_team
+
+from vgc2.competition import CompetitorManager
+from vgc2.competition.match import Match
 
 
 class MatchHandler:

@@ -1,6 +1,6 @@
 from Example_Competitor import ExampleCompetitor
 from vgc2.balance.meta import StandardMetaData
-from vgc2.competition.competitor import CompetitorManager
+from vgc2.competition import CompetitorManager
 from vgc2.ecosystem.ChampionshipEcosystem import ChampionshipEcosystem
 from vgc2.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 

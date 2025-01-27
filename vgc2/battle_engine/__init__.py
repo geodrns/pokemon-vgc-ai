@@ -1,15 +1,15 @@
 from numpy.random import rand
 
-from vgc2.pkm_engine.damage_calculator import calculate_damage, calculate_poison_damage, calculate_sand_damage, \
+from vgc2.battle_engine.damage_calculator import calculate_damage, calculate_poison_damage, calculate_sand_damage, \
     calculate_burn_damage, calculate_stealth_rock_damage
-from vgc2.pkm_engine.game_state import State, Side
-from vgc2.pkm_engine.modifiers import Weather, Terrain, Hazard, Status
-from vgc2.pkm_engine.move import Move, BattlingMove
-from vgc2.pkm_engine.pokemon import BattlingPokemon
-from vgc2.pkm_engine.priority_calculator import priority_calculator
-from vgc2.pkm_engine.team import Team, BattlingTeam
-from vgc2.pkm_engine.threshold_calculator import paralysis_threshold, move_hit_threshold, thaw_threshold
-from vgc2.pkm_engine.typing import Type
+from vgc2.battle_engine.game_state import State, Side
+from vgc2.battle_engine.modifiers import Weather, Terrain, Hazard, Status
+from vgc2.battle_engine.move import Move, BattlingMove
+from vgc2.battle_engine.pokemon import BattlingPokemon
+from vgc2.battle_engine.priority_calculator import priority_calculator
+from vgc2.battle_engine.team import Team, BattlingTeam
+from vgc2.battle_engine.threshold_calculator import paralysis_threshold, move_hit_threshold, thaw_threshold
+from vgc2.battle_engine.typing import Type
 
 BattleCommand = tuple[int, int]  # action, target
 FullCommand = tuple[list[BattleCommand], list[BattleCommand]]

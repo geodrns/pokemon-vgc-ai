@@ -1,8 +1,9 @@
-from vgc2.pkm_engine.constants import WEATHER_TURNS, TERRAIN_TURNS, TRICKROOM_TURNS, REFLECT_TURNS, LIGHTSCREEN_TURNS, \
+from vgc2.battle_engine.constants import WEATHER_TURNS, TERRAIN_TURNS, TRICKROOM_TURNS, REFLECT_TURNS, \
+    LIGHTSCREEN_TURNS, \
     TAILWIND_TURNS
-from vgc2.pkm_engine.modifiers import Weather, Terrain
-from vgc2.pkm_engine.pokemon import BattlingPokemon, Pokemon
-from vgc2.pkm_engine.team import BattlingTeam
+from vgc2.battle_engine.modifiers import Weather, Terrain
+from vgc2.battle_engine.pokemon import BattlingPokemon, Pokemon
+from vgc2.battle_engine.team import BattlingTeam
 
 
 class SideConditions:

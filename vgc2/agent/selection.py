@@ -1,7 +1,7 @@
 from random import shuffle
 
-from vgc2.agent.policies import SelectionPolicy, SelectionCommand
-from vgc2.pkm_engine.team import Team
+from vgc2.agent import SelectionPolicy, SelectionCommand
+from vgc2.battle_engine import Team
 
 
 class BasicSelectionPolicy(SelectionPolicy):

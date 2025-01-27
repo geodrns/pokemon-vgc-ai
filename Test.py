@@ -1,15 +1,16 @@
 from numpy import array
 
-from vgc2.pkm_engine.team import Team
-from vgc2.pkm_engine.threshold_calculator import move_hit_threshold
-from vgc2.pkm_engine.battle_engine import BattleEngine
-from vgc2.pkm_engine.modifiers import Status, Category, Stat
-from vgc2.pkm_engine.move import Move
+from vgc2.battle_engine import BattleEngine
+from vgc2.battle_engine.team import Team
+from vgc2.battle_engine.threshold_calculator import move_hit_threshold
 
-from vgc2.pkm_engine.nature import Nature
-from vgc2.pkm_engine.pokemon import PokemonSpecies, Pokemon, BattlingPokemon
-from vgc2.pkm_engine.typing import Type
-from vgc2.pkm_engine.view import PokemonView
+from vgc2.battle_engine.modifiers import Status, Category, Stat
+from vgc2.battle_engine.move import Move
+
+from vgc2.battle_engine.nature import Nature
+from vgc2.battle_engine.pokemon import PokemonSpecies, Pokemon, BattlingPokemon
+from vgc2.battle_engine.typing import Type
+from vgc2.battle_engine.view import PokemonView
 from vgc2.util.encoding import encode_move, EncodeContext
 
 m = Move(Type.FIRE, 60, 1., 10, Category.PHYSICAL, toggle_trickroom=True)

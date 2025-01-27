@@ -1,8 +1,8 @@
 from numpy.random import choice, multinomial
 
-from vgc2.agent.policies import TeamBuildPolicy, Roster, TeamBuildCommand
-from vgc2.meta.meta import Meta
-from vgc2.pkm_engine.nature import Nature
+from vgc2.agent import TeamBuildPolicy, Roster, TeamBuildCommand
+from vgc2.battle_engine.nature import Nature
+from vgc2.meta import Meta
 
 
 class RandomTeamBuildPolicy(TeamBuildPolicy):

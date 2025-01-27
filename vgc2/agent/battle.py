@@ -1,8 +1,7 @@
 from numpy.random import choice
 
-from vgc2.agent.policies import BattlePolicy
-from vgc2.pkm_engine.battle_engine import BattleCommand
-from vgc2.pkm_engine.game_state import State
+from vgc2.agent import BattlePolicy
+from vgc2.battle_engine import State, BattleCommand
 
 
 class RandomBattlePolicy(BattlePolicy):

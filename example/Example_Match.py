@@ -1,7 +1,7 @@
 from Example_Competitor import ExampleCompetitor
 from vgc2.agent.BattlePolicies import GUIPlayer, TunedTreeTraversal
 from vgc2.competition.BattleMatch import BattleMatch
-from vgc2.competition.competitor import CompetitorManager
+from vgc2.competition import CompetitorManager
 from vgc2.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
 from vgc2.util.generator.PkmTeamGenerators import RandomTeamFromRoster
 

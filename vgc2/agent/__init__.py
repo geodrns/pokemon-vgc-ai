@@ -1,59 +1,62 @@
-from abc import ABC, abstractmethod
-from typing import Any, Set, Union, List, Tuple
+from abc import abstractmethod, ABC
 
-from vgc2.balance import DeltaRoster
-from vgc2.balance.meta import MetaData
-from vgc2.balance.restriction import VGCDesignConstraints
-from vgc2.datatypes.Objects import PkmFullTeam, GameState, PkmRoster
+from vgc2.battle_engine import BattleCommand
+from vgc2.battle_engine.game_state import State
+from vgc2.battle_engine.nature import Nature
+from vgc2.battle_engine.pokemon import PokemonSpecies
+from vgc2.battle_engine.team import Team
+from vgc2.battle_engine.typing import Type
+from vgc2.meta import Meta
+from vgc2.meta.constraints import Constraints
 
-
-class Behaviour(ABC):
-
-    @abstractmethod
-    def get_action(self, s) -> Any:
-        pass
-
-    def requires_encode(self) -> bool:
-        return False
-
-    def close(self):
-        pass
+SelectionCommand = list[int]  # indexes on team
+TeamBuildCommand = list[tuple[int, tuple[int, ...], tuple[int, ...], Nature, list[int]]]  # id, evs, ivs, nature, moves
+RosterBalanceCommand = list[tuple[int, list[Type], tuple[int, ...], list[int]]]  # id, types, stats, moves
+RuleBalanceCommand = list[float]  # parameters
+Roster = list[PokemonSpecies]
 
 
-class BattlePolicy(Behaviour):
+class BattlePolicy(ABC):
 
     @abstractmethod
-    def get_action(self, s: Union[List[float], GameState]) -> int:
+    def decision(self,
+                 state: State) -> list[BattleCommand]:
         pass
 
 
-class TeamSelectionPolicy(Behaviour):
+class SelectionPolicy(ABC):
 
     @abstractmethod
-    def get_action(self, s: Tuple[PkmFullTeam, PkmFullTeam]) -> Set[int]:
+    def decision(self,
+                 teams: tuple[Team, Team],
+                 max_size: int) -> SelectionCommand:
         pass
 
 
-class TeamBuildPolicy(Behaviour):
+class TeamBuildPolicy(ABC):
 
     @abstractmethod
-    def set_roster(self, roster: PkmRoster, ver: int = 0):
-        pass
-
-    @abstractmethod
-    def get_action(self, s: MetaData) -> PkmFullTeam:
-        pass
-
-
-class TeamPredictor(Behaviour):
-
-    @abstractmethod
-    def get_action(self, s: Tuple[PkmFullTeam, MetaData]) -> PkmFullTeam:
+    def decision(self,
+                 roster: Roster,
+                 meta: Meta | None,
+                 max_size: int,
+                 max_moves: int) -> TeamBuildCommand:
         pass
 
 
-class BalancePolicy(Behaviour):
+class MetaBalancePolicy(ABC):
 
     @abstractmethod
-    def get_action(self, s: Tuple[PkmRoster, MetaData, VGCDesignConstraints]) -> DeltaRoster:
+    def decision(self,
+                 roster: Roster,
+                 meta: Meta,
+                 constraints: Constraints) -> RosterBalanceCommand:
+        pass
+
+
+class RuleBalancePolicy(ABC):
+
+    @abstractmethod
+    def decision(self,
+                 obs: RuleBalanceCommand) -> RuleBalanceCommand:
         pass

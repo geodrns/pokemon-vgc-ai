@@ -1,8 +1,8 @@
-from vgc2.pkm_engine.constants import BOOST_MULTIPLIER_LOOKUP
-from vgc2.pkm_engine.game_state import State
-from vgc2.pkm_engine.modifiers import Status, Stat
-from vgc2.pkm_engine.move import Move
-from vgc2.pkm_engine.pokemon import BattlingPokemon
+from vgc2.battle_engine.constants import BOOST_MULTIPLIER_LOOKUP
+from vgc2.battle_engine.game_state import State
+from vgc2.battle_engine.modifiers import Status, Stat
+from vgc2.battle_engine.move import Move
+from vgc2.battle_engine.pokemon import BattlingPokemon
 
 
 def paralysis_modifier(attacker: BattlingPokemon):

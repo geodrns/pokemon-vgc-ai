@@ -5,7 +5,7 @@ from vgc2.balance.meta import StandardMetaData, BaseMetaEvaluator
 from vgc2.balance.restriction import VGCDesignConstraints
 from vgc2.agent import BattlePolicy
 from vgc2.agent.BattlePolicies import TypeSelector
-from vgc2.competition.competitor import CompetitorManager, Competitor
+from vgc2.competition import Competitor, CompetitorManager
 from vgc2.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
 from vgc2.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
 from vgc2.network.ProxyCompetitor import ProxyCompetitor

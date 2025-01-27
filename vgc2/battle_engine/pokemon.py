@@ -1,10 +1,10 @@
 import math
 
-from vgc2.pkm_engine.constants import NATURES
-from vgc2.pkm_engine.modifiers import Stat, Status, Stats
-from vgc2.pkm_engine.move import Move, BattlingMove
-from vgc2.pkm_engine.nature import Nature
-from vgc2.pkm_engine.typing import Type
+from vgc2.battle_engine.constants import NATURES
+from vgc2.battle_engine.modifiers import Stat, Status, Stats
+from vgc2.battle_engine.move import Move, BattlingMove
+from vgc2.battle_engine.nature import Nature
+from vgc2.battle_engine.typing import Type
 
 
 class PokemonSpecies:
