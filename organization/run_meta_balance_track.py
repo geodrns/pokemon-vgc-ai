@@ -1,71 +1,51 @@
 import argparse
 from multiprocessing.connection import Client
 
-from vgc2.balance.meta import StandardMetaData, BaseMetaEvaluator
-from vgc2.balance.restriction import VGCDesignConstraints
-from vgc2.agent import BattlePolicy
-from vgc2.agent.BattlePolicies import TypeSelector
-from vgc2.competition import Competitor, CompetitorManager
-from vgc2.competition.StandardPkmMoves import STANDARD_MOVE_ROSTER
-from vgc2.ecosystem.GameBalanceEcosystem import GameBalanceEcosystem
-from vgc2.net.client import ProxyCompetitor
-from vgc2.util.generator.PkmRosterGenerators import RandomPkmRosterGenerator
+from vgc2.competition import CompetitorManager, DesignCompetitorManager
+from vgc2.competition.ecosystem import Championship, Strategy, MetaDesign
+from vgc2.meta import Meta
+from vgc2.meta.constraints import Constraints
+from vgc2.net.client import ProxyCompetitor, ProxyDesignCompetitor
+from vgc2.net.server import BASE_PORT
+from vgc2.util.generator import gen_move_set, gen_pkm_roster
 
 
-class SurrogateCompetitor(Competitor):
-
-    def __init__(self, name: str = "Example"):
-        self._name = name
-        self._battle_policy = TypeSelector()
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def battle_policy(self) -> BattlePolicy:
-        return self._battle_policy
-
-
-def main(args):
-    n_agents = args.n_agents
-    n_epochs = args.n_epochs
-    n_vgc_epochs = args.n_epochs
-    n_league_epochs = args.n_league_epochs
-    base_port = args.base_port
-    population_size = args.population_size
-    surrogate_agent = [CompetitorManager(SurrogateCompetitor()) for _ in range(population_size)]
-    move_roster = STANDARD_MOVE_ROSTER
-    base_roster = RandomPkmRosterGenerator(None, n_moves_pkm=4, roster_size=100).gen_roster()
-    constraints = VGCDesignConstraints(base_roster)
-    evaluator = BaseMetaEvaluator()
-    results = []
-    for i in range(n_agents):
-        address = ('localhost', base_port + i)
+def main(_args):
+    move_set = gen_move_set(_args.n_moves)
+    roster = gen_pkm_roster(_args.roster_size, move_set)
+    meta = Meta()
+    constraints = Constraints()
+    conns = []
+    championship = Championship(roster, meta, _args.epochs, _args.n_active, _args.n_battles, _args.max_team_size,
+                                _args.max_pokemon_moves, Strategy.ELO_PAIRING)
+    meta_design = MetaDesign(roster, meta, constraints, championship, _args.d_epochs)
+    for i in range(_args.n_agents):
+        address = ('localhost', _args.base_port + i)
         conn = Client(address, authkey=f'Competitor {i}'.encode('utf-8'))
-        competitor = ProxyCompetitor(conn)
-        meta_data = StandardMetaData()
-        meta_data.set_moves_and_pkm(base_roster, move_roster)
-        gbe = GameBalanceEcosystem(evaluator, competitor, surrogate_agent, constraints, base_roster, meta_data,
-                                   debug=True)
-        gbe.run(n_epochs=n_epochs, n_vgc_epochs=n_vgc_epochs, n_league_epochs=n_league_epochs)
-        results.append((competitor.name, gbe.total_score))
+        conns.append(conn)
+        championship.register(CompetitorManager(ProxyCompetitor(conn)))
+    i = _args.n_agents
+    conn = Client(('localhost', _args.base_port + i), authkey=f'Competitor {i}'.encode('utf-8'))
+    conns.append(conn)
+    dcm = DesignCompetitorManager(ProxyDesignCompetitor(conn))
+    meta_design.register(dcm)
+    meta_design.run()
+    print(dcm.competitor.name + " got " + dcm.score + " score!")
+    for conn in conns:
         conn.close()
-    winner_name = ""
-    max_score = 0.0
-    for name, score in results:
-        if score > max_score:
-            winner_name = name
-    print(winner_name + " wins the competition!")
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--d_epochs', type=int, default=100)
+    parser.add_argument('--epochs', type=int, default=100)
+    parser.add_argument('--n_moves', type=int, default=100)
+    parser.add_argument('--roster_size', type=int, default=50)
     parser.add_argument('--n_agents', type=int, default=2)
-    parser.add_argument('--n_epochs', type=int, default=10)
-    parser.add_argument('--n_vgc_epochs', type=int, default=10)
-    parser.add_argument('--n_league_epochs', type=int, default=10)
-    parser.add_argument('--base_port', type=int, default=5000)
-    parser.add_argument('--population_size', type=int, default=10)
+    parser.add_argument('--max_team_size', type=int, default=4)
+    parser.add_argument('--n_active', type=int, default=2)
+    parser.add_argument('--max_pkm_moves', type=int, default=4)
+    parser.add_argument('--n_battles', type=int, default=10)
+    parser.add_argument('--base_port', type=int, default=BASE_PORT)
     args = parser.parse_args()
     main(args)

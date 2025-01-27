@@ -1,13 +1,14 @@
 from enum import IntEnum
 from random import shuffle
 
-from vgc2.agent import Roster, TeamBuildCommand
+from vgc2.agent import Roster, TeamBuildCommand, RosterBalanceCommand
 from vgc2.battle_engine import Team
 from vgc2.battle_engine.pokemon import Pokemon
 from vgc2.competition import CompetitorManager, DesignCompetitorManager
 from vgc2.competition.elo import elo_rating
 from vgc2.competition.match import Match
-from vgc2.meta import Meta
+from vgc2.meta import Meta, evaluate_meta, MetaEvaluator
+from vgc2.meta.constraints import Constraints
 
 
 class Strategy(IntEnum):
@@ -83,18 +84,36 @@ class Championship:
         return self.cm
 
 
+def build_roster(cmd: RosterBalanceCommand) -> Roster:
+    pass  # TODO
+
+
 class MetaDesign:
 
     def __init__(self,
                  roster: Roster,
                  meta: Meta,
-                 epochs: int = 100):
+                 constraints: Constraints,
+                 championship: Championship,
+                 epochs: int = 100,
+                 meta_evaluator: MetaEvaluator = evaluate_meta):
         self.roster = roster
         self.meta = meta
+        self.constraints = constraints
+        self.championship = championship
+        self.epochs = epochs
         self.dcm: DesignCompetitorManager
+        self.meta_evaluator = meta_evaluator
 
     def register(self, dcm: DesignCompetitorManager):
         self.dcm = dcm
 
     def run(self):
-        pass
+        e = 0
+        while e < self.epochs:
+            self.roster[:] = build_roster(
+                self.dcm.competitor.meta_balance_policy.decision(self.roster, self.meta, self.constraints))
+            # TODO meta change roster
+            self.championship.run()
+            self.dcm.score += self.meta_evaluator(self.meta)
+            e += 1
