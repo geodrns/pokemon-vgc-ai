@@ -11,13 +11,6 @@ class Team:
     def __str__(self):
         return str([str(m) for m in self.members])
 
-    def subteam(self,
-                idx: list[int]):  # -> Self
-        members: list[Pokemon] = []
-        for i in idx:
-            members += [self.members[i]]
-        return Team(members)
-
 
 class BattlingTeam:
     __slots__ = ('active', '_initial_active', 'reserve', '_initial_reserve', '_views')

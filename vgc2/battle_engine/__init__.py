@@ -10,6 +10,7 @@ from vgc2.battle_engine.priority_calculator import priority_calculator
 from vgc2.battle_engine.team import Team, BattlingTeam
 from vgc2.battle_engine.threshold_calculator import paralysis_threshold, move_hit_threshold, thaw_threshold
 from vgc2.battle_engine.typing import Type
+from vgc2.battle_engine.view import StateView, TeamView
 
 BattleCommand = tuple[int, int]  # action, target
 FullCommand = tuple[list[BattleCommand], list[BattleCommand]]
@@ -19,12 +20,12 @@ class BattleEngine:
     class TeamFainted(Exception):
         pass
 
-    __slots__ = ('n_active', 'state', 'winning_side', '_move_queue', '_switch_queue')
+    __slots__ = ('n_active', 'state', 'state_view', 'winning_side', '_move_queue', '_switch_queue')
 
-    def __init__(self, teams: tuple[Team, Team], n_active: int = 1):
+    def __init__(self, n_active: int = 1):
         self.n_active = n_active
-        self.state = State((Side(teams[0].members[:self.n_active], teams[0].members[self.n_active:]),
-                            Side(teams[1].members[:self.n_active], teams[1].members[self.n_active:])))
+        self.state = State()
+        self.state_view = StateView(self.state, 0), StateView(self.state, 1)
         self.winning_side: int = -1
         self._move_queue: list[tuple[int, BattlingPokemon, BattlingMove, list[BattlingPokemon]]] = []
         self._switch_queue: list[tuple[int, int, int]] = []
@@ -38,10 +39,11 @@ class BattleEngine:
         self._move_queue = []
         self._switch_queue = []
 
-    def change_teams(self,
-                     teams: tuple[Team, Team]):  # TODO
-        self.state.sides[0].team = BattlingTeam(teams[0][:self.n_active], teams[0][self.n_active:])
-        self.state.sides[1].team = BattlingTeam(teams[1][:self.n_active], teams[1][self.n_active:])
+    def set_teams(self,
+                  teams: tuple[Team, Team],
+                  views: tuple[TeamView, TeamView]):
+        self.state.sides[0].set_team(BattlingTeam(teams[0][:self.n_active], teams[0][self.n_active:]), views[1])
+        self.state.sides[1].set_team(BattlingTeam(teams[1][:self.n_active], teams[1][self.n_active:]), views[0])
 
     def run_turn(self,
                  commands: FullCommand):
@@ -56,7 +58,7 @@ class BattleEngine:
             if self.state.sides[0].team.fainted() and not self.state.sides[1].team.fainted():
                 self.winning_side = 1
             return
-        self.state.on_turn_end()
+        self.state._on_turn_end()
 
     def finished(self):
         return self.state.terminal()

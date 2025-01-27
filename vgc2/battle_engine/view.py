@@ -43,9 +43,10 @@ class BattlingPokemonView(BattlingPokemon):
     __slots__ = ('_pkm', '_constants_view', '_revealed')
 
     def __init__(self,
-                 pkm: BattlingPokemon):
+                 pkm: BattlingPokemon,
+                 view: PokemonView | None = None):
         self._pkm = pkm
-        self._constants_view = PokemonView(self._pkm.constants)
+        self._constants_view = view if view else PokemonView(self._pkm.constants)
         self._pkm.constants._views += [self]
         self._revealed: list[int] = []
 
@@ -74,9 +75,12 @@ class BattlingPokemonView(BattlingPokemon):
 class TeamView(Team):
     __slots__ = ('_team', '_members')
 
-    def __init__(self, team: Team):
+    def __init__(self, team: Team, members_view: list[PokemonView] | None = None):
         self._team = team
-        self._members = [PokemonView(p) for p in team.members]
+        if members_view:
+            self._members = members_view
+        else:
+            self._members = [PokemonView(p) for p in team.members]
 
     def __getattr__(self,
                     attr):
@@ -92,12 +96,13 @@ class TeamView(Team):
 
 
 class BattlingTeamView(BattlingTeam):
-    __slots__ = ('_team', '_active', '_reserve')
+    __slots__ = ('_team', '_active', '_reserve', '_revealed')
 
-    def __init__(self, team: BattlingTeam):
+    def __init__(self, team: BattlingTeam, view: TeamView):
         self._team = team
-        self._active = [BattlingPokemonView(p) for p in self._team.active]
-        self._reserve = [BattlingPokemonView(p) for p in self._team.reserve]
+        self._active = [BattlingPokemonView(p, v) for p, v in zip(self._team.active, view.active)]
+        self._reserve = [BattlingPokemonView(p, v) for p, v in zip(self._team.reserve, view.reserve)]
+        self._revealed: list[BattlingPokemonView] = [v for v in self._active]
         self._team._views += [self]
 
     def __del__(self):
@@ -110,7 +115,7 @@ class BattlingTeamView(BattlingTeam):
         if attr == "active":
             return self._active
         if attr == "reserve":
-            return self._reserve
+            return [r for r in self._reserve if r in self._revealed]
         return getattr(self._pkm, attr)
 
     def on_switch(self,
@@ -120,6 +125,8 @@ class BattlingTeamView(BattlingTeam):
         old_active = self._active[active_pos]
         self._reserve[reserve_pos] = old_active
         self._active[active_pos] = old_reserve
+        if self._active[active_pos] not in self._revealed:
+            self._revealed += [self._active[active_pos]]
 
 
 class SideView(Side):
@@ -127,7 +134,10 @@ class SideView(Side):
 
     def __init__(self, side: Side):
         self._side = side
-        self._team = BattlingTeamView(self._side.team)
+        self._side._views += [self]
+
+    def __del__(self):
+        self._side._views.remove(self)
 
     def __getattr__(self,
                     attr):
@@ -136,6 +146,9 @@ class SideView(Side):
         if attr == "team":
             return self._team
         return getattr(self._pkm, attr)
+
+    def _on_team_change(self, view: TeamView):
+        self._team = BattlingTeamView(self._side.team, view)
 
 
 class StateView(State):

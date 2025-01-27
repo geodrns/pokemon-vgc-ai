@@ -1,10 +1,9 @@
 from random import shuffle
 
-from vgc2.agent.policies import Roster
-from vgc2.util.generator.team import TeamGenerator, gen_team
-
+from vgc2.agent import Roster
 from vgc2.competition import CompetitorManager
 from vgc2.competition.match import Match
+from vgc2.util.generator import TeamGenerator, gen_team
 
 
 class MatchHandler:
@@ -36,7 +35,7 @@ class MatchHandler:
         self.winner = self.cm[match.wins[1] > match.wins[0]]
 
 
-class TreeChampionship:
+class TreeTournament:
     __slots__ = ('cms', 'random_teams', 'roster', 'max_size', 'max_moves', 'gen', 'mh')
 
     def __init__(self,

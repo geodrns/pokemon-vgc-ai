@@ -1,6 +1,5 @@
 from vgc2.battle_engine.constants import WEATHER_TURNS, TERRAIN_TURNS, TRICKROOM_TURNS, REFLECT_TURNS, \
-    LIGHTSCREEN_TURNS, \
-    TAILWIND_TURNS
+    LIGHTSCREEN_TURNS, TAILWIND_TURNS
 from vgc2.battle_engine.modifiers import Weather, Terrain
 from vgc2.battle_engine.pokemon import BattlingPokemon, Pokemon
 from vgc2.battle_engine.team import BattlingTeam
@@ -58,21 +57,26 @@ class SideConditions:
 class Side:
     __slots__ = ('team', 'conditions', '_engine')
 
-    def __init__(self,
-                 active: list[Pokemon],
-                 reserve: list[Pokemon]):
-        self.team = BattlingTeam(active, reserve)
+    def __init__(self):
+        self.team: BattlingTeam | None = None
         self.conditions = SideConditions()
         self._engine = None
+        self._views = []
 
     def __str__(self):
         return str(self.team) + str(self.conditions)
 
+    def set_team(self, team: BattlingTeam, view):
+        self.team = team
+        for v in self._views:
+            v._on_set_team(view)
+
     def reset(self):
-        self.team.reset()
+        if self.team:
+            self.team.reset()
         self.conditions.reset()
 
-    def on_turn_end(self):
+    def _on_turn_end(self):
         self.conditions.on_turn_end()
         self.team.on_turn_end()
 
@@ -80,9 +84,8 @@ class Side:
 class State:
     __slots__ = ('sides', 'weather', '_weather_turns', 'field', '_field_turns', 'trickroom', '_trickroom_turns')
 
-    def __init__(self,
-                 sides: tuple[Side, Side]):
-        self.sides = sides
+    def __init__(self):
+        self.sides = (Side(), Side())
         self.weather = Weather.CLEAR
         self._weather_turns = 0
         self.field = Terrain.NONE
@@ -106,7 +109,7 @@ class State:
         self.trickroom = False
         self._trickroom_turns = 0
 
-    def on_turn_end(self):
+    def _on_turn_end(self):
         # weather advance
         if self.weather != Weather.CLEAR:
             self._weather_turns += 1
@@ -126,7 +129,7 @@ class State:
                 self.trickroom = False
                 self._trickroom_turns = 0
         for side in self.sides:
-            side.on_turn_end()
+            side._on_turn_end()
 
     def terminal(self):
         return any(s.team.fainted() for s in self.sides)
