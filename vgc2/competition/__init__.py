@@ -24,6 +24,7 @@ class Competitor(ABC):
 
 
 class CompetitorManager:
+    __slots__ = ('competitor', 'team', 'elo')
 
     def __init__(self,
                  c: Competitor):
@@ -45,3 +46,12 @@ class DesignCompetitor(ABC):
     @property
     def name(self) -> str:
         return ""
+
+
+class DesignCompetitorManager:
+    __slots__ = ('competitor', 'score')
+
+    def __init__(self,
+                 c: DesignCompetitor):
+        self.competitor: DesignCompetitor = c
+        self.score = 0

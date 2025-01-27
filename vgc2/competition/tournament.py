@@ -58,20 +58,23 @@ class TreeTournament:
                  'mh')
 
     def __init__(self,
-                 cms: list[CompetitorManager],
                  roster: Roster | None = None,
                  max_team_size: int = 4,
                  max_pkm_moves: int = 4,
                  n_active: int = 2,
                  n_battles: int = 10,
                  gen: TeamGenerator = gen_team):
-        self.cms = cms
+        self.cms: list[CompetitorManager] = []
         self.random_teams = roster is None
         self.roster = roster
         self.max_team_size = max_team_size
         self.max_pkm_moves = max_pkm_moves
         self.n_active = n_active
         self.mh = MatchHandler(max_team_size, max_pkm_moves, n_active, n_battles, self.random_teams, gen)
+
+    def register(self,
+                 cm: CompetitorManager):
+        self.cms += [cm]
 
     def set_teams(self):
         if not self.random_teams:

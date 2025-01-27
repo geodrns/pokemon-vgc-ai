@@ -10,7 +10,9 @@ from vgc2.meta import Meta
 from vgc2.meta.constraints import Constraints
 
 SelectionCommand = list[int]  # indexes on team
-TeamBuildCommand = list[tuple[int, tuple[int, ...], tuple[int, ...], Nature, list[int]]]  # id, evs, ivs, nature, moves
+TeamBuildCommand = list[tuple[
+    int, tuple[int, int, int, int, int, int], tuple[int, int, int, int, int, int], Nature, list[
+        int]]]  # id, evs, ivs, nature, moves
 RosterBalanceCommand = list[tuple[int, list[Type], tuple[int, ...], list[int]]]  # id, types, stats, moves
 RuleBalanceCommand = list[float]  # parameters
 Roster = list[PokemonSpecies]

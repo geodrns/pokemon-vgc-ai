@@ -1,5 +1,3 @@
-from typing import Callable
-
 from vgc2.agent import BattlePolicy
 from vgc2.battle_engine import BattleEngine
 from vgc2.battle_engine.team import Team
@@ -24,6 +22,7 @@ def run_battle(engine: BattleEngine,
 
 
 class Match:
+    __slots__ = ('cm', 'n_active', 'n_battles', 'max_team_size', 'max_pkm_moves', 'random_teams', 'gen', 'wins')
 
     def __init__(self,
                  cm: tuple[CompetitorManager, CompetitorManager],
@@ -64,7 +63,6 @@ class Match:
             self.wins[run_battle(engine, agent)] += 1
             tie = self.wins[0] == self.wins[1]
             runs += 1
-        self.finished = True
 
     def _run_non_random(self):
         agent = self.cm[0].competitor.battle_policy, self.cm[1].competitor.battle_policy
@@ -84,4 +82,3 @@ class Match:
             self.wins[run_battle(engine, agent)] += 1
             tie = self.wins[0] == self.wins[1]
             runs += 1
-        self.finished = True
