@@ -74,7 +74,7 @@ class Move:
             return self.name
         return ("Type " + str(self.pkm_type.name) +
                 ", Power " + str(self.base_power) +
-                ", Accuracy " + str(self.accuracy) +
+                ", Accuracy %.1f" % self.accuracy +
                 ", Max PP " + str(self.max_pp) + ", " + self.category.name +
                 (", Priority " + str(self.priority) if self.priority > 0 else "") +
                 (", Probability " + str(self.effect_prob) if self.effect_prob < 1. else "") +

@@ -75,7 +75,9 @@ class BattlingPokemonView(BattlingPokemon):
 class TeamView(Team):
     __slots__ = ('_team', '_members')
 
-    def __init__(self, team: Team, members_view: list[PokemonView] | None = None):
+    def __init__(self,
+                 team: Team,
+                 members_view: list[PokemonView] | None = None):
         self._team = team
         if members_view:
             self._members = members_view
@@ -100,8 +102,10 @@ class BattlingTeamView(BattlingTeam):
 
     def __init__(self, team: BattlingTeam, view: TeamView):
         self._team = team
-        self._active = [BattlingPokemonView(p, v) for p, v in zip(self._team.active, view.active)]
-        self._reserve = [BattlingPokemonView(p, v) for p, v in zip(self._team.reserve, view.reserve)]
+        self._active = [BattlingPokemonView(p, v) for p, v in
+                        zip(self._team.active, view.members[:len(self._team.active)])]
+        self._reserve = [BattlingPokemonView(p, v) for p, v in
+                         zip(self._team.reserve, view.members[len(self._team.active):])]
         self._revealed: list[BattlingPokemonView] = [v for v in self._active]
         self._team._views += [self]
 
@@ -145,9 +149,9 @@ class SideView(Side):
             raise InvalidAttrAccessException()
         if attr == "team":
             return self._team
-        return getattr(self._pkm, attr)
+        return getattr(self._side, attr)
 
-    def _on_team_change(self, view: TeamView):
+    def _on_set_team(self, view: TeamView):
         self._team = BattlingTeamView(self._side.team, view)
 
 

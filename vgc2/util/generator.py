@@ -26,11 +26,11 @@ _rng = default_rng()
 def gen_move(rng: Generator = _rng) -> Move:
     category = Category(rng.choice(len(Category), 1, False))
     base_power = 0 if category == Category.OTHER else clip(int(rng.normal(100, 0.2, 1)[0]), 0, 140)
-    effect = rng.random() if category == Category.OTHER else -1
+    effect = float(rng.random()) if category == Category.OTHER else -1
     return Move(
         pkm_type=Type(rng.choice(len(Type), 1, False)),
         base_power=base_power,
-        accuracy=1. if rng.random() < .5 else rng.uniform(.5, 1.),
+        accuracy=1. if rng.random() < .5 else float(rng.uniform(.5, 1.)),
         max_pp=clip(int(rng.normal(10, 2, 1)[0]), 5, 20),
         category=category,
         priority=1 if rng.random() < .3 else 0,
@@ -38,9 +38,10 @@ def gen_move(rng: Generator = _rng) -> Move:
         self_switch=1 / 17 <= effect < 2 / 17,
         ignore_evasion=2 / 17 <= effect < 3 / 17,
         protect=3 / 17 <= effect < 4 / 17,
-        boosts=tuple(rng.multinomial(2, [1 / 8.] * 8)) if 4 / 17 <= effect < 5 / 17 else (0,) * 8,
-        heal=rng.random() / 2 if 5 / 17 <= effect < 6 / 17 else 0.,
-        recoil=rng.random() / 2 if 6 / 17 <= effect < 7 / 17 else 0.,
+        boosts=tuple(list(int(x) for x in rng.multinomial(2, [1 / 8] * 8))) if 4 / 17 <= effect < 5 / 17
+        else (0,) * 8,
+        heal=float(rng.random()) / 2 if 5 / 17 <= effect < 6 / 17 else 0.,
+        recoil=float(rng.random()) / 2 if 6 / 17 <= effect < 7 / 17 else 0.,
         weather_start=Weather(rng.choice(len(Weather) - 1, 1)[0] + 1) if 7 / 17 <= effect < 8 / 17
         else Weather.CLEAR,
         field_start=Terrain(rng.choice(len(Terrain) - 1, 1)[0] + 1) if 8 / 17 <= effect < 9 / 17
@@ -70,12 +71,12 @@ def gen_pkm_species(moves: list[Move],
     n_types = 1 if rng.random() < 0.5 else 2
     return PokemonSpecies(
         base_stats=(
-            clip(int(rng.normal(120, 0.2, 1)[0]), 0, 160),
-            clip(int(rng.normal(100, 0.2, 1)[0]), 0, 140),
-            clip(int(rng.normal(100, 0.2, 1)[0]), 0, 140),
-            clip(int(rng.normal(100, 0.2, 1)[0]), 0, 140),
-            clip(int(rng.normal(100, 0.2, 1)[0]), 0, 140),
-            clip(int(rng.normal(100, 0.2, 1)[0]), 0, 140)),
+            int(clip(rng.normal(120, 30, 1)[0], 0, 160)),
+            int(clip(rng.normal(100, 40, 1)[0], 0, 140)),
+            int(clip(rng.normal(100, 40, 1)[0], 0, 140)),
+            int(clip(rng.normal(100, 40, 1)[0], 0, 140)),
+            int(clip(rng.normal(100, 40, 1)[0], 0, 140)),
+            int(clip(rng.normal(100, 40, 1)[0], 0, 140))),
         types=[Type(x) for x in rng.choice(len(Type), n_types)],
         moves=gen_move_subset(n_moves, moves))
 
@@ -89,7 +90,7 @@ def gen_pkm(species: PokemonSpecies,
         move_indexes=list(rng.choice(n_moves, min(max_moves, n_moves))),
         level=100,
         ivs=(31,) * 6,
-        evs=tuple(rng.multinomial(510, [1 / 6] * 6)),
+        evs=tuple(list(int(x) for x in rng.multinomial(510, [1 / 6] * 6))),
         nature=Nature(rng.choice(len(Nature), 1)[0]))
 
 

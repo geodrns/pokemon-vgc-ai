@@ -66,8 +66,8 @@ def calculate_modifier(attacker: BattlingPokemon,
     modifier *= stab_modifier(attacker, move)
     modifier *= burn_modifier(attacker, move)
     modifier *= terrain_modifier(move, state.field)
-    modifier *= light_screen_modifier(move, state.sides[attacking_side].lightscreen)
-    modifier *= reflect_modifier(move, state.sides[attacking_side].reflect)
+    modifier *= light_screen_modifier(move, state.sides[attacking_side].conditions.lightscreen)
+    modifier *= reflect_modifier(move, state.sides[attacking_side].conditions.reflect)
     return modifier
 
 

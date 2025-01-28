@@ -1,3 +1,4 @@
+from numpy import clip
 from numpy.random import rand
 
 from vgc2.battle_engine.damage_calculator import calculate_damage, calculate_poison_damage, calculate_sand_damage, \
@@ -42,8 +43,13 @@ class BattleEngine:  # TODO Debug
     def set_teams(self,
                   teams: tuple[Team, Team],
                   views: tuple[TeamView, TeamView]):
-        self.state.sides[0].set_team(BattlingTeam(teams[0][:self.n_active], teams[0][self.n_active:]), views[1])
-        self.state.sides[1].set_team(BattlingTeam(teams[1][:self.n_active], teams[1][self.n_active:]), views[0])
+        self.state.sides[0].set_team(BattlingTeam(teams[0].members[:self.n_active],
+                                                  teams[0].members[self.n_active:]), views[1])
+        self.state.sides[1].set_team(BattlingTeam(teams[1].members[:self.n_active],
+                                                  teams[1].members[self.n_active:]), views[0])
+        for s in self.state.sides:
+            for p in s.team.active + s.team.reserve:
+                p._engine = self
 
     def run_turn(self,
                  commands: FullCommand):
@@ -61,6 +67,10 @@ class BattleEngine:  # TODO Debug
         self.state._on_turn_end()
 
     def finished(self):
+        print([p.hp for p in self.state.sides[0].team.active], [p.hp for p in self.state.sides[0].team.reserve],
+              [p.hp for p in self.state.sides[1].team.active], [p.hp for p in self.state.sides[1].team.reserve],
+              [m.pp for a in self.state.sides[0].team.active for m in a.battling_moves],
+              [m.pp for a in self.state.sides[1].team.active for m in a.battling_moves])
         return self.state.terminal()
 
     def _set_action_queue(self,
@@ -68,19 +78,19 @@ class BattleEngine:  # TODO Debug
         for side in (0, 1):
             for i, a in enumerate(commands[side]):
                 if a[0] >= 0:
-                    user = self.state.sides[side].active[i]
+                    user = self.state.sides[side].team.active[i]
                     self._move_queue += [(side, user, user.battling_moves[a[0]],
-                                          [self.state.sides[not side].active[a[1]]])]
+                                          [self.state.sides[not side].team.active[a[1]]])]
                 else:
                     self._switch_queue += [(side, i, a[1])]
 
     def _perform_switches(self):
-        while len(self._switch_queue) < 0:
+        while len(self._switch_queue) > 0:
             side, active, reserve = self._switch_queue.pop()
-            self.state.sides[side].switch(active, reserve)
+            self.state.sides[side].team.switch(active, reserve)
 
     def _perform_moves(self):
-        while len(self._move_queue) < 0:
+        while len(self._move_queue) > 0:
             # determine next move
             side, attacker, move, defenders = (
                 self._move_queue.pop(max(enumerate([priority_calculator(a[2].constants, a[1], self.state) for a in
@@ -144,28 +154,28 @@ class BattleEngine:  # TODO Debug
         elif move.toggle_trickroom and not self.state.trickroom:
             self.state.trickroom = True
         # Side conditions changes
-        elif move.toggle_lightscreen and not self.state.sides[side].lightscreen:
-            self.state.sides[side].lightscreen = True
-        elif move.toggle_reflect and not self.state.sides[side].reflect:
-            self.state.sides[side].reflect = True
-        elif move.toggle_tailwind and not self.state.sides[side].tailwind:
-            self.state.sides[side].tailwind = True
+        elif move.toggle_lightscreen and not self.state.sides[side].conditions.lightscreen:
+            self.state.sides[side].conditions.lightscreen = True
+        elif move.toggle_reflect and not self.state.sides[side].conditions.reflect:
+            self.state.sides[side].conditions.reflect = True
+        elif move.toggle_tailwind and not self.state.sides[side].conditions.tailwind:
+            self.state.sides[side].conditions.tailwind = True
         elif move.hazard == Hazard.STEALTH_ROCK:
-            self.state.sides[side].stealth_rock = True
+            self.state.sides[side].conditions.stealth_rock = True
         elif move.hazard == Hazard.TOXIC_SPIKES:
-            self.state.sides[side].toxic_spikes = True
+            self.state.sides[side].conditions.poison_spikes = True
         # Pokemon effects
         elif move.heal > 0:
             attacker.recover(int(damage * move.heal))
         elif move.recoil > 0:
             attacker.deal_damage(int(damage * move.recoil))
         elif move.self_switch:
-            self.state.sides[side].switch(self.state.sides[side].get_active_pos(attacker),
-                                          self.state.sides[side].first_from_reserve())
+            self.state.sides[side].team.switch(self.state.sides[side].team.get_active_pos(attacker),
+                                               self.state.sides[side].team.first_from_reserve())
         elif move.change_type:
             attacker.types = [attacker.battling_moves[0].constants.pkm_type]
         elif any(b > 0 for b in move.boosts):
-            attacker.boosts = [_b + b for _b, b in zip(attacker.boosts, move.boosts)]
+            attacker.boosts = [int(clip(_b + b, -6, 6)) for _b, b in zip(attacker.boosts, move.boosts)]
         elif move.protect:
             attacker.protect = True
 
@@ -181,8 +191,8 @@ class BattleEngine:  # TODO Debug
                 m.disabled for m in defender.battling_moves) and defender.last_used_move is not None:
             defender.last_used_move.disabled = True
         elif move.force_switch:
-            self.state.sides[not side].switch(self.state.sides[not side].get_active_pos(defender),
-                                              self.state.sides[not side].first_from_reserve())
+            self.state.sides[not side].team.switch(self.state.sides[not side].team.get_active_pos(defender),
+                                                   self.state.sides[not side].team.first_from_reserve())
 
     def _end_of_turn_state_effects(self):
         all_active = self.state.sides[0].team.active + self.state.sides[1].team.active
@@ -199,10 +209,10 @@ class BattleEngine:  # TODO Debug
     def _on_fainted(self,
                     pkm: BattlingPokemon):
         side = self.state.get_side(pkm)
-        if self.state.sides[side].team_fainted():
+        if self.state.sides[side].team.fainted():
             raise BattleEngine.TeamFainted()
-        self.state.sides[side].switch(self.state.sides[side].get_active_pos(pkm),
-                                      self.state.sides[side].first_from_reserve())
+        self.state.sides[side].team.switch(self.state.sides[side].team.get_active_pos(pkm),
+                                           self.state.sides[side].team.first_from_reserve())
 
     def _on_switch(self,
                    switch_in: BattlingPokemon,

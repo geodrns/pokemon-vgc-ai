@@ -6,7 +6,7 @@ def main():
     roster = gen_pkm_roster(100, move_set)
     print('~ Roster ~')
     for i, p in enumerate(roster):
-        print("pokemon " + str(i) + ": " + str(p))
+        print("Pokemon " + str(i) + ": " + str(p))
 
 
 if __name__ == '__main__':

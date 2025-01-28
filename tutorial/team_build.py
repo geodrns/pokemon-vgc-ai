@@ -11,7 +11,8 @@ def main():
     team_builder = RandomTeamBuildPolicy()
     t = time.time()
     team = build_team(team_builder.decision(roster, None, 4, 4, 2), roster)
-    print(time.time() - t)
+    print("Duration: " + str(time.time() - t))
+    print("~ Team ~")
     print(team)
 
 

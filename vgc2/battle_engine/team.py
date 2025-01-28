@@ -33,7 +33,7 @@ class BattlingTeam:
         for pkm in self.reserve:
             pkm.reset()
 
-    def switch(self,
+    def  switch(self,
                active_pos: int,
                reserve_pos: int):
         if active_pos < 0 or reserve_pos < 0:

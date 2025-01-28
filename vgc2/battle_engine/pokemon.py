@@ -180,7 +180,8 @@ class BattlingPokemon:
                 ", Types " + str([t.name for t in self.types]) +
                 ", HP " + str(self.hp) +
                 (", Boosts " + str(self.boosts[1:]) if any(b > 0 for b in self.boosts) else "") +
-                (", " + self.status.name if self.status != Status.NONE else ""))
+                (", " + self.status.name if self.status != Status.NONE else "") +
+                (", Moves " + str([str(m) for m in self.battling_moves])))
 
     def reset(self):
         self.hp = self.constants.stats[Stat.MAX_HP]

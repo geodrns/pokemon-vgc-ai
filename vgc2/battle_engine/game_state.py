@@ -55,7 +55,7 @@ class SideConditions:
 
 
 class Side:
-    __slots__ = ('team', 'conditions', '_engine')
+    __slots__ = ('team', 'conditions', '_engine', '_views')
 
     def __init__(self):
         self.team: BattlingTeam | None = None
