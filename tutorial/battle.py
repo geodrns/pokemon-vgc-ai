@@ -1,0 +1,18 @@
+from vgc2.agent.battle import RandomBattlePolicy
+from vgc2.battle_engine import TeamView, BattleEngine
+from vgc2.competition.match import run_battle
+from vgc2.util.generator import gen_team
+
+
+def main():
+    team = gen_team(4, 4), gen_team(4, 4)
+    view = TeamView(team[0]), TeamView(team[1])
+    engine = BattleEngine(2)
+    engine.set_teams(team, view)
+    agent = RandomBattlePolicy(), RandomBattlePolicy()
+    winner = run_battle(engine, agent)
+    print("Side " + str(winner) + " wins!")
+
+
+if __name__ == '__main__':
+    main()

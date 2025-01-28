@@ -3,7 +3,7 @@ from vgc2.battle_engine import BattleEngine
 from vgc2.battle_engine.team import Team
 from vgc2.battle_engine.view import TeamView
 from vgc2.competition import CompetitorManager
-from vgc2.util.generator import TeamGenerator
+from vgc2.util.generator import TeamGenerator, _rng
 
 
 def subteam(team: Team,
@@ -53,7 +53,8 @@ class Match:
         runs = 0
         engine = BattleEngine(self.n_active)
         while tie or runs < self.n_battles:
-            team = self.gen(self.max_team_size, self.max_pkm_moves), self.gen(self.max_team_size, self.max_pkm_moves)
+            team = (self.gen(self.max_team_size, self.max_pkm_moves, _rng),
+                    self.gen(self.max_team_size, self.max_pkm_moves, _rng))
             view = TeamView(team[0]), TeamView(team[1])
             engine.set_teams(team, view)
             self.wins[run_battle(engine, agent)] += 1
