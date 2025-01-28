@@ -37,7 +37,7 @@ class PokemonSpecies:
         self.types = types
         self.moves = moves
         for pkm in self._instances:
-            pkm._edit_stats()
+            pkm._base_edit()
 
 
 def update_stats_from_nature(stats: list[int],
@@ -106,7 +106,7 @@ def calculate_stats(base_stats: Stats,
 
 
 class Pokemon:
-    __slots__ = ('species', 'moves', 'level', 'evs', 'ivs', 'nature', 'stats', '_views')
+    __slots__ = ('species', 'moves', 'level', 'evs', 'ivs', 'nature', 'stats', '_views', '_move_indexes')
 
     def __init__(self,
                  species: PokemonSpecies,
@@ -122,8 +122,9 @@ class Pokemon:
         self.ivs = ivs
         self.nature = nature
         self.stats = calculate_stats(self.species.base_stats, self.level, self.ivs, self.evs, self.nature)
-        self.species._instances += [self]
+        self._move_indexes = move_indexes
         self._views = []
+        self.species._instances += [self]
 
     def __str__(self):
         return ("Stats " + str(self.stats) +
@@ -133,8 +134,9 @@ class Pokemon:
     def __del__(self):
         self.species._instances.remove(self)
 
-    def _edit_stats(self):
+    def _base_edit(self):
         self.stats = calculate_stats(self.species.base_stats, self.level, self.ivs, self.evs, self.nature)
+        self.moves = [self.species.moves[i] for i in self._move_indexes if 0 <= i < len(self._move_indexes)]
 
     def edit(self,
              move_indexes: list[int],
@@ -148,6 +150,7 @@ class Pokemon:
         self.ivs = ivs
         self.nature = nature
         self.stats = calculate_stats(self.species.base_stats, self.level, self.ivs, self.evs, self.nature)
+        self._move_indexes = move_indexes
 
     def on_move_used(self, i: int):
         for v in self._views:

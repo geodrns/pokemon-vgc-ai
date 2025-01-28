@@ -2,12 +2,13 @@ from enum import IntEnum
 from random import shuffle
 
 from vgc2.agent import Roster, TeamBuildCommand, RosterBalanceCommand
-from vgc2.battle_engine import Team
+from vgc2.battle_engine import Team, Move
 from vgc2.battle_engine.pokemon import Pokemon
 from vgc2.competition import CompetitorManager, DesignCompetitorManager
 from vgc2.competition.elo import elo_rating
 from vgc2.competition.match import Match
-from vgc2.meta import Meta, evaluate_meta, MetaEvaluator
+from vgc2.meta import Meta
+from vgc2.meta.evaluator import MetaEvaluator, evaluate_meta
 from vgc2.meta.constraints import Constraints
 
 
@@ -84,19 +85,22 @@ class Championship:
         return self.cm
 
 
-def build_roster(cmd: RosterBalanceCommand) -> Roster:
-    pass  # TODO
+def build_roster(cmd: RosterBalanceCommand, roster: Roster, move_set: list[Move]):
+    for c in cmd:
+        roster[c[0]].edit(c[2], c[1], [move_set[i] for i in c[3]])
 
 
 class MetaDesign:
 
     def __init__(self,
+                 move_set: list[Move],
                  roster: Roster,
                  meta: Meta,
                  constraints: Constraints,
                  championship: Championship,
                  epochs: int = 100,
                  meta_evaluator: MetaEvaluator = evaluate_meta):
+        self.move_set = move_set
         self.roster = roster
         self.meta = meta
         self.constraints = constraints
@@ -111,8 +115,9 @@ class MetaDesign:
     def run(self):
         e = 0
         while e < self.epochs:
-            self.roster[:] = build_roster(
-                self.dcm.competitor.meta_balance_policy.decision(self.roster, self.meta, self.constraints))
+            build_roster(
+                self.dcm.competitor.meta_balance_policy.decision(self.roster, self.meta, self.constraints), self.roster,
+                self.move_set)
             # TODO meta change roster
             self.championship.run()
             self.dcm.score += self.meta_evaluator(self.meta)

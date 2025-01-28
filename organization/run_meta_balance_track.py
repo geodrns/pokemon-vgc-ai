@@ -18,7 +18,7 @@ def main(_args):
     conns = []
     championship = Championship(roster, meta, _args.epochs, _args.n_active, _args.n_battles, _args.max_team_size,
                                 _args.max_pokemon_moves, Strategy.ELO_PAIRING)
-    meta_design = MetaDesign(roster, meta, constraints, championship, _args.d_epochs)
+    meta_design = MetaDesign(move_set, roster, meta, constraints, championship, _args.d_epochs)
     for i in range(_args.n_agents):
         address = ('localhost', _args.base_port + i)
         conn = Client(address, authkey=f'Competitor {i}'.encode('utf-8'))

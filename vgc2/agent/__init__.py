@@ -2,6 +2,7 @@ from abc import abstractmethod, ABC
 
 from vgc2.battle_engine import BattleCommand
 from vgc2.battle_engine.game_state import State
+from vgc2.battle_engine.modifiers import Stats
 from vgc2.battle_engine.nature import Nature
 from vgc2.battle_engine.pokemon import PokemonSpecies
 from vgc2.battle_engine.team import Team
@@ -10,10 +11,8 @@ from vgc2.meta import Meta
 from vgc2.meta.constraints import Constraints
 
 SelectionCommand = list[int]  # indexes on team
-TeamBuildCommand = list[tuple[
-    int, tuple[int, int, int, int, int, int], tuple[int, int, int, int, int, int], Nature, list[
-        int]]]  # id, evs, ivs, nature, moves
-RosterBalanceCommand = list[tuple[int, list[Type], tuple[int, int, int, int, int, int], list[int]]]  # id, types, stats, moves
+TeamBuildCommand = list[tuple[int, Stats, Stats, Nature, list[int]]]  # id, evs, ivs, nature, moves
+RosterBalanceCommand = list[tuple[int, list[Type], Stats, list[int]]]  # id, types, stats, moves
 RuleBalanceCommand = list[float]  # parameters
 Roster = list[PokemonSpecies]
 

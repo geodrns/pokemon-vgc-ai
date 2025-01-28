@@ -16,7 +16,7 @@ BattleCommand = tuple[int, int]  # action, target
 FullCommand = tuple[list[BattleCommand], list[BattleCommand]]
 
 
-class BattleEngine:
+class BattleEngine:  # TODO Debug
     class TeamFainted(Exception):
         pass
 
