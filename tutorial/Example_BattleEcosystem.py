@@ -1,4 +1,4 @@
-from Example_Competitor import ExampleCompetitor
+from template.competitor import ExampleCompetitor
 from vgc2.balance.meta import StandardMetaData
 from vgc2.competition import CompetitorManager
 from vgc2.ecosystem.BattleEcosystem import BattleEcosystem

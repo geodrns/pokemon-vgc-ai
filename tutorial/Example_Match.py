@@ -1,4 +1,4 @@
-from Example_Competitor import ExampleCompetitor
+from template.competitor import ExampleCompetitor
 from vgc2.agent.BattlePolicies import GUIPlayer, TunedTreeTraversal
 from vgc2.competition.BattleMatch import BattleMatch
 from vgc2.competition import CompetitorManager

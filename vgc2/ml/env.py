@@ -4,7 +4,7 @@ from gymnasium import Env
 from gymnasium.core import ActType, ObsType, RenderFrame
 
 
-class BattleEnv(Env):
+class BattleEnv(Env):  # TODO Gymnasium
 
     def __init__(self):
         pass
