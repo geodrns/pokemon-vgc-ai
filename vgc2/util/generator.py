@@ -25,13 +25,13 @@ _rng = default_rng()
 
 def gen_move(rng: Generator = _rng) -> Move:
     category = Category(rng.choice(len(Category), 1, False))
-    base_power = 0 if category == Category.OTHER else clip(int(rng.normal(100, 0.2, 1)[0]), 0, 140)
+    base_power = 0 if category == Category.OTHER else int(clip(rng.normal(100, 0.2, 1)[0], 0, 140))
     effect = float(rng.random()) if category == Category.OTHER else -1
     return Move(
-        pkm_type=Type(rng.choice(len(Type), 1, False)),
+        pkm_type=Type(rng.choice(len(Type) - 1, 1, False)),  # no typeless
         base_power=base_power,
         accuracy=1. if rng.random() < .5 else float(rng.uniform(.5, 1.)),
-        max_pp=clip(int(rng.normal(10, 2, 1)[0]), 5, 20),
+        max_pp=int(clip(rng.normal(10, 2, 1)[0], 5, 20)),
         category=category,
         priority=1 if rng.random() < .3 else 0,
         force_switch=0 <= effect < 1 / 17,
@@ -77,7 +77,7 @@ def gen_pkm_species(moves: list[Move],
             int(clip(rng.normal(100, 40, 1)[0], 0, 140)),
             int(clip(rng.normal(100, 40, 1)[0], 0, 140)),
             int(clip(rng.normal(100, 40, 1)[0], 0, 140))),
-        types=[Type(x) for x in rng.choice(len(Type), n_types)],
+        types=[Type(x) for x in rng.choice(len(Type) - 1, n_types)],  # no typeless
         moves=gen_move_subset(n_moves, moves))
 
 

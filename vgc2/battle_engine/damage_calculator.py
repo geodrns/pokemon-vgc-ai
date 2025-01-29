@@ -42,7 +42,7 @@ def calculate_damage(attacking_side: int,
     damage = int(damage / 50) + 2
     damage *= calculate_modifier(attacker, defender, move, state, attacking_side)
     # result
-    return damage
+    return int(damage)
 
 
 def calculate_boosted_stats(pkm: BattlingPokemon) -> MutableStats:
@@ -73,7 +73,9 @@ def calculate_modifier(attacker: BattlingPokemon,
 
 def type_effectiveness_modifier(move_type: Type,
                                 defending_types: list[Type]) -> float:
-    modifier = 1
+    if move_type == Type.TYPELESS:
+        return 1.
+    modifier = 1.
     for defending_pkm_type in defending_types:
         modifier *= DAMAGE_MULTIPLICATION_ARRAY[move_type][defending_pkm_type]
     return modifier
@@ -96,6 +98,8 @@ def weather_modifier(move: Move,
 
 def stab_modifier(attacker: BattlingPokemon,
                   move: Move) -> float:
+    if move.pkm_type == Type.TYPELESS:
+        return 1.
     return 1.5 if move.pkm_type in [t for t in attacker.types] else 1
 
 

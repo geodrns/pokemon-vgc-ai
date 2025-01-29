@@ -98,15 +98,15 @@ class TeamView(Team):
 
 
 class BattlingTeamView(BattlingTeam):
-    __slots__ = ('_team', '_active', '_reserve', '_revealed')
+    __slots__ = ('_team', '_views', '_revealed')
 
     def __init__(self, team: BattlingTeam, view: TeamView):
         self._team = team
-        self._active = [BattlingPokemonView(p, v) for p, v in
-                        zip(self._team.active, view.members[:len(self._team.active)])]
-        self._reserve = [BattlingPokemonView(p, v) for p, v in
-                         zip(self._team.reserve, view.members[len(self._team.active):])]
-        self._revealed: list[BattlingPokemonView] = [v for v in self._active]
+        self._views = ({p: BattlingPokemonView(p, v) for p, v in
+                        zip(self._team.active, view.members[:len(self._team.active)])} |
+                       {p: BattlingPokemonView(p, v) for p, v in
+                        zip(self._team.reserve, view.members[len(self._team.reserve):])})
+        self._revealed: list[BattlingPokemon] = [p for p in self._team.active]
         self._team._views += [self]
 
     def __del__(self):
@@ -117,20 +117,14 @@ class BattlingTeamView(BattlingTeam):
         if attr == "_team":
             raise InvalidAttrAccessException()
         if attr == "active":
-            return self._active
+            return [self._views[p] for p in self._team.active]
         if attr == "reserve":
-            return [r for r in self._reserve if r in self._revealed]
-        return getattr(self._pkm, attr)
+            return [self._views[p] for p in self._team.reserve if p in self._revealed]
+        return getattr(self._team, attr)
 
-    def on_switch(self,
-                  active_pos: int,
-                  reserve_pos: int):
-        old_reserve = self._reserve[reserve_pos]
-        old_active = self._active[active_pos]
-        self._reserve[reserve_pos] = old_active
-        self._active[active_pos] = old_reserve
-        if self._active[active_pos] not in self._revealed:
-            self._revealed += [self._active[active_pos]]
+    def on_switch(self, switch_in: BattlingPokemon | None):
+        if switch_in and switch_in not in self._revealed:
+            self._revealed += [switch_in]
 
 
 class SideView(Side):

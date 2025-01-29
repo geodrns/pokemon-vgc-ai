@@ -1,10 +1,10 @@
 from numpy import clip
-from numpy.random import rand
+from numpy.random import Generator, default_rng
 
 from vgc2.battle_engine.damage_calculator import calculate_damage, calculate_poison_damage, calculate_sand_damage, \
     calculate_burn_damage, calculate_stealth_rock_damage
 from vgc2.battle_engine.game_state import State, Side
-from vgc2.battle_engine.modifiers import Weather, Terrain, Hazard, Status
+from vgc2.battle_engine.modifiers import Weather, Terrain, Hazard, Status, Category
 from vgc2.battle_engine.move import Move, BattlingMove
 from vgc2.battle_engine.pokemon import BattlingPokemon
 from vgc2.battle_engine.priority_calculator import priority_calculator
@@ -16,18 +16,22 @@ from vgc2.battle_engine.view import StateView, TeamView
 BattleCommand = tuple[int, int]  # action, target
 FullCommand = tuple[list[BattleCommand], list[BattleCommand]]
 
+_rng = default_rng()
+struggle = BattlingMove(Move(Type.TYPELESS, 50, 1., 0, Category.PHYSICAL, recoil=.5))
+
 
 class BattleEngine:  # TODO Debug
     class TeamFainted(Exception):
         pass
 
-    __slots__ = ('n_active', 'state', 'state_view', 'winning_side', '_move_queue', '_switch_queue')
+    __slots__ = ('n_active', 'state', 'state_view', 'winning_side', 'rng', 'struggle', '_move_queue', '_switch_queue')
 
-    def __init__(self, n_active: int = 1):
+    def __init__(self, n_active: int = 1, rng: Generator = _rng):
         self.n_active = n_active
         self.state = State()
         self.state_view = StateView(self.state, 0), StateView(self.state, 1)
         self.winning_side: int = -1
+        self.rng = rng
         self._move_queue: list[tuple[int, BattlingPokemon, BattlingMove, list[BattlingPokemon]]] = []
         self._switch_queue: list[tuple[int, int, int]] = []
 
@@ -48,6 +52,7 @@ class BattleEngine:  # TODO Debug
         self.state.sides[1].set_team(BattlingTeam(teams[1].members[:self.n_active],
                                                   teams[1].members[self.n_active:]), views[0])
         for s in self.state.sides:
+            s.team._engine = self
             for p in s.team.active + s.team.reserve:
                 p._engine = self
 
@@ -67,10 +72,6 @@ class BattleEngine:  # TODO Debug
         self.state._on_turn_end()
 
     def finished(self):
-        print([p.hp for p in self.state.sides[0].team.active], [p.hp for p in self.state.sides[0].team.reserve],
-              [p.hp for p in self.state.sides[1].team.active], [p.hp for p in self.state.sides[1].team.reserve],
-              [m.pp for a in self.state.sides[0].team.active for m in a.battling_moves],
-              [m.pp for a in self.state.sides[1].team.active for m in a.battling_moves])
         return self.state.terminal()
 
     def _set_action_queue(self,
@@ -96,9 +97,11 @@ class BattleEngine:  # TODO Debug
                 self._move_queue.pop(max(enumerate([priority_calculator(a[2].constants, a[1], self.state) for a in
                                                     self._move_queue]), key=lambda x: x[1])[0]))
             # before each move check if Pokémon can attack due status or have its status removed
-            if self._perform_status(attacker, move.constants):
+            if all(m.pp == 0 for m in attacker.battling_moves):
+                move = struggle
+            elif self._perform_status(attacker, move.constants):
                 continue
-            if move.disabled or move.pp == 0:
+            elif move.disabled or move.pp == 0:
                 continue
             damage, protected, failed = 0, False, True
             move.pp = max(0, move.pp - 1)
@@ -106,7 +109,7 @@ class BattleEngine:  # TODO Debug
                 if defender.protect:
                     protected = True
                     continue
-                if rand() >= move_hit_threshold(move.constants, attacker, defender):
+                if self.rng.random() >= move_hit_threshold(move.constants, attacker, defender):
                     continue
                 failed = False
                 # perform next move, damaged is applied first and then effects, unless opponent protected itself
@@ -114,12 +117,12 @@ class BattleEngine:  # TODO Debug
                 defender.deal_damage(damage)
                 if defender.fainted():
                     continue
-                if rand() < move.constants.effect_prob:
+                if self.rng.random() < move.constants.effect_prob:
                     self._perform_target_effects(move.constants, side, defender)
                 # a fire move will thaw a frozen target
                 if move.constants.pkm_type == Type.FIRE and damage > 0 and defender.status == Status.FROZEN:
                     defender.status = Status.NONE
-            if not protected and not failed and rand() < move.constants.effect_prob:
+            if not protected and not failed and self.rng.random() < move.constants.effect_prob:
                 self._perform_single_effects(move.constants, side, attacker, damage)
 
     def _perform_status(self,
@@ -127,7 +130,7 @@ class BattleEngine:  # TODO Debug
                         move: Move) -> bool:
         match attacker.status:
             case Status.PARALYZED:
-                if rand() < paralysis_threshold():
+                if self.rng.random() < paralysis_threshold():
                     return True
             case Status.SLEEP:
                 if attacker._wake_turns == 0:
@@ -135,7 +138,7 @@ class BattleEngine:  # TODO Debug
                 else:
                     return True
             case Status.FROZEN:
-                if move.pkm_type == Type.FIRE or rand() < thaw_threshold():
+                if move.pkm_type == Type.FIRE or self.rng.random() < thaw_threshold():
                     attacker.status = Status.NONE
                 else:
                     return True
@@ -164,7 +167,7 @@ class BattleEngine:  # TODO Debug
             self.state.sides[side].conditions.stealth_rock = True
         elif move.hazard == Hazard.TOXIC_SPIKES:
             self.state.sides[side].conditions.poison_spikes = True
-        # Pokemon effects
+        # Pokémon effects
         elif move.heal > 0:
             attacker.recover(int(damage * move.heal))
         elif move.recoil > 0:
@@ -215,14 +218,16 @@ class BattleEngine:  # TODO Debug
                                            self.state.sides[side].team.first_from_reserve())
 
     def _on_switch(self,
-                   switch_in: BattlingPokemon,
+                   switch_in: BattlingPokemon | None,
                    switch_out: BattlingPokemon):
         # if a Pokémon switches out it will no longer perform its moves
         self._move_queue = [a for a in self._move_queue if a[1] != switch_out]
         # hazards
+        if not switch_in:
+            return
         side = self.state.get_side(switch_in)
         if (self.state.sides[side].conditions.poison_spikes and Type.POISON not in switch_in.types and
                 Type.STEEL not in switch_in.types and switch_in.status == Status.NONE):
             switch_in.status = Status.POISON
-        if self.state.sides[side].conditions.stealth_rocks:
+        if self.state.sides[side].conditions.stealth_rock:
             switch_in.deal_damage(calculate_stealth_rock_damage(switch_in))

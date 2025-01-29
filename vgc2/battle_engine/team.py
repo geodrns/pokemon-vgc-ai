@@ -13,7 +13,7 @@ class Team:
 
 
 class BattlingTeam:
-    __slots__ = ('active', '_initial_active', 'reserve', '_initial_reserve', '_views')
+    __slots__ = ('active', '_initial_active', 'reserve', '_initial_reserve', '_views', '_engine')
 
     def __init__(self, active: list[Pokemon], reserve: list[Pokemon]):
         self.active = [BattlingPokemon(p) for p in active]
@@ -21,6 +21,7 @@ class BattlingTeam:
         self.reserve = [BattlingPokemon(p) for p in reserve]
         self._initial_reserve = self.active[:]
         self._views = []
+        self._engine = None
 
     def __str__(self):
         return "Active " + str([str(a) for a in self.active]) + ", Reserve " + str([str(r) for r in self.reserve])
@@ -33,20 +34,27 @@ class BattlingTeam:
         for pkm in self.reserve:
             pkm.reset()
 
-    def  switch(self,
+    def switch(self,
                active_pos: int,
                reserve_pos: int):
-        if active_pos < 0 or reserve_pos < 0:
+        if not 0 <= active_pos < len(self.active):
+            return
+        old_active = self.active[active_pos]
+        if all(p.fainted() for p in self.reserve) and old_active.fainted():  # active fainted and reserve fainted
+            self.reserve += [self.active.pop(active_pos)]
+            self._engine._on_switch(None, old_active)
+            return
+        if not 0 <= reserve_pos < len(self.reserve):
             return
         old_reserve = self.reserve[reserve_pos]
         if old_reserve.fainted():
-            return False
-        old_active = self.active[active_pos]
+            return
         old_active.on_switch()
         for v in self._views:
-            v.on_switch(active_pos, reserve_pos)
+            v.on_switch(old_reserve)
         self.reserve[reserve_pos] = old_active
         self.active[active_pos] = old_reserve
+        self._engine._on_switch(old_reserve, old_active)
 
     def on_turn_end(self):
         for active in self.active:

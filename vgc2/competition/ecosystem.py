@@ -8,8 +8,8 @@ from vgc2.competition import CompetitorManager, DesignCompetitorManager
 from vgc2.competition.elo import elo_rating
 from vgc2.competition.match import Match
 from vgc2.meta import Meta
-from vgc2.meta.evaluator import MetaEvaluator, evaluate_meta
 from vgc2.meta.constraints import Constraints
+from vgc2.meta.evaluator import MetaEvaluator, evaluate_meta
 
 
 class Strategy(IntEnum):

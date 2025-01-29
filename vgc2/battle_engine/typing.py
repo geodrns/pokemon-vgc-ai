@@ -20,3 +20,4 @@ class Type(IntEnum):
     DARK = 15
     STEEL = 16
     FAIRY = 17
+    TYPELESS = 18
