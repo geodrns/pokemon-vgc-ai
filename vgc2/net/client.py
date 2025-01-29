@@ -1,10 +1,10 @@
 from multiprocessing.connection import Client
 
-from vgc2.agent import BattlePolicy, SelectionPolicy, SelectionCommand, TeamBuildPolicy, Roster, TeamBuildCommand, \
+from vgc2.agent import BattlePolicy, SelectionPolicy, SelectionCommand, TeamBuildPolicy, TeamBuildCommand, \
     MetaBalancePolicy, RosterBalanceCommand, RuleBalanceCommand, RuleBalancePolicy
 from vgc2.battle_engine import State, BattleCommand, Team
 from vgc2.competition import Competitor, DesignCompetitor
-from vgc2.meta import Meta
+from vgc2.meta import Meta, Roster
 from vgc2.meta.constraints import Constraints
 
 

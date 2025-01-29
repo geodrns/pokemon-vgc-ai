@@ -4,13 +4,13 @@ from typing import Callable
 from numpy import clip
 from numpy.random import default_rng, Generator
 
-from vgc2.agent import Roster
 from vgc2.battle_engine.modifiers import Category, Weather, Terrain, Hazard, Status
 from vgc2.battle_engine.move import Move
 from vgc2.battle_engine.nature import Nature
 from vgc2.battle_engine.pokemon import PokemonSpecies, Pokemon
 from vgc2.battle_engine.team import Team
 from vgc2.battle_engine.typing import Type
+from vgc2.meta import Roster
 
 MoveGenerator = Callable[[Generator], Move]
 MoveSetGenerator = Callable[[int, Generator], list[Move]]

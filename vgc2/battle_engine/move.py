@@ -3,10 +3,10 @@ from vgc2.battle_engine.typing import Type
 
 
 class Move:
-    __slots__ = ('id', 'pkm_type', 'base_power', 'accuracy', 'max_pp', 'category', 'priority', 'effect_prob',
-                 'force_switch', 'self_switch', 'ignore_evasion', 'protect', 'boosts', 'heal', 'recoil',
-                 'weather_start', 'field_start', 'toggle_trickroom', 'change_type', 'toggle_reflect',
-                 'toggle_lightscreen', 'toggle_tailwind', 'hazard', 'status', 'disable', 'name')
+    __slots__ = ('pkm_type', 'base_power', 'accuracy', 'max_pp', 'category', 'priority', 'effect_prob', 'force_switch',
+                 'self_switch', 'ignore_evasion', 'protect', 'boosts', 'heal', 'recoil', 'weather_start', 'field_start',
+                 'toggle_trickroom', 'change_type', 'toggle_reflect', 'toggle_lightscreen', 'toggle_tailwind', 'hazard',
+                 'status', 'disable', 'name')
 
     def __init__(self,
                  pkm_type: Type,
@@ -34,7 +34,6 @@ class Move:
                  status: Status = Status.NONE,
                  disable: bool = False,
                  name: str = ""):
-        self.id = -1
         self.pkm_type = pkm_type
         self.base_power = base_power
         self.accuracy = accuracy

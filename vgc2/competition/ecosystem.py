@@ -1,13 +1,13 @@
 from enum import IntEnum
 from random import shuffle
 
-from vgc2.agent import Roster, TeamBuildCommand, RosterBalanceCommand
+from vgc2.agent import TeamBuildCommand, RosterBalanceCommand
 from vgc2.battle_engine import Team, Move
 from vgc2.battle_engine.pokemon import Pokemon
 from vgc2.competition import CompetitorManager, DesignCompetitorManager
 from vgc2.competition.elo import elo_rating
 from vgc2.competition.match import Match
-from vgc2.meta import Meta
+from vgc2.meta import Meta, Roster
 from vgc2.meta.constraints import Constraints
 from vgc2.meta.evaluator import MetaEvaluator, evaluate_meta
 
@@ -77,7 +77,7 @@ class Championship:
             match = Match(cm, self.n_active, self.n_battles, self.max_team_size, self.max_pkm_moves, False)
             match.run()
             cm[0].elo, cm[1].elo = elo_rating(cm[0].elo, cm[1].elo, 1 if match.wins[1] > match.wins[0] else 0)
-            # TODO update meta
+            self.meta.add_match((cm[0].team, cm[1].team), (cm[0].elo, cm[1].elo))
             m += 1
 
     def ranking(self) -> list[CompetitorManager]:
@@ -118,7 +118,7 @@ class MetaDesign:
             build_roster(
                 self.dcm.competitor.meta_balance_policy.decision(self.roster, self.meta, self.constraints), self.roster,
                 self.move_set)
-            # TODO meta change roster
+            self.meta.change_roster(self.roster)
             self.championship.run()
             self.dcm.score += self.meta_evaluator(self.meta)
             e += 1
