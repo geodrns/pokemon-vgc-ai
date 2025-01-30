@@ -33,10 +33,10 @@ class Meta(ABC):
         pass
 
 
-class StandardMeta(Meta):
+class StandardMeta(Meta):  # TODO meta
     def __init__(self):
         pass
-    
+
     def add_match(self, team: tuple[Team, Team], elo: tuple[int, int]):
         pass
 

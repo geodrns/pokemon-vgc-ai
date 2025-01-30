@@ -169,9 +169,9 @@ def encode_team(e: array, team: Team, ctx: EncodeContext) -> int:
 def encode_battling_team(e: array, team: BattlingTeam, ctx: EncodeContext) -> int:
     i = 0
     for m in team.active:
-        i += encode_pokemon(e[i:], m, ctx)
+        i += encode_battling_pokemon(e[i:], m, ctx)
     for m in team.reserve:
-        i += encode_pokemon(e[i:], m, ctx)
+        i += encode_battling_pokemon(e[i:], m, ctx)
     return i
 
 
