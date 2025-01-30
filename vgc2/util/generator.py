@@ -10,13 +10,13 @@ from vgc2.battle_engine.nature import Nature
 from vgc2.battle_engine.pokemon import PokemonSpecies, Pokemon
 from vgc2.battle_engine.team import Team
 from vgc2.battle_engine.typing import Type
-from vgc2.meta import Roster
+from vgc2.meta import MoveSet, Roster
 
 MoveGenerator = Callable[[Generator], Move]
-MoveSetGenerator = Callable[[int, Generator], list[Move]]
-PokemonSpeciesGenerator = Callable[[list[Move], int, Generator], PokemonSpecies]
+MoveSetGenerator = Callable[[int, Generator], MoveSet]
+PokemonSpeciesGenerator = Callable[[MoveSet, int, Generator], PokemonSpecies]
 PokemonGenerator = Callable[[PokemonSpecies, int, Generator], Pokemon]
-RosterGenerator = Callable[[int, list[Move], int, Generator], Roster]
+RosterGenerator = Callable[[int, MoveSet, int, Generator], Roster]
 TeamGenerator = Callable[[int, int, Generator], Team]
 RosterTeamGenerator = Callable[[Roster, int, int, Generator], Team]
 
@@ -56,16 +56,17 @@ def gen_move(rng: Generator = _rng) -> Move:
         disable=16 / 17 <= effect < 1)
 
 
-def gen_move_set(n: int, rng: Generator = _rng) -> list[Move]:
+def gen_move_set(n: int,
+                 rng: Generator = _rng) -> MoveSet:
     return [gen_move(rng) for _ in range(n)]
 
 
 def gen_move_subset(n: int,
-                    moves: list[Move]) -> list[Move]:
+                    moves: MoveSet) -> MoveSet:
     return sample(moves, min(n, len(moves)))
 
 
-def gen_pkm_species(moves: list[Move],
+def gen_pkm_species(moves: MoveSet,
                     n_moves: int = 4,
                     rng: Generator = _rng) -> PokemonSpecies:
     n_types = 1 if rng.random() < 0.5 else 2
@@ -95,7 +96,7 @@ def gen_pkm(species: PokemonSpecies,
 
 
 def gen_pkm_roster(n: int,
-                   moves: list[Move],
+                   moves: MoveSet,
                    n_moves: int = 4,
                    rng: Generator = _rng) -> Roster:
     return [gen_pkm_species(moves, n_moves, rng) for _ in range(n)]

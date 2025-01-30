@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from vgc2.battle_engine import Team, Move
 from vgc2.battle_engine.pokemon import PokemonSpecies
 
+MoveSet = list[Move]
 Roster = list[PokemonSpecies]
 
 
@@ -16,6 +17,7 @@ class Meta(ABC):
 
     @abstractmethod
     def change_roster(self,
+                      move_set: MoveSet,
                       roster: Roster):
         pass
 
@@ -37,7 +39,7 @@ class Meta(ABC):
 
 class BasicMeta(Meta):
     def __init__(self,
-                 move_set: list[Move],
+                 move_set: MoveSet,
                  roster: Roster,
                  limit: int = 1000):
         self.move_set = move_set
@@ -63,14 +65,16 @@ class BasicMeta(Meta):
                   team: tuple[Team, Team],
                   winner: int,
                   elo: tuple[int, int]):
+        self.record += [(team, winner, elo)]
+        self._update_usage(team, 1)
         if len(self.record) > self.limit:
             old_team, _, _ = self.record.pop(0)
             self._update_usage(old_team, -1)
-        self.record += [(team, winner, elo)]
-        self._update_usage(team, 1)
 
     def change_roster(self,
+                      move_set: MoveSet,
                       roster: Roster):
+        self.move_set = move_set
         self.roster = roster
         self.move_usage = [0] * len(self.move_set)
         self.pokemon_usage = [0] * len(self.roster)

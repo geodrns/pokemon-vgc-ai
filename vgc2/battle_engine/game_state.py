@@ -131,7 +131,7 @@ class State:
         for side in self.sides:
             side._on_turn_end()
 
-    def terminal(self):
+    def terminal(self) -> bool:
         return any(s.team.fainted() for s in self.sides)
 
     def get_side(self,

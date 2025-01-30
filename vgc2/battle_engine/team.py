@@ -15,7 +15,9 @@ class Team:
 class BattlingTeam:
     __slots__ = ('active', '_initial_active', 'reserve', '_initial_reserve', '_views', '_engine')
 
-    def __init__(self, active: list[Pokemon], reserve: list[Pokemon]):
+    def __init__(self,
+                 active: list[Pokemon],
+                 reserve: list[Pokemon]):
         self.active = [BattlingPokemon(p) for p in active]
         self._initial_active = self.active[:]
         self.reserve = [BattlingPokemon(p) for p in reserve]

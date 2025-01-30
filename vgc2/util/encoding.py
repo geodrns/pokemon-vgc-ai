@@ -7,7 +7,9 @@ from vgc2.battle_engine.pokemon import Pokemon, BattlingPokemon
 from vgc2.battle_engine.team import Team, BattlingTeam
 
 
-def one_hot(e: array, pos: int, n: int) -> int:
+def one_hot(e: array,
+            pos: int,
+            n: int) -> int:
     i = 0
     while i < n:
         if i == pos:
@@ -18,7 +20,9 @@ def one_hot(e: array, pos: int, n: int) -> int:
     return i
 
 
-def multi_hot(e: array, pos: list[int], n: int):
+def multi_hot(e: array,
+              pos: list[int],
+              n: int):
     i = 0
     while i < n:
         if i in pos:
@@ -30,6 +34,8 @@ def multi_hot(e: array, pos: list[int], n: int):
 
 
 class EncodeContext:
+    __slots__ = ('max_hp', 'max_pp', 'max_stage', 'max_priority', 'n_types', 'n_status', 'n_weather', 'n_terrain',
+                 'n_hazard', 'max_boost', 'n_boosts', 'max_ratio', 'n_category', 'n_stats', 'max_sleep')
 
     def __init__(self,
                  max_hp: int = 500,
@@ -64,7 +70,9 @@ class EncodeContext:
         self.max_sleep = max_sleep
 
 
-def encode_move(e: array, move: Move, ctx: EncodeContext) -> int:
+def encode_move(e: array,
+                move: Move,
+                ctx: EncodeContext) -> int:
     i = 0
     e[i] = move.base_power / ctx.max_hp
     i += 1
@@ -117,7 +125,9 @@ def encode_move(e: array, move: Move, ctx: EncodeContext) -> int:
     return i
 
 
-def encode_battling_move(e: array, move: BattlingMove, ctx: EncodeContext) -> int:
+def encode_battling_move(e: array,
+                         move: BattlingMove,
+                         ctx: EncodeContext) -> int:
     i = encode_move(e, move.constants, ctx)
     e[i] = float(move.disabled)
     i += 1
@@ -126,7 +136,9 @@ def encode_battling_move(e: array, move: BattlingMove, ctx: EncodeContext) -> in
     return i
 
 
-def encode_pokemon(e: array, pokemon: Pokemon, ctx: EncodeContext) -> int:
+def encode_pokemon(e: array,
+                   pokemon: Pokemon,
+                   ctx: EncodeContext) -> int:
     i = 0
     for m in pokemon.moves:
         i += encode_move(e[i:], m, ctx)
@@ -137,7 +149,9 @@ def encode_pokemon(e: array, pokemon: Pokemon, ctx: EncodeContext) -> int:
     return i
 
 
-def encode_battling_pokemon(e: array, pokemon: BattlingPokemon, ctx: EncodeContext) -> int:
+def encode_battling_pokemon(e: array,
+                            pokemon: BattlingPokemon,
+                            ctx: EncodeContext) -> int:
     i = 0
     for j in range(0, ctx.n_stats):
         e[j + i] = pokemon.constants.stats[j] / ctx.max_hp
@@ -159,14 +173,18 @@ def encode_battling_pokemon(e: array, pokemon: BattlingPokemon, ctx: EncodeConte
     return i
 
 
-def encode_team(e: array, team: Team, ctx: EncodeContext) -> int:
+def encode_team(e: array,
+                team: Team,
+                ctx: EncodeContext) -> int:
     i = 0
     for m in team.members:
         i += encode_pokemon(e[i:], m, ctx)
     return i
 
 
-def encode_battling_team(e: array, team: BattlingTeam, ctx: EncodeContext) -> int:
+def encode_battling_team(e: array,
+                         team: BattlingTeam,
+                         ctx: EncodeContext) -> int:
     i = 0
     for m in team.active:
         i += encode_battling_pokemon(e[i:], m, ctx)
@@ -175,7 +193,9 @@ def encode_battling_team(e: array, team: BattlingTeam, ctx: EncodeContext) -> in
     return i
 
 
-def encode_side(e: array, side: Side, ctx: EncodeContext) -> int:
+def encode_side(e: array,
+                side: Side,
+                ctx: EncodeContext) -> int:
     i = 0
     i += encode_battling_team(e[i:], side.team, ctx)
     e[i] = float(side.conditions.reflect)
@@ -191,7 +211,9 @@ def encode_side(e: array, side: Side, ctx: EncodeContext) -> int:
     return i
 
 
-def encode_state(e: array, state: State, ctx: EncodeContext) -> int:
+def encode_state(e: array,
+                 state: State,
+                 ctx: EncodeContext) -> int:
     i = 0
     for s in state.sides:
         i += encode_side(e[i:], s, ctx)

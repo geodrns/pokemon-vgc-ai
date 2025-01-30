@@ -2,12 +2,12 @@ from enum import IntEnum
 from random import shuffle
 
 from vgc2.agent import TeamBuildCommand, RosterBalanceCommand
-from vgc2.battle_engine import Team, Move
+from vgc2.battle_engine import Team
 from vgc2.battle_engine.pokemon import Pokemon
 from vgc2.competition import CompetitorManager, DesignCompetitorManager
 from vgc2.competition.elo import elo_rating
 from vgc2.competition.match import Match
-from vgc2.meta import Meta, Roster
+from vgc2.meta import Roster, Meta, MoveSet
 from vgc2.meta.constraints import Constraints
 from vgc2.meta.evaluator import MetaEvaluator, evaluate_meta
 
@@ -22,7 +22,7 @@ def build_team(cmd: TeamBuildCommand,
     return Team([Pokemon(roster[params[0]], params[4], 100, params[1], params[2], params[3]) for params in cmd])
 
 
-def label_roster(move_set: list[Move],
+def label_roster(move_set: MoveSet,
                  roster: Roster):
     for i, m in enumerate(move_set):
         m.id = i
@@ -94,15 +94,18 @@ class Championship:
         return self.cm
 
 
-def build_roster(cmd: RosterBalanceCommand, roster: Roster, move_set: list[Move]):
+def build_roster(cmd: RosterBalanceCommand,
+                 roster: Roster,
+                 move_set: MoveSet):
     for c in cmd:
         roster[c[0]].edit(c[2], c[1], [move_set[i] for i in c[3]])
 
 
 class MetaDesign:
+    __slots__ = ('move_set', 'roster', 'meta', 'constraints', 'championship', 'epochs', 'dcm', 'meta_evaluator')
 
     def __init__(self,
-                 move_set: list[Move],
+                 move_set: MoveSet,
                  roster: Roster,
                  meta: Meta,
                  constraints: Constraints,
@@ -127,7 +130,7 @@ class MetaDesign:
             build_roster(
                 self.dcm.competitor.meta_balance_policy.decision(self.roster, self.meta, self.constraints), self.roster,
                 self.move_set)
-            self.meta.change_roster(self.roster)
+            self.meta.change_roster(self.move_set, self.roster)  # TODO edit move set
             self.championship.run()
             self.dcm.score += self.meta_evaluator(self.meta)
             e += 1
