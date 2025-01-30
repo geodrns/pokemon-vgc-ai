@@ -8,13 +8,14 @@ from vgc2.battle_engine.typing import Type
 
 
 class PokemonSpecies:
-    __slots__ = ('base_stats', 'types', 'moves', '_instances', 'name')
+    __slots__ = ('id', 'base_stats', 'types', 'moves', '_instances', 'name')
 
     def __init__(self,
                  base_stats: Stats,
                  types: list[Type],
                  moves: list[Move],
                  name: str = ""):
+        self.id = -1
         self.base_stats = base_stats
         self.types = types
         self.moves = moves

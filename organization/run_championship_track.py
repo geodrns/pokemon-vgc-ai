@@ -2,8 +2,8 @@ import argparse
 from multiprocessing.connection import Client
 
 from vgc2.competition import CompetitorManager
-from vgc2.competition.ecosystem import Championship, Strategy
-from vgc2.meta import StandardMeta
+from vgc2.competition.ecosystem import Championship, Strategy, label_roster
+from vgc2.meta import BasicMeta
 from vgc2.net.client import ProxyCompetitor
 from vgc2.net.server import BASE_PORT
 from vgc2.util.generator import gen_move_set, gen_pkm_roster
@@ -12,7 +12,8 @@ from vgc2.util.generator import gen_move_set, gen_pkm_roster
 def main(_args):
     move_set = gen_move_set(_args.n_moves)
     roster = gen_pkm_roster(_args.roster_size, move_set)
-    meta = StandardMeta()
+    label_roster(move_set, roster)
+    meta = BasicMeta(move_set, roster)
     conns = []
     championship = Championship(roster, meta, _args.epochs, _args.n_active, _args.n_battles, _args.max_team_size,
                                 _args.max_pkm_moves, Strategy.ELO_PAIRING)

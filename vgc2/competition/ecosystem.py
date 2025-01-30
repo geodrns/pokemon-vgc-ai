@@ -22,6 +22,14 @@ def build_team(cmd: TeamBuildCommand,
     return Team([Pokemon(roster[params[0]], params[4], 100, params[1], params[2], params[3]) for params in cmd])
 
 
+def label_roster(move_set: list[Move],
+                 roster: Roster):
+    for i, m in enumerate(move_set):
+        m.id = i
+    for i, p in enumerate(roster):
+        p.id = i
+
+
 class Championship:
     __slots__ = ('cm', 'roster', 'meta', 'epochs', 'n_active', 'n_battles', 'max_team_size', 'max_pkm_moves',
                  'strategy')
@@ -76,8 +84,9 @@ class Championship:
             cm = self.cm[2 * m], self.cm[2 * m + 1]
             match = Match(cm, self.n_active, self.n_battles, self.max_team_size, self.max_pkm_moves, False)
             match.run()
-            cm[0].elo, cm[1].elo = elo_rating(cm[0].elo, cm[1].elo, 1 if match.wins[1] > match.wins[0] else 0)
-            self.meta.add_match((cm[0].team, cm[1].team), (cm[0].elo, cm[1].elo))
+            winner = 1 if match.wins[1] > match.wins[0] else 0
+            cm[0].elo, cm[1].elo = elo_rating(cm[0].elo, cm[1].elo, winner)
+            self.meta.add_match((cm[0].team, cm[1].team), winner, (cm[0].elo, cm[1].elo))
             m += 1
 
     def ranking(self) -> list[CompetitorManager]:
