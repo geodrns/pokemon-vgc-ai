@@ -1,7 +1,7 @@
 from numpy.random import choice, multinomial
 
 from vgc2.agent import TeamBuildPolicy, TeamBuildCommand
-from vgc2.battle_engine.nature import Nature
+from vgc2.battle_engine.modifiers import Nature
 from vgc2.meta import Meta, Roster
 
 

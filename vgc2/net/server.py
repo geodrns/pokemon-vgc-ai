@@ -62,7 +62,7 @@ class RemoteDesignCompetitorManager(RemoteManager):
     def __run_method(self, msg):
         match msg[0]:
             case 'MetaBalancePolicy':
-                self.conn.send(self.competitor.meta_balance_policy.decision(msg[1], msg[2], msg[3]))
+                self.conn.send(self.competitor.meta_balance_policy.decision(msg[1], msg[2], msg[3], msg[4]))
             case 'RuleBalancePolicy':
                 self.conn.send(self.competitor.rule_balance_policy.decision(msg[1]))
             case 'name':

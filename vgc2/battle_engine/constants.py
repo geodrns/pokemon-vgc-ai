@@ -1,5 +1,4 @@
-from vgc2.battle_engine.modifiers import Stat
-from vgc2.battle_engine.nature import Nature
+from vgc2.battle_engine.modifiers import Stat, Nature
 
 DAMAGE_MULTIPLICATION_ARRAY = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 / 2, 0, 1, 1, 1 / 2, 1, 1],
                                [1, 1 / 2, 1 / 2, 1, 2, 2, 1, 1, 1, 1, 1, 2, 1 / 2, 1, 1 / 2, 1, 2, 1, 1],

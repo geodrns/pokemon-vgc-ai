@@ -4,7 +4,7 @@ from vgc2.agent import BattlePolicy, SelectionPolicy, SelectionCommand, TeamBuil
     MetaBalancePolicy, RosterBalanceCommand, RuleBalanceCommand, RuleBalancePolicy
 from vgc2.battle_engine import State, BattleCommand, Team
 from vgc2.competition import Competitor, DesignCompetitor
-from vgc2.meta import Meta, Roster
+from vgc2.meta import Meta, Roster, MoveSet
 from vgc2.meta.constraints import Constraints
 
 
@@ -56,10 +56,11 @@ class ProxyMetaBalancePolicy(MetaBalancePolicy):
         self.__conn: Client = conn
 
     def decision(self,
+                 move_set: MoveSet,
                  roster: Roster,
                  meta: Meta,
                  constraints: Constraints) -> RosterBalanceCommand:
-        self.__conn.send(('BalancePolicy', roster, meta, constraints))
+        self.__conn.send(('BalancePolicy', move_set, roster, meta, constraints))
         return self.__conn.recv()
 
 

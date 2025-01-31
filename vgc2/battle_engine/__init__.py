@@ -4,13 +4,12 @@ from numpy.random import Generator, default_rng
 from vgc2.battle_engine.damage_calculator import calculate_damage, calculate_poison_damage, calculate_sand_damage, \
     calculate_burn_damage, calculate_stealth_rock_damage
 from vgc2.battle_engine.game_state import State, Side
-from vgc2.battle_engine.modifiers import Weather, Terrain, Hazard, Status, Category
+from vgc2.battle_engine.modifiers import Weather, Terrain, Hazard, Status, Category, Type
 from vgc2.battle_engine.move import Move, BattlingMove
 from vgc2.battle_engine.pokemon import BattlingPokemon
 from vgc2.battle_engine.priority_calculator import priority_calculator
 from vgc2.battle_engine.team import Team, BattlingTeam
 from vgc2.battle_engine.threshold_calculator import paralysis_threshold, move_hit_threshold, thaw_threshold
-from vgc2.battle_engine.typing import Type
 from vgc2.battle_engine.view import StateView, TeamView
 
 BattleCommand = tuple[int, int]  # action, target
@@ -46,7 +45,9 @@ class BattleEngine:  # TODO Debug mode
 
     def set_teams(self,
                   teams: tuple[Team, Team],
-                  views: tuple[TeamView, TeamView]):
+                  views: tuple[TeamView, TeamView] | None = None):
+        if not views:
+            views = TeamView(teams[0]), TeamView(teams[1])
         self.state.sides[0].set_team(BattlingTeam(teams[0].members[:self.n_active],
                                                   teams[0].members[self.n_active:]), views[1])
         self.state.sides[1].set_team(BattlingTeam(teams[1].members[:self.n_active],

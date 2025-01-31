@@ -1,6 +1,5 @@
 from vgc2.battle_engine import Move, Type
-from vgc2.battle_engine.modifiers import Category, Status
-from vgc2.battle_engine.nature import Nature
+from vgc2.battle_engine.modifiers import Category, Status, Nature
 from vgc2.battle_engine.pokemon import PokemonSpecies, Pokemon
 
 

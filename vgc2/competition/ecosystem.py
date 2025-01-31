@@ -1,7 +1,7 @@
 from enum import IntEnum
 from random import shuffle
 
-from vgc2.agent import TeamBuildCommand, RosterBalanceCommand
+from vgc2.agent import TeamBuildCommand, RosterBalanceCommand, MoveSetBalanceCommand
 from vgc2.battle_engine import Team
 from vgc2.battle_engine.pokemon import Pokemon
 from vgc2.competition import CompetitorManager, DesignCompetitorManager
@@ -94,6 +94,13 @@ class Championship:
         return self.cm
 
 
+def build_move_set(cmd: MoveSetBalanceCommand,
+                   move_set: MoveSet):
+    for c in cmd:
+        c[1].id = c[0]  # assure labeling
+        move_set[c[0]] = c[1]
+
+
 def build_roster(cmd: RosterBalanceCommand,
                  roster: Roster,
                  move_set: MoveSet):
@@ -127,10 +134,11 @@ class MetaDesign:
     def run(self):
         e = 0
         while e < self.epochs:
-            build_roster(
-                self.dcm.competitor.meta_balance_policy.decision(self.roster, self.meta, self.constraints), self.roster,
-                self.move_set)
-            self.meta.change_roster(self.move_set, self.roster)  # TODO edit move set
+            move_set_cmd, roster_cmd = self.dcm.competitor.meta_balance_policy.decision(self.move_set, self.roster,
+                                                                                        self.meta, self.constraints)
+            build_move_set(move_set_cmd, self.move_set)
+            build_roster(roster_cmd, self.roster, self.move_set)
+            self.meta.change_roster(self.move_set, self.roster)
             self.championship.run()
             self.dcm.score += self.meta_evaluator(self.meta)
             e += 1

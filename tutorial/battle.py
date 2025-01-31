@@ -6,9 +6,8 @@ from vgc2.util.generator import gen_team
 
 def main():
     team = gen_team(4, 4), gen_team(4, 4)
-    view = TeamView(team[0]), TeamView(team[1])
     engine = BattleEngine(2)
-    engine.set_teams(team, view)
+    engine.set_teams(team)
     agent = RandomBattlePolicy(), RandomBattlePolicy()
     print("~ Team 0 ~")
     print(team[0])
