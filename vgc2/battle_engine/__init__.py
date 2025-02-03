@@ -105,7 +105,9 @@ class BattleEngine:  # TODO Debug mode
             elif _move.disabled or _move.pp == 0:
                 continue
             damage, protected, failed = 0, False, True
-            _move.pp = max(0, _move.pp - 1)
+            if _move != struggle:
+                _move.pp = max(0, _move.pp - 1)
+                attacker.on_move_used(_move)
             for defender in defenders:
                 if defender.protect:
                     protected = True
@@ -114,6 +116,7 @@ class BattleEngine:  # TODO Debug mode
                     continue
                 failed = False
                 # perform next move, damaged is applied first and then effects, unless opponent protected itself
+
                 damage = calculate_damage(side, _move.constants, self.state, attacker, defender)
                 defender.deal_damage(damage)
                 if defender.fainted():

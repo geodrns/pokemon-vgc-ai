@@ -150,7 +150,7 @@ class Pokemon:
         self.stats = calculate_stats(self.species.base_stats, self.level, self.ivs, self.evs, self.nature)
         self._move_indexes = move_indexes
 
-    def on_move_used(self, i: int):
+    def _on_move_used(self, i: int):
         for v in self._views:
             v._on_move_used(i)
 
@@ -221,3 +221,6 @@ class BattlingPokemon:
             self._consecutive_protect = 0
         if self.status == Status.SLEEP:
             self._wake_turns -= 1
+
+    def on_move_used(self, move: BattlingMove):
+        self.constants._on_move_used(self.battling_moves.index(move))
