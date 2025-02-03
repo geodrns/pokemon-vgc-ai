@@ -1,5 +1,5 @@
 from vgc2.agent.battle import RandomBattlePolicy
-from vgc2.battle_engine import TeamView, BattleEngine
+from vgc2.battle_engine import BattleEngine
 from vgc2.competition.match import run_battle
 from vgc2.util.generator import gen_team
 

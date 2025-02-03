@@ -37,16 +37,19 @@ class MatchHandler:
                                       self.random_teams, self.gen),
                          MatchHandler(self.max_team_size, self.max_pkm_moves, self.n_active, self.n_battles,
                                       self.random_teams, self.gen))
-            self.prev[0].setup(cms[:len(cms / 2)])
-            self.prev[1].setup(cms[len(cms / 2):])
+            self.prev[0].setup(cms[:len(cms) // 2])
+            self.prev[1].setup(cms[len(cms) // 2:])
 
     def run(self):
         if self.winner is not None:
             return
-        if len(self.prev) > 0:
+        if self.prev:
             for mh in self.prev:
                 mh.run()
-                self.cm += [mh.winner]
+                if not self.cm:
+                    self.cm = (mh.winner,)
+                else:
+                    self.cm += (mh.winner,)
         match = Match(self.cm, self.n_active, self.n_battles, self.max_team_size, self.max_pkm_moves, self.random_teams,
                       self.gen)
         match.run()

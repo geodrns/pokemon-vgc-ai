@@ -27,11 +27,11 @@ class RemoteManager(ABC):
                 except EOFError:
                     self.conn.close()
                     break
-                self.__run_method(msg)
+                self._run_method(msg)
             listener.close()
 
     @abstractmethod
-    def __run_method(self, msg):
+    def _run_method(self, msg):
         pass
 
 
@@ -41,7 +41,7 @@ class RemoteCompetitorManager(RemoteManager):
         super().__init__(authkey, address, port)
         self.competitor = competitor
 
-    def __run_method(self, msg):
+    def _run_method(self, msg):
         match msg[0]:
             case 'BattlePolicy':
                 self.conn.send(self.competitor.battle_policy.decision(msg[1]))
@@ -59,7 +59,7 @@ class RemoteDesignCompetitorManager(RemoteManager):
         super().__init__(authkey, address, port)
         self.competitor = competitor
 
-    def __run_method(self, msg):
+    def _run_method(self, msg):
         match msg[0]:
             case 'MetaBalancePolicy':
                 self.conn.send(self.competitor.meta_balance_policy.decision(msg[1], msg[2], msg[3], msg[4]))

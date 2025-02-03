@@ -3,10 +3,6 @@ from vgc2.battle_engine.pokemon import Pokemon, BattlingPokemon
 from vgc2.battle_engine.team import Team, BattlingTeam
 
 
-class InvalidAttrAccessException(Exception):
-    pass
-
-
 class PokemonView(Pokemon):
     __slots__ = ('_pkm', '_revealed')
 
@@ -26,8 +22,9 @@ class PokemonView(Pokemon):
                     attr):
         if attr == "moves":
             return [self._pkm.moves[i] for i in self._revealed]
-        if attr in ["evs", "ivs", "nature", "stats", "_pkm"]:
-            raise InvalidAttrAccessException()
+        # if attr in ["evs", "ivs", "nature", "stats"]:
+        if attr in ["_pkm"]:
+            return None
         return getattr(self._pkm, attr)
 
     def _on_move_used(self,
@@ -56,7 +53,7 @@ class BattlingPokemonView(BattlingPokemon):
     def __getattr__(self,
                     attr):
         if attr == "_pkm":
-            raise InvalidAttrAccessException()
+            return None
         if attr == "constants":
             return self._constants_view
         if attr == "battling_moves":
@@ -87,7 +84,7 @@ class TeamView(Team):
     def __getattr__(self,
                     attr):
         if attr == "_team":
-            raise InvalidAttrAccessException()
+            return None
         if attr == "members":
             return self._members
         return getattr(self._team, attr)
@@ -115,7 +112,7 @@ class BattlingTeamView(BattlingTeam):
     def __getattr__(self,
                     attr):
         if attr == "_team":
-            raise InvalidAttrAccessException()
+            return None
         if attr == "active":
             return [self._views[p] for p in self._team.active]
         if attr == "reserve":
@@ -140,7 +137,7 @@ class SideView(Side):
     def __getattr__(self,
                     attr):
         if attr == "_side":
-            raise InvalidAttrAccessException()
+            return None
         if attr == "team":
             return self._team
         return getattr(self._side, attr)
@@ -159,7 +156,7 @@ class StateView(State):
     def __getattr__(self,
                     attr):
         if attr == "_state":
-            raise InvalidAttrAccessException()
+            return None
         if attr == "sides":
             return self._sides
-        return getattr(self._pkm, attr)
+        return getattr(self._state, attr)

@@ -90,8 +90,7 @@ class Championship:
             m += 1
 
     def ranking(self) -> list[CompetitorManager]:
-        sorted(self.cm, key=lambda x: -x.elo)
-        return self.cm
+        return sorted(self.cm, key=lambda cm: -cm.elo)
 
 
 def build_move_set(cmd: MoveSetBalanceCommand,

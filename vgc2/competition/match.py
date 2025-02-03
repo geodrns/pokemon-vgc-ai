@@ -72,8 +72,8 @@ class Match:
         base_view = TeamView(base_team[0]), TeamView(base_team[1])
         engine = BattleEngine(self.n_active)
         tie = True
-        runs = 0
-        while tie or runs < self.n_battles:
+        run = 0
+        while tie or run < self.n_battles:
             idx = (selector[0].decision((base_team[0], base_view[1]), self.max_team_size),
                    selector[1].decision((base_team[1], base_view[0]), self.max_team_size))
             sub = subteam(base_team[0], base_view[0], idx[0]), subteam(base_team[1], base_view[1], idx[1])
@@ -82,4 +82,4 @@ class Match:
             engine.set_teams(team, view)
             self.wins[run_battle(engine, agent)] += 1
             tie = self.wins[0] == self.wins[1]
-            runs += 1
+            run += 1

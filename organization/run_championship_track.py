@@ -22,6 +22,7 @@ def main(_args):
         conn = Client(address, authkey=f'Competitor {i}'.encode('utf-8'))
         conns.append(conn)
         championship.register(CompetitorManager(ProxyCompetitor(conn)))
+    championship.run()
     ranking = championship.ranking()
     winner = ranking[0]
     print(winner.competitor.name + " wins the tournament!")
@@ -39,7 +40,7 @@ if __name__ == '__main__':
     parser.add_argument('--max_team_size', type=int, default=4)
     parser.add_argument('--n_active', type=int, default=2)
     parser.add_argument('--max_pkm_moves', type=int, default=4)
-    parser.add_argument('--n_battles', type=int, default=10)
+    parser.add_argument('--n_battles', type=int, default=3)
     parser.add_argument('--base_port', type=int, default=BASE_PORT)
     args = parser.parse_args()
     main(args)

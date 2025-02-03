@@ -1,6 +1,6 @@
 import argparse
 
-from template.competitor import ExampleCompetitor
+from competitor import ExampleCompetitor
 from vgc2.net.server import RemoteCompetitorManager, BASE_PORT
 
 
