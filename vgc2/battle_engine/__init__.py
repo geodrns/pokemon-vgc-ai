@@ -79,10 +79,13 @@ class BattleEngine:  # TODO Debug mode
                           commands: FullCommand):
         for side in (0, 1):
             for i, a in enumerate(commands[side]):
+                if i >= len(self.state.sides[side].team.active):
+                    continue
                 if a[0] >= 0:
                     user = self.state.sides[side].team.active[i]
+                    def_act = self.state.sides[not side].team.active
                     self._move_queue += [(side, user, user.battling_moves[a[0]],
-                                          [self.state.sides[not side].team.active[a[1]]])]
+                                          [def_act[a[1] if a[1] < len(def_act) else 0]])]
                 else:
                     self._switch_queue += [(side, i, a[1])]
 
@@ -103,7 +106,7 @@ class BattleEngine:  # TODO Debug mode
             elif self._perform_status(attacker, _move.constants):
                 continue
             elif _move.disabled or _move.pp == 0:
-                continue
+                _move = next(m for m in attacker.battling_moves if m.pp > 0 and not m.disabled)
             damage, protected, failed = 0, False, True
             if _move != struggle:
                 _move.pp = max(0, _move.pp - 1)
@@ -116,7 +119,6 @@ class BattleEngine:  # TODO Debug mode
                     continue
                 failed = False
                 # perform next move, damaged is applied first and then effects, unless opponent protected itself
-
                 damage = calculate_damage(side, _move.constants, self.state, attacker, defender)
                 defender.deal_damage(damage)
                 if defender.fainted():

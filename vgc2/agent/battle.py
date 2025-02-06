@@ -21,7 +21,8 @@ class RandomBattlePolicy(BattlePolicy):
         cmds: list[BattleCommand] = []
         for pkm in team.active:
             n_moves = len(pkm.battling_moves)
-            action = choice(n_moves + 1, p=[self.switch_prob] + [(1. - self.switch_prob) / n_moves] * n_moves) - 1
+            switch_prob = 0 if n_switches == 0 else self.switch_prob
+            action = choice(n_moves + 1, p=[switch_prob] + [(1. - switch_prob) / n_moves] * n_moves) - 1
             if action >= 0:
                 target = choice(n_targets, p=[1 / n_targets] * n_targets)
             else:
