@@ -12,20 +12,20 @@ from vgc2.battle_engine import Type
 from vgc2.meta import MoveSet, Roster
 
 MoveGenerator = Callable[[Generator], Move]
-MoveSetGenerator = Callable[[int, Generator], MoveSet]
+MoveSetGenerator = Callable[[int, Generator, MoveGenerator], MoveSet]
 PokemonSpeciesGenerator = Callable[[MoveSet, int, Generator], PokemonSpecies]
 PokemonGenerator = Callable[[PokemonSpecies, int, Generator], Pokemon]
-RosterGenerator = Callable[[int, MoveSet, int, Generator], Roster]
-TeamGenerator = Callable[[int, int, Generator], Team]
-RosterTeamGenerator = Callable[[Roster, int, int, Generator], Team]
+RosterGenerator = Callable[[int, MoveSet, int, Generator, PokemonSpeciesGenerator], Roster]
+TeamGenerator = Callable[[int, int, Generator, MoveSetGenerator, PokemonSpeciesGenerator, PokemonGenerator], Team]
 
 _rng = default_rng()
 
 
 def gen_move(rng: Generator = _rng) -> Move:
     category = Category(rng.choice(len(Category), 1, False))
-    base_power = 0 if category == Category.OTHER else int(clip(rng.normal(100, 0.2, 1)[0], 0, 140))
-    effect = float(rng.random()) if category == Category.OTHER else -1
+    base_power = 0 if category == Category.OTHER else int(clip(rng.normal(100, 40, 1)[0], 0, 140))
+    effect_prob = 1. - base_power / 140
+    effect = float(rng.random()) if effect_prob > 0. else -1
     return Move(
         pkm_type=Type(rng.choice(len(Type) - 1, 1, False)),  # no typeless
         base_power=base_power,
@@ -33,6 +33,7 @@ def gen_move(rng: Generator = _rng) -> Move:
         max_pp=int(clip(rng.normal(10, 2, 1)[0], 5, 20)),
         category=category,
         priority=1 if rng.random() < .3 else 0,
+        effect_prob=effect_prob,
         force_switch=0 <= effect < 1 / 17,
         self_switch=1 / 17 <= effect < 2 / 17,
         ignore_evasion=2 / 17 <= effect < 3 / 17,
@@ -56,8 +57,9 @@ def gen_move(rng: Generator = _rng) -> Move:
 
 
 def gen_move_set(n: int,
-                 rng: Generator = _rng) -> MoveSet:
-    return [gen_move(rng) for _ in range(n)]
+                 rng: Generator = _rng,
+                 _gen_move: MoveGenerator = gen_move) -> MoveSet:
+    return [_gen_move(rng) for _ in range(n)]
 
 
 def gen_move_subset(n: int,
@@ -81,6 +83,14 @@ def gen_pkm_species(moves: MoveSet,
         moves=gen_move_subset(n_moves, moves))
 
 
+def gen_pkm_roster(n: int,
+                   moves: MoveSet,
+                   n_moves: int = 4,
+                   rng: Generator = _rng,
+                   _gen_pkm_species: PokemonSpeciesGenerator = gen_pkm_species) -> Roster:
+    return [_gen_pkm_species(moves, n_moves, rng) for _ in range(n)]
+
+
 def gen_pkm(species: PokemonSpecies,
             max_moves: int = 4,
             rng: Generator = _rng) -> Pokemon:
@@ -94,21 +104,18 @@ def gen_pkm(species: PokemonSpecies,
         nature=Nature(rng.choice(len(Nature), 1)[0]))
 
 
-def gen_pkm_roster(n: int,
-                   moves: MoveSet,
-                   n_moves: int = 4,
-                   rng: Generator = _rng) -> Roster:
-    return [gen_pkm_species(moves, n_moves, rng) for _ in range(n)]
-
-
 def gen_team(n: int,
              n_moves: int,
-             rng: Generator = _rng) -> Team:
-    return Team([gen_pkm(gen_pkm_species(gen_move_set(n_moves), n_moves, rng), n_moves, rng) for _ in range(n)])
+             rng: Generator = _rng,
+             _gen_move_set: MoveSetGenerator = gen_move_set,
+             _gen_pkm_species: PokemonSpeciesGenerator = gen_pkm_species,
+             _gen_pkm: PokemonGenerator = gen_pkm) -> Team:
+    return Team([_gen_pkm(_gen_pkm_species(_gen_move_set(n_moves), n_moves, rng), n_moves, rng) for _ in range(n)])
 
 
 def gen_team_from_roster(roster: Roster,
                          n: int,
                          n_moves: int,
-                         rng: Generator = _rng) -> Team:
-    return Team([gen_pkm(roster[i], n_moves, rng) for i in rng.choice(len(roster), n)])
+                         rng: Generator = _rng,
+                         _gen_pkm: PokemonGenerator = gen_pkm) -> Team:
+    return Team([_gen_pkm(roster[i], n_moves, rng) for i in rng.choice(len(roster), n)])
