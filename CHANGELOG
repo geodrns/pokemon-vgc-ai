@@ -1,5 +1,17 @@
 ## Changelog
 
+### Version 1.0.2 (February 2025)
+
+* gen_move fixed
+* generator functions now can have other sub generators as input
+* fixed bug on BattlingTeamView that didn't allow for number of active being different of reserve
+* Move __str__ representation length shortened
+* TreeTournament __init__ params slightly changed
+    * now a Roster or TeamGenerator can be passed as parameter, if a TeamGenerator is passed teams will be random
+* Match was changed to comply with new ruleset
+    * now a SelectionPolicy will be called on competitors even if the teams are random, providing the BattlePolicy with
+    starting information
+
 ### Version 1.0.1 (February 2025)
 
 * Fixed RandomBattlePolicy

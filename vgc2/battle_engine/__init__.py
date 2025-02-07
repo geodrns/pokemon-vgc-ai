@@ -25,7 +25,7 @@ class BattleEngine:  # TODO Debug mode
 
     __slots__ = ('n_active', 'state', 'state_view', 'winning_side', 'rng', 'struggle', '_move_queue', '_switch_queue')
 
-    def __init__(self, n_active: int = 1, rng: Generator = _rng):
+    def __init__(self, n_active: int = 2, rng: Generator = _rng):
         self.n_active = n_active
         self.state = State()
         self.state_view = StateView(self.state, 0), StateView(self.state, 1)
