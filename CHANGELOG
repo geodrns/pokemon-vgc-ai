@@ -1,5 +1,14 @@
 ## Changelog
 
+### Version 1.0.1 (February 2025)
+
+* Fixed RandomBattlePolicy
+    * division by zero when n_switches=0 (e.g. team size = 2 in double battles)
+* Fixed BattleEngine
+    * if an invalid attacker is selected, command is skipped
+    * if an invalid defender is selected, is changed to a valid one
+    * if an invalid move is selected, it is changed for the next with pp>0 and not disabled
+
 ### Version 1.0 (January 2025)
 
 * Initial setup.
