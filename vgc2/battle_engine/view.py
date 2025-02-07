@@ -102,7 +102,7 @@ class BattlingTeamView(BattlingTeam):
         self._views = ({p: BattlingPokemonView(p, v) for p, v in
                         zip(self._team.active, view.members[:len(self._team.active)])} |
                        {p: BattlingPokemonView(p, v) for p, v in
-                        zip(self._team.reserve, view.members[len(self._team.reserve):])})
+                        zip(self._team.reserve, view.members[len(self._team.active):])})
         self._revealed: list[BattlingPokemon] = [p for p in self._team.active]
         self._team._views += [self]
 

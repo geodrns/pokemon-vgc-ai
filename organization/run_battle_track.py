@@ -5,12 +5,12 @@ from vgc2.competition import CompetitorManager
 from vgc2.competition.tournament import TreeTournament
 from vgc2.net.client import ProxyCompetitor
 from vgc2.net.server import BASE_PORT
+from vgc2.util.generator import gen_team
 
 
 def main(_args):
     conns = []
-    tournament = TreeTournament(max_team_size=_args.max_team_size, max_pkm_moves=_args.max_pkm_moves,
-                                n_active=args.n_active, n_battles=args.n_battles)
+    tournament = TreeTournament(gen_team, _args.max_team_size, _args.max_pkm_moves, args.n_active, args.n_battles)
     for i in range(_args.n_agents):
         address = ('localhost', _args.base_port + i)
         conn = Client(address, authkey=f'Competitor {i}'.encode('utf-8'))

@@ -71,28 +71,28 @@ class Move:
     def __str__(self):
         if self.name:
             return self.name
-        return ("Type " + str(self.pkm_type.name) +
-                ", Power " + str(self.base_power) +
-                ", Accuracy %.1f" % self.accuracy +
+        return (str(self.pkm_type.name) +
+                (", Power " + str(self.base_power) if self.base_power > 0 else "") +
+                (", Accuracy %.2f" % self.accuracy if self.accuracy < 1. else "") +
                 ", Max PP " + str(self.max_pp) + ", " + self.category.name +
                 (", Priority " + str(self.priority) if self.priority > 0 else "") +
-                (", Probability " + str(self.effect_prob) if self.effect_prob < 1. else "") +
+                (", Probability %.2f" % self.effect_prob if 0. < self.effect_prob < 1. else "") +
                 (", Force Switch" if self.force_switch else "") +
                 (", Self Switch" if self.self_switch else "") +
                 (", Ignore Evasion" if self.ignore_evasion else "") +
                 (", Protect" if self.protect else "") +
                 (", Boosts " + str(self.boosts) if any(b > 0 for b in self.boosts) else "") +
-                (", Heal " + str(self.heal) if self.heal > 0 else "") +
-                (", Recoil " + str(self.recoil) if self.recoil > 0 else "") +
-                (", Weather " + self.weather_start.name if self.weather_start != Weather.CLEAR else "") +
-                (", Terrain " + self.field_start.name if self.field_start != Terrain.NONE else "") +
+                (", Heal %.2f" % self.heal if self.heal > 0. else "") +
+                (", Recoil %.2f" % self.recoil if self.recoil > 0. else "") +
+                (", " + self.weather_start.name if self.weather_start != Weather.CLEAR else "") +
+                (", " + self.field_start.name if self.field_start != Terrain.NONE else "") +
                 (", Trickroom" if self.toggle_trickroom else "") +
                 (", Change Type" if self.change_type else "") +
                 (", Reflect" if self.toggle_reflect else "") +
                 (", Light Screen" if self.toggle_lightscreen else "") +
                 (", Tailwind" if self.toggle_tailwind else "") +
-                (", Hazard " + self.hazard.name if self.hazard != Hazard.NONE else "") +
-                (", Status " + self.status.name if self.status != Status.NONE else "") +
+                (", " + self.hazard.name if self.hazard != Hazard.NONE else "") +
+                (", " + self.status.name if self.status != Status.NONE else "") +
                 (", Disable" if self.disable else ""))
 
 
