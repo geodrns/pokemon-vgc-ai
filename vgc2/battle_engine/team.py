@@ -16,11 +16,11 @@ class BattlingTeam:
     __slots__ = ('active', '_initial_active', 'reserve', '_initial_reserve', '_views', '_engine')
 
     def __init__(self,
-                 active: list[Pokemon],
-                 reserve: list[Pokemon]):
-        self.active = [BattlingPokemon(p) for p in active]
+                 active: list[Pokemon] | list[BattlingPokemon],
+                 reserve: list[Pokemon] | list[BattlingPokemon]):
+        self.active = [BattlingPokemon(p) for p in active] if isinstance(active[0], Pokemon) else active
         self._initial_active = self.active[:]
-        self.reserve = [BattlingPokemon(p) for p in reserve]
+        self.reserve = ([BattlingPokemon(p) for p in reserve] if isinstance(reserve[0], Pokemon) else reserve) if len(reserve) > 0 else []
         self._initial_reserve = self.active[:]
         self._views = []
         self._engine = None
@@ -58,7 +58,7 @@ class BattlingTeam:
         self.active[active_pos] = old_reserve
         self._engine._on_switch(old_reserve, old_active)
 
-    def on_turn_end(self):
+    def _on_turn_end(self):
         for active in self.active:
             active.on_turn_end()
 

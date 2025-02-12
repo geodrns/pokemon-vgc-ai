@@ -127,8 +127,9 @@ class BattlingTeamView(BattlingTeam):
 class SideView(Side):
     __slots__ = ('_side', '_team')
 
-    def __init__(self, side: Side):
+    def __init__(self, side: Side, view: TeamView):
         self._side = side
+        self._team = BattlingTeamView(self._side.team, view)
         self._side._views += [self]
 
     def __del__(self):
@@ -142,16 +143,15 @@ class SideView(Side):
             return self._team
         return getattr(self._side, attr)
 
-    def _on_set_team(self, view: TeamView):
-        self._team = BattlingTeamView(self._side.team, view)
-
 
 class StateView(State):
     __slots__ = ('_state', '_sides')
 
-    def __init__(self, state: State, side: int):
+    def __init__(self, state: State,
+                 side: int,
+                 view: tuple[TeamView, TeamView]):
         self._state = state
-        self._sides = (state.sides[side], SideView(state.sides[not side]))
+        self._sides = (state.sides[side], SideView(state.sides[not side], view[not side]))
 
     def __getattr__(self,
                     attr):

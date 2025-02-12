@@ -25,10 +25,14 @@ class BattleEngine:  # TODO Debug mode
 
     __slots__ = ('n_active', 'state', 'state_view', 'winning_side', 'rng', 'struggle', '_move_queue', '_switch_queue')
 
-    def __init__(self, n_active: int = 2, rng: Generator = _rng):
-        self.n_active = n_active
-        self.state = State()
-        self.state_view = StateView(self.state, 0), StateView(self.state, 1)
+    def __init__(self,
+                 state: State,
+                 rng: Generator = _rng):
+        self.state = state
+        for s in self.state.sides:
+            s.team._engine = self
+            for p in s.team.active + s.team.reserve:
+                p._engine = self
         self.winning_side: int = -1
         self.rng = rng
         self._move_queue: list[tuple[int, BattlingPokemon, BattlingMove, list[BattlingPokemon]]] = []
@@ -42,20 +46,6 @@ class BattleEngine:  # TODO Debug mode
         self.winning_side = -1
         self._move_queue = []
         self._switch_queue = []
-
-    def set_teams(self,
-                  teams: tuple[Team, Team],
-                  views: tuple[TeamView, TeamView] | None = None):
-        if not views:
-            views = TeamView(teams[0]), TeamView(teams[1])
-        self.state.sides[0].set_team(BattlingTeam(teams[0].members[:self.n_active],
-                                                  teams[0].members[self.n_active:]), views[1])
-        self.state.sides[1].set_team(BattlingTeam(teams[1].members[:self.n_active],
-                                                  teams[1].members[self.n_active:]), views[0])
-        for s in self.state.sides:
-            s.team._engine = self
-            for p in s.team.active + s.team.reserve:
-                p._engine = self
 
     def run_turn(self,
                  commands: FullCommand):

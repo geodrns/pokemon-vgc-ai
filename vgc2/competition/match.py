@@ -1,7 +1,7 @@
-from vgc2.agent import BattlePolicy
-from vgc2.battle_engine import BattleEngine
-from vgc2.battle_engine.team import Team
-from vgc2.battle_engine.view import TeamView
+from vgc2.agent import BattlePolicy, SelectionPolicy
+from vgc2.battle_engine import BattleEngine, State
+from vgc2.battle_engine.team import Team, BattlingTeam
+from vgc2.battle_engine.view import TeamView, StateView
 from vgc2.competition import CompetitorManager
 from vgc2.util.generator import TeamGenerator, _rng
 
@@ -15,10 +15,23 @@ def subteam(team: Team,
 
 
 def run_battle(engine: BattleEngine,
-               agent: tuple[BattlePolicy, BattlePolicy]) -> int:
+               agent: tuple[BattlePolicy, BattlePolicy],
+               view: tuple[StateView, StateView]) -> int:
     while not engine.finished():
-        engine.run_turn((agent[0].decision(engine.state_view[0]), agent[1].decision(engine.state_view[1])))
+        engine.run_turn((agent[0].decision(view[0]), agent[1].decision(view[1])))
     return engine.winning_side
+
+
+def label_teams(base_team: tuple[Team, Team]):
+    p_id = 0
+    m_id = 0
+    for t in base_team:
+        for p in t.members:
+            p.species.id = p_id
+            p_id += 1
+            for m in p.species.moves:
+                m.id = m_id
+                m.id += 1
 
 
 class Match:
@@ -45,27 +58,35 @@ class Match:
         else:
             self._run_non_random()
 
+    def _run_once(self,
+                  selector: tuple[SelectionPolicy, SelectionPolicy],
+                  base_team: tuple[Team, Team],
+                  base_view: tuple[TeamView, TeamView],
+                  agent: tuple[BattlePolicy, BattlePolicy]):
+        idx = (selector[0].decision((base_team[0], base_view[1]), self.max_team_size),
+               selector[1].decision((base_team[1], base_view[0]), self.max_team_size))
+        sub = (subteam(base_team[0], base_view[0], idx[0]),
+               subteam(base_team[1], base_view[1], idx[1]))
+        team = sub[0][0], sub[1][0]
+        view = sub[0][1], sub[1][1]
+        state = State((BattlingTeam(team[0].members[:self.n_active], team[0].members[self.n_active:]),
+                       BattlingTeam(team[1].members[:self.n_active], team[1].members[self.n_active:])))
+        state_view = StateView(state, 0, view), StateView(state, 1, view)
+        engine = BattleEngine(state)
+        self.wins[run_battle(engine, agent, state_view)] += 1
+
     def _run_random(self):
         agent = self.cm[0].competitor.battle_policy, self.cm[1].competitor.battle_policy
         selector = self.cm[0].competitor.selection_policy, self.cm[1].competitor.selection_policy
         tie = True
         runs = 0
-        engine = BattleEngine(self.n_active)
         while tie or runs < self.n_battles:
             base_team = (self.gen(self.max_team_size, self.max_pkm_moves, _rng),
                          self.gen(self.max_team_size, self.max_pkm_moves, _rng))
+            label_teams(base_team)
             base_view = TeamView(base_team[0]), TeamView(base_team[1])
-            idx = (selector[0].decision((base_team[0], base_view[1]), self.max_team_size),
-                   selector[1].decision((base_team[1], base_view[0]), self.max_team_size))
-            sub = subteam(base_team[0], base_view[0], idx[0]), subteam(base_team[1], base_view[1], idx[1])
-            team = sub[0][0], sub[1][0]
-            view = sub[0][1], sub[1][1]
-            engine.set_teams(team, view)
-            self.wins[run_battle(engine, agent)] += 1
-            view[0].hide()
-            view[1].hide()
-            engine.set_teams((team[1], team[0]), (view[1], view[0]))
-            self.wins[run_battle(engine, agent)] += 1
+            self._run_once(selector, base_team, base_view, agent)
+            self._run_once(selector, (base_team[0], base_team[1]), (base_view[0], base_view[1]), agent)
             tie = self.wins[0] == self.wins[1]
             runs += 1
 
@@ -74,16 +95,9 @@ class Match:
         selector = self.cm[0].competitor.selection_policy, self.cm[1].competitor.selection_policy
         base_team = self.cm[0].team, self.cm[1].team
         base_view = TeamView(base_team[0]), TeamView(base_team[1])
-        engine = BattleEngine(self.n_active)
         tie = True
         run = 0
         while tie or run < self.n_battles:
-            idx = (selector[0].decision((base_team[0], base_view[1]), self.max_team_size),
-                   selector[1].decision((base_team[1], base_view[0]), self.max_team_size))
-            sub = subteam(base_team[0], base_view[0], idx[0]), subteam(base_team[1], base_view[1], idx[1])
-            team = sub[0][0], sub[1][0]
-            view = sub[0][1], sub[1][1]
-            engine.set_teams(team, view)
-            self.wins[run_battle(engine, agent)] += 1
+            self._run_once(selector, base_team, base_view, agent)
             tie = self.wins[0] == self.wins[1]
             run += 1

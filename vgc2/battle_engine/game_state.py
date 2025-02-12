@@ -1,3 +1,5 @@
+from copy import copy
+
 from vgc2.battle_engine.constants import WEATHER_TURNS, TERRAIN_TURNS, TRICKROOM_TURNS, REFLECT_TURNS, \
     LIGHTSCREEN_TURNS, TAILWIND_TURNS
 from vgc2.battle_engine.modifiers import Weather, Terrain
@@ -36,7 +38,7 @@ class SideConditions:
         self.stealth_rock = False
         self.poison_spikes = False
 
-    def on_turn_end(self):
+    def _on_turn_end(self):
         if self.reflect:
             self._reflect_turns += 1
             if self._reflect_turns >= REFLECT_TURNS:
@@ -57,9 +59,11 @@ class SideConditions:
 class Side:
     __slots__ = ('team', 'conditions', '_engine', '_views')
 
-    def __init__(self):
-        self.team: BattlingTeam | None = None
-        self.conditions = SideConditions()
+    def __init__(self,
+                 team: BattlingTeam,
+                 conditions: SideConditions | None = None):
+        self.team = team
+        self.conditions = conditions if conditions else SideConditions()
         self._engine = None
         self._views = []
 
@@ -77,15 +81,16 @@ class Side:
         self.conditions.reset()
 
     def _on_turn_end(self):
-        self.conditions.on_turn_end()
-        self.team.on_turn_end()
+        self.conditions._on_turn_end()
+        self.team._on_turn_end()
 
 
 class State:
     __slots__ = ('sides', 'weather', '_weather_turns', 'field', '_field_turns', 'trickroom', '_trickroom_turns')
 
-    def __init__(self):
-        self.sides = (Side(), Side())
+    def __init__(self,
+                 team_side: tuple[BattlingTeam, BattlingTeam] | tuple[Side, Side]):
+        self.sides = (Side(team_side[0]), Side(team_side[1])) if isinstance(team_side[0], BattlingTeam) else team_side
         self.weather = Weather.CLEAR
         self._weather_turns = 0
         self.field = Terrain.NONE
