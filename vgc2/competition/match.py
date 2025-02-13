@@ -1,7 +1,8 @@
 from vgc2.agent import BattlePolicy, SelectionPolicy
 from vgc2.battle_engine import BattleEngine, State
-from vgc2.battle_engine.team import Team, BattlingTeam
+from vgc2.battle_engine.team import Team
 from vgc2.battle_engine.view import TeamView, StateView
+from vgc2.battle_engine.game_state import get_battle_teams
 from vgc2.competition import CompetitorManager
 from vgc2.util.generator import TeamGenerator, _rng
 
@@ -31,7 +32,7 @@ def label_teams(base_team: tuple[Team, Team]):
             p_id += 1
             for m in p.species.moves:
                 m.id = m_id
-                m.id += 1
+                m_id += 1
 
 
 class Match:
@@ -65,12 +66,9 @@ class Match:
                   agent: tuple[BattlePolicy, BattlePolicy]):
         idx = (selector[0].decision((base_team[0], base_view[1]), self.max_team_size),
                selector[1].decision((base_team[1], base_view[0]), self.max_team_size))
-        sub = (subteam(base_team[0], base_view[0], idx[0]),
-               subteam(base_team[1], base_view[1], idx[1]))
-        team = sub[0][0], sub[1][0]
-        view = sub[0][1], sub[1][1]
-        state = State((BattlingTeam(team[0].members[:self.n_active], team[0].members[self.n_active:]),
-                       BattlingTeam(team[1].members[:self.n_active], team[1].members[self.n_active:])))
+        sub = (subteam(base_team[0], base_view[0], idx[0]), subteam(base_team[1], base_view[1], idx[1]))
+        team, view = (sub[0][0], sub[1][0]), (sub[0][1], sub[1][1])
+        state = State(get_battle_teams(team, self.n_active))
         state_view = StateView(state, 0, view), StateView(state, 1, view)
         engine = BattleEngine(state)
         self.wins[run_battle(engine, agent, state_view)] += 1

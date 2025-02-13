@@ -4,7 +4,7 @@ from vgc2.battle_engine.constants import WEATHER_TURNS, TERRAIN_TURNS, TRICKROOM
     LIGHTSCREEN_TURNS, TAILWIND_TURNS
 from vgc2.battle_engine.modifiers import Weather, Terrain
 from vgc2.battle_engine.pokemon import BattlingPokemon
-from vgc2.battle_engine.team import BattlingTeam
+from vgc2.battle_engine.team import BattlingTeam, Team
 
 
 class SideConditions:
@@ -83,6 +83,12 @@ class Side:
     def _on_turn_end(self):
         self.conditions._on_turn_end()
         self.team._on_turn_end()
+
+
+def get_battle_teams(team: tuple[Team, Team],
+                     n_active: int) -> tuple[BattlingTeam, BattlingTeam]:
+    return (BattlingTeam(team[0].members[:n_active], team[0].members[n_active:]),
+            BattlingTeam(team[1].members[:n_active], team[1].members[n_active:]))
 
 
 class State:

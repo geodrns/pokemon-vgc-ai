@@ -97,7 +97,7 @@ def gen_pkm(species: PokemonSpecies,
     n_moves = len(species.moves)
     return Pokemon(
         species=species,
-        move_indexes=list(rng.choice(n_moves, min(max_moves, n_moves))),
+        move_indexes=list(sample([i for i in range(n_moves)], min(max_moves, n_moves))),
         level=100,
         ivs=(31,) * 6,
         evs=tuple(list(int(x) for x in rng.multinomial(510, [1 / 6] * 6))),
@@ -110,7 +110,7 @@ def gen_team(n: int,
              _gen_move_set: MoveSetGenerator = gen_move_set,
              _gen_pkm_species: PokemonSpeciesGenerator = gen_pkm_species,
              _gen_pkm: PokemonGenerator = gen_pkm) -> Team:
-    return Team([_gen_pkm(_gen_pkm_species(_gen_move_set(n_moves), n_moves, rng), n_moves, rng) for _ in range(n)])
+    return Team([_gen_pkm(_gen_pkm_species(_gen_move_set(n_moves, rng), n_moves, rng), n_moves, rng) for _ in range(n)])
 
 
 def gen_team_from_roster(roster: Roster,
