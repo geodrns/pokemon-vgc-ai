@@ -147,7 +147,8 @@ class SideView(Side):
 class StateView(State):
     __slots__ = ('_state', '_sides')
 
-    def __init__(self, state: State,
+    def __init__(self,
+                 state: State,
                  side: int,
                  view: tuple[TeamView, TeamView]):
         self._state = state

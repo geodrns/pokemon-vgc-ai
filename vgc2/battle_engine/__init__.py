@@ -77,6 +77,8 @@ class BattleEngine:  # TODO Debug mode
                 if a[0] >= 0:
                     user = self.state.sides[side].team.active[i]
                     def_act = self.state.sides[not side].team.active
+                    if not user.battling_moves:
+                        raise Exception('Invalid Game State: Pokemon with 0 moves.')
                     self._move_queue += [(side, user, user.battling_moves[a[0]],
                                           [def_act[a[1] if a[1] < len(def_act) else 0]])]
                 else:
@@ -94,10 +96,10 @@ class BattleEngine:  # TODO Debug mode
                 self._move_queue.pop(max(enumerate([priority_calculator(a[2].constants, a[1], self.state) for a in
                                                     self._move_queue]), key=lambda x: x[1])[0]))
             # before each move check if Pokémon can attack due status or have its status removed
+            if self._perform_status(attacker, _move.constants):
+                continue
             if all(m.pp == 0 for m in attacker.battling_moves):
                 _move = struggle
-            elif self._perform_status(attacker, _move.constants):
-                continue
             elif _move.disabled or _move.pp == 0:
                 _move = next(m for m in attacker.battling_moves if m.pp > 0 and not m.disabled)
             damage, protected, failed = 0, False, True

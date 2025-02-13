@@ -79,7 +79,7 @@ def gen_pkm_species(moves: MoveSet,
             int(clip(rng.normal(100, 40, 1)[0], 0, 140)),
             int(clip(rng.normal(100, 40, 1)[0], 0, 140)),
             int(clip(rng.normal(100, 40, 1)[0], 0, 140))),
-        types=[Type(x) for x in rng.choice(len(Type) - 1, n_types)],  # no typeless
+        types=[Type(x) for x in sample([x for x in range(len(Type) - 1)], n_types)],  # no typeless
         moves=gen_move_subset(n_moves, moves))
 
 
