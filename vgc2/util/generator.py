@@ -29,7 +29,7 @@ def gen_move(rng: Generator = _rng) -> Move:
     return Move(
         pkm_type=Type(rng.choice(len(Type) - 1, 1, False)),  # no typeless
         base_power=base_power,
-        accuracy=1. if rng.random() < .5 else float(rng.uniform(.5, 1.)),
+        accuracy=1. if rng.random() < .5 else float(rng.uniform(.75, 1.)),
         max_pp=int(clip(rng.normal(10, 2, 1)[0], 5, 20)),
         category=category,
         priority=1 if rng.random() < .3 else 0,
@@ -79,7 +79,7 @@ def gen_pkm_species(moves: MoveSet,
             int(clip(rng.normal(100, 40, 1)[0], 0, 140)),
             int(clip(rng.normal(100, 40, 1)[0], 0, 140)),
             int(clip(rng.normal(100, 40, 1)[0], 0, 140))),
-        types=[Type(x) for x in rng.choice(len(Type) - 1, n_types)],  # no typeless
+        types=[Type(x) for x in sample([x for x in range(len(Type) - 1)], n_types)],  # no typeless
         moves=gen_move_subset(n_moves, moves))
 
 
@@ -97,7 +97,7 @@ def gen_pkm(species: PokemonSpecies,
     n_moves = len(species.moves)
     return Pokemon(
         species=species,
-        move_indexes=list(rng.choice(n_moves, min(max_moves, n_moves))),
+        move_indexes=list(sample([i for i in range(n_moves)], min(max_moves, n_moves))),
         level=100,
         ivs=(31,) * 6,
         evs=tuple(list(int(x) for x in rng.multinomial(510, [1 / 6] * 6))),
@@ -110,7 +110,7 @@ def gen_team(n: int,
              _gen_move_set: MoveSetGenerator = gen_move_set,
              _gen_pkm_species: PokemonSpeciesGenerator = gen_pkm_species,
              _gen_pkm: PokemonGenerator = gen_pkm) -> Team:
-    return Team([_gen_pkm(_gen_pkm_species(_gen_move_set(n_moves), n_moves, rng), n_moves, rng) for _ in range(n)])
+    return Team([_gen_pkm(_gen_pkm_species(_gen_move_set(n_moves, rng), n_moves, rng), n_moves, rng) for _ in range(n)])
 
 
 def gen_team_from_roster(roster: Roster,

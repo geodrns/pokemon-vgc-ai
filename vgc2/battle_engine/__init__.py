@@ -25,37 +25,30 @@ class BattleEngine:  # TODO Debug mode
 
     __slots__ = ('n_active', 'state', 'state_view', 'winning_side', 'rng', 'struggle', '_move_queue', '_switch_queue')
 
-    def __init__(self, n_active: int = 2, rng: Generator = _rng):
-        self.n_active = n_active
-        self.state = State()
-        self.state_view = StateView(self.state, 0), StateView(self.state, 1)
+    def __init__(self,
+                 state: State,
+                 rng: Generator = _rng):
+        self.state = state
         self.winning_side: int = -1
         self.rng = rng
         self._move_queue: list[tuple[int, BattlingPokemon, BattlingMove, list[BattlingPokemon]]] = []
         self._switch_queue: list[tuple[int, int, int]] = []
+        self._set_state_engine()
 
     def __str__(self):
         return str(self.state)
+
+    def _set_state_engine(self):
+        for s in self.state.sides:
+            s.team._engine = self
+            for p in s.team.active + s.team.reserve:
+                p._engine = self
 
     def reset(self):
         self.state.reset()
         self.winning_side = -1
         self._move_queue = []
         self._switch_queue = []
-
-    def set_teams(self,
-                  teams: tuple[Team, Team],
-                  views: tuple[TeamView, TeamView] | None = None):
-        if not views:
-            views = TeamView(teams[0]), TeamView(teams[1])
-        self.state.sides[0].set_team(BattlingTeam(teams[0].members[:self.n_active],
-                                                  teams[0].members[self.n_active:]), views[1])
-        self.state.sides[1].set_team(BattlingTeam(teams[1].members[:self.n_active],
-                                                  teams[1].members[self.n_active:]), views[0])
-        for s in self.state.sides:
-            s.team._engine = self
-            for p in s.team.active + s.team.reserve:
-                p._engine = self
 
     def run_turn(self,
                  commands: FullCommand):
@@ -84,6 +77,8 @@ class BattleEngine:  # TODO Debug mode
                 if a[0] >= 0:
                     user = self.state.sides[side].team.active[i]
                     def_act = self.state.sides[not side].team.active
+                    if not user.battling_moves:
+                        raise Exception('Invalid Game State: Pokemon with 0 moves.')
                     self._move_queue += [(side, user, user.battling_moves[a[0]],
                                           [def_act[a[1] if a[1] < len(def_act) else 0]])]
                 else:
@@ -101,10 +96,10 @@ class BattleEngine:  # TODO Debug mode
                 self._move_queue.pop(max(enumerate([priority_calculator(a[2].constants, a[1], self.state) for a in
                                                     self._move_queue]), key=lambda x: x[1])[0]))
             # before each move check if Pokémon can attack due status or have its status removed
+            if self._perform_status(attacker, _move.constants):
+                continue
             if all(m.pp == 0 for m in attacker.battling_moves):
                 _move = struggle
-            elif self._perform_status(attacker, _move.constants):
-                continue
             elif _move.disabled or _move.pp == 0:
                 _move = next(m for m in attacker.battling_moves if m.pp > 0 and not m.disabled)
             damage, protected, failed = 0, False, True
@@ -151,41 +146,41 @@ class BattleEngine:  # TODO Debug mode
         return False
 
     def _perform_single_effects(self,
-                                move: Move,
+                                _move: Move,
                                 side: int,
                                 attacker: BattlingPokemon,
                                 damage: float):
         # State changes
-        if move.weather_start != Weather.CLEAR and move.weather_start != self.state.weather:
-            self.state.weather = move.weather_start
-        elif move.field_start != Terrain.NONE and move.field_start != self.state.field:
-            self.state.field = move.field_start
-        elif move.toggle_trickroom and not self.state.trickroom:
+        if _move.weather_start != Weather.CLEAR and _move.weather_start != self.state.weather:
+            self.state.weather = _move.weather_start
+        elif _move.field_start != Terrain.NONE and _move.field_start != self.state.field:
+            self.state.field = _move.field_start
+        elif _move.toggle_trickroom and not self.state.trickroom:
             self.state.trickroom = True
         # Side conditions changes
-        elif move.toggle_lightscreen and not self.state.sides[side].conditions.lightscreen:
+        elif _move.toggle_lightscreen and not self.state.sides[side].conditions.lightscreen:
             self.state.sides[side].conditions.lightscreen = True
-        elif move.toggle_reflect and not self.state.sides[side].conditions.reflect:
+        elif _move.toggle_reflect and not self.state.sides[side].conditions.reflect:
             self.state.sides[side].conditions.reflect = True
-        elif move.toggle_tailwind and not self.state.sides[side].conditions.tailwind:
+        elif _move.toggle_tailwind and not self.state.sides[side].conditions.tailwind:
             self.state.sides[side].conditions.tailwind = True
-        elif move.hazard == Hazard.STEALTH_ROCK:
+        elif _move.hazard == Hazard.STEALTH_ROCK:
             self.state.sides[side].conditions.stealth_rock = True
-        elif move.hazard == Hazard.TOXIC_SPIKES:
+        elif _move.hazard == Hazard.TOXIC_SPIKES:
             self.state.sides[side].conditions.poison_spikes = True
         # Pokémon effects
-        elif move.heal > 0:
-            attacker.recover(int(damage * move.heal))
-        elif move.recoil > 0:
-            attacker.deal_damage(int(damage * move.recoil))
-        elif move.self_switch:
+        elif _move.heal > 0:
+            attacker.recover(int(damage * _move.heal))
+        elif _move.recoil > 0:
+            attacker.deal_damage(int(damage * _move.recoil))
+        elif _move.self_switch:
             self.state.sides[side].team.switch(self.state.sides[side].team.get_active_pos(attacker),
                                                self.state.sides[side].team.first_from_reserve())
-        elif move.change_type:
+        elif _move.change_type:
             attacker.types = [attacker.battling_moves[0].constants.pkm_type]
-        elif any(b > 0 for b in move.boosts):
-            attacker.boosts = [int(clip(_b + b, -6, 6)) for _b, b in zip(attacker.boosts, move.boosts)]
-        elif move.protect:
+        elif any(b > 0 for b in _move.boosts):
+            attacker.boosts = [int(clip(_b + b, -6, 6)) for _b, b in zip(attacker.boosts, _move.boosts)]
+        elif _move.protect:
             attacker.protect = True
 
     def _perform_target_effects(self,
