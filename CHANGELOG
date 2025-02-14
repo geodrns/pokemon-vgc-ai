@@ -1,5 +1,19 @@
 ## Changelog
 
+### Version 1.0.3 (February 2025)
+
+* Added Greedy Battle Policy
+* Added forward module to assist search based-solutions
+    * This required decoupling from State and BattleEngine, so now a initial State must be input to GameEngine
+        * __init__ params for State, BattleEngine and Side slightly changed
+        * This also made that Match had to be refactored
+        * get_battle_teams was added to help to make an initial State passing a tuple with two BattlingTeam
+* Bug fixed in team_gen where repeated moves could be present
+    * Added label_teams which should be used with team_gen when there is no roster and label_roster is not used
+* gen_pkm_species bug fixed
+* fixed a rule processing order in BattleEngine, and exception raised if any active Pokemon has zero battling moves
+* Elo bug fixed
+
 ### Version 1.0.2 (February 2025)
 
 * gen_move fixed

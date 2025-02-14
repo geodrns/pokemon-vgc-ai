@@ -32,6 +32,9 @@ class CompetitorManager:
         self.team: Team | None = None
         self.elo = 1200
 
+    def __str__(self):
+        return self.competitor.name + " ELO " + str(self.elo) + (" Team " + str(self.team) if self.team else "")
+
 
 class DesignCompetitor(ABC):
 
