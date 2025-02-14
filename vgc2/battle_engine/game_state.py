@@ -105,9 +105,9 @@ class State:
         self._trickroom_turns = 0
 
     def __str__(self):
-        return ((", Weather " + self.weather.name if self.weather != Weather.CLEAR else "") +
-                (", Terrain " + self.field.name if self.field != Terrain.NONE else "") +
-                (", Trickroom" if self.trickroom else "") +
+        return (("Weather " + self.weather.name + ", " if self.weather != Weather.CLEAR else "") +
+                ("Terrain " + self.field.name + ", " if self.field != Terrain.NONE else "") +
+                ("Trickroom, " if self.trickroom else "") +
                 "Side 0 " + str(self.sides[0]) + ", Side 1 " + str(self.sides[1]))
 
     def reset(self):
