@@ -12,6 +12,7 @@
     * Added label_teams which should be used with team_gen when there is no roster and label_roster is not used
 * gen_pkm_species bug fixed
 * fixed a rule processing order in BattleEngine, and exception raised if any active Pokemon has zero battling moves
+* Elo bug fixed
 
 ### Version 1.0.2 (February 2025)
 

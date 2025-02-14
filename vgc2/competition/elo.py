@@ -15,20 +15,20 @@ def probability(rating1, rating2):
 # Player A wins or Player B.
 def elo_rating(r_a, r_b, d, k=30):
     # To calculate the Winning
-    # Probability of Player B
-    p_b = probability(r_a, r_b)
+    # Probability of Player A
+    p_a = probability(r_a, r_b)
 
     # To calculate the Winning
-    # Probability of Player A
-    p_a = probability(r_b, r_a)
+    # Probability of Player B
+    p_b = probability(r_b, r_a)
 
-    # Case -1 When Player A wins
+    # Case 0 When Player A wins
     # Updating the Elo Ratings
-    if d == 1:
+    if d == 0:
         r_a = r_a + k * (1 - p_a)
         r_b = r_b + k * (0 - p_b)
 
-    # Case -2 When Player B wins
+    # Case 1 When Player B wins
     # Updating the Elo Ratings
     else:
         r_a = r_a + k * (0 - p_a)

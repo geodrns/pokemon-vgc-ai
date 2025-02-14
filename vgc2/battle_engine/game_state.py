@@ -1,5 +1,3 @@
-from copy import copy
-
 from vgc2.battle_engine.constants import WEATHER_TURNS, TERRAIN_TURNS, TRICKROOM_TURNS, REFLECT_TURNS, \
     LIGHTSCREEN_TURNS, TAILWIND_TURNS
 from vgc2.battle_engine.modifiers import Weather, Terrain
