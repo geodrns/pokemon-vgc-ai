@@ -29,7 +29,7 @@ def gen_move(rng: Generator = _rng) -> Move:
     return Move(
         pkm_type=Type(rng.choice(len(Type) - 1, 1, False)),  # no typeless
         base_power=base_power,
-        accuracy=1. if rng.random() < .5 else float(rng.uniform(.5, 1.)),
+        accuracy=1. if rng.random() < .5 else float(rng.uniform(.75, 1.)),
         max_pp=int(clip(rng.normal(10, 2, 1)[0], 5, 20)),
         category=category,
         priority=1 if rng.random() < .3 else 0,

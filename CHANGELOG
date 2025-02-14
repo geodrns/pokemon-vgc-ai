@@ -2,7 +2,7 @@
 
 ### Version 1.0.3 (February 2025)
 
-* Added TreeSearch and Greedy Battle Policies
+* Added Greedy Battle Policy
 * Added forward module to assist search based-solutions
     * This required decoupling from State and BattleEngine, so now a initial State must be input to GameEngine
         * __init__ params for State, BattleEngine and Side slightly changed

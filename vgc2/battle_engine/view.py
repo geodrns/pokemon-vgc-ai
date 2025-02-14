@@ -24,7 +24,7 @@ class PokemonView(Pokemon):
             return [self._pkm.moves[i] for i in self._revealed]
         # if attr in ["evs", "ivs", "nature", "stats"]:
         if attr in ["_pkm"]:
-            return None
+            return self
         return getattr(self._pkm, attr)
 
     def _on_move_used(self,
@@ -53,7 +53,7 @@ class BattlingPokemonView(BattlingPokemon):
     def __getattr__(self,
                     attr):
         if attr == "_pkm":
-            return None
+            return self
         if attr == "constants":
             return self._constants_view
         if attr == "battling_moves":
@@ -84,7 +84,7 @@ class TeamView(Team):
     def __getattr__(self,
                     attr):
         if attr == "_team":
-            return None
+            return self
         if attr == "members":
             return self._members
         return getattr(self._team, attr)
@@ -112,7 +112,7 @@ class BattlingTeamView(BattlingTeam):
     def __getattr__(self,
                     attr):
         if attr == "_team":
-            return None
+            return self
         if attr == "active":
             return [self._views[p] for p in self._team.active]
         if attr == "reserve":
@@ -138,7 +138,7 @@ class SideView(Side):
     def __getattr__(self,
                     attr):
         if attr == "_side":
-            return None
+            return self
         if attr == "team":
             return self._team
         return getattr(self._side, attr)
@@ -157,7 +157,7 @@ class StateView(State):
     def __getattr__(self,
                     attr):
         if attr == "_state":
-            return None
+            return self
         if attr == "sides":
             return self._sides
         return getattr(self._state, attr)
