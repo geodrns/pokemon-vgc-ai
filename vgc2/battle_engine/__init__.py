@@ -1,6 +1,7 @@
 from numpy import clip
 from numpy.random import Generator, default_rng
 
+from vgc2.battle_engine.constants import BattleRuleParam
 from vgc2.battle_engine.damage_calculator import calculate_damage, calculate_poison_damage, calculate_sand_damage, \
     calculate_burn_damage, calculate_stealth_rock_damage
 from vgc2.battle_engine.game_state import State, Side
@@ -23,12 +24,14 @@ class BattleEngine:  # TODO Debug mode
     class TeamFainted(Exception):
         pass
 
-    __slots__ = ('n_active', 'state', 'state_view', 'winning_side', 'rng', 'struggle', '_move_queue', '_switch_queue')
+    __slots__ = ('state', 'params', 'winning_side', 'rng', '_move_queue', '_switch_queue')
 
     def __init__(self,
                  state: State,
+                 params: BattleRuleParam = BattleRuleParam(),
                  rng: Generator = _rng):
         self.state = state
+        self.params = params
         self.winning_side: int = -1
         self.rng = rng
         self._move_queue: list[tuple[int, BattlingPokemon, BattlingMove, list[BattlingPokemon]]] = []
@@ -93,8 +96,8 @@ class BattleEngine:  # TODO Debug mode
         while len(self._move_queue) > 0:
             # determine next move
             side, attacker, _move, defenders = (
-                self._move_queue.pop(max(enumerate([priority_calculator(a[2].constants, a[1], self.state) for a in
-                                                    self._move_queue]), key=lambda x: x[1])[0]))
+                self._move_queue.pop(max(enumerate([priority_calculator(self.params, a[2].constants, a[1], self.state)
+                                                    for a in self._move_queue]), key=lambda x: x[1])[0]))
             # before each move check if Pokémon can attack due status or have its status removed
             if self._perform_status(attacker, _move.constants):
                 continue
@@ -110,11 +113,11 @@ class BattleEngine:  # TODO Debug mode
                 if defender.protect:
                     protected = True
                     continue
-                if self.rng.random() >= move_hit_threshold(_move.constants, attacker, defender):
+                if self.rng.random() >= move_hit_threshold(self.params, _move.constants, attacker, defender):
                     continue
                 failed = False
                 # perform next move, damaged is applied first and then effects, unless opponent protected itself
-                damage = calculate_damage(side, _move.constants, self.state, attacker, defender)
+                damage = calculate_damage(self.params, side, _move.constants, self.state, attacker, defender)
                 defender.deal_damage(damage)
                 if defender.fainted():
                     continue
@@ -131,7 +134,7 @@ class BattleEngine:  # TODO Debug mode
                         _move: Move) -> bool:
         match attacker.status:
             case Status.PARALYZED:
-                if self.rng.random() < paralysis_threshold():
+                if self.rng.random() < paralysis_threshold(self.params):
                     return True
             case Status.SLEEP:
                 if attacker._wake_turns == 0:
@@ -139,7 +142,7 @@ class BattleEngine:  # TODO Debug mode
                 else:
                     return True
             case Status.FROZEN:
-                if _move.pkm_type == Type.FIRE or self.rng.random() < thaw_threshold():
+                if _move.pkm_type == Type.FIRE or self.rng.random() < thaw_threshold(self.params):
                     attacker.status = Status.NONE
                 else:
                     return True
@@ -202,13 +205,13 @@ class BattleEngine:  # TODO Debug mode
         all_active = self.state.sides[0].team.active + self.state.sides[1].team.active
         for pkm in all_active:
             if pkm.status == Status.POISON:
-                pkm.deal_damage(calculate_poison_damage(pkm))
+                pkm.deal_damage(calculate_poison_damage(self.params, pkm))
         for pkm in all_active:
             if pkm.status == Status.BURN:
-                pkm.deal_damage(calculate_burn_damage(pkm))
+                pkm.deal_damage(calculate_burn_damage(self.params, pkm))
         for pkm in all_active:
             if self.state.weather == Weather.SAND:
-                pkm.deal_damage(calculate_sand_damage(pkm))
+                pkm.deal_damage(calculate_sand_damage(self.params, pkm))
 
     def _on_fainted(self,
                     pkm: BattlingPokemon):
@@ -231,4 +234,4 @@ class BattleEngine:  # TODO Debug mode
                 Type.STEEL not in switch_in.types and switch_in.status == Status.NONE):
             switch_in.status = Status.POISON
         if self.state.sides[side].conditions.stealth_rock:
-            switch_in.deal_damage(calculate_stealth_rock_damage(switch_in))
+            switch_in.deal_damage(calculate_stealth_rock_damage(self.params, switch_in))

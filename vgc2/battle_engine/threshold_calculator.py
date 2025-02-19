@@ -1,30 +1,34 @@
-from vgc2.battle_engine.constants import ACCURACY_MULTIPLIER_LOOKUP
+from vgc2.battle_engine.constants import BattleRuleParam
 from vgc2.battle_engine.modifiers import Stat
 from vgc2.battle_engine.move import Move
 from vgc2.battle_engine.pokemon import BattlingPokemon
 
 
-def accuracy_evasion_modifier(move: Move,
+def accuracy_evasion_modifier(params: BattleRuleParam,
+                              move: Move,
                               attacker: BattlingPokemon,
                               defender: BattlingPokemon) -> float:
-    return ACCURACY_MULTIPLIER_LOOKUP[attacker.boosts[Stat.ACCURACY] -
-                                      (0 if move.ignore_evasion else defender.boosts[Stat.EVASION])]
+    return params.ACCURACY_MULTIPLIER_LOOKUP[attacker.boosts[Stat.ACCURACY] -
+                                             (0 if move.ignore_evasion else defender.boosts[Stat.EVASION])]
 
 
-def protect_modifier(move: Move,
+def protect_modifier(params: BattleRuleParam,
+                     move: Move,
                      attacker: BattlingPokemon) -> float:
-    return 1 / 3 ** attacker._consecutive_protect if move.protect else 1.0
+    return params.PROTECT_MODIFIER ** attacker._consecutive_protect if move.protect else 1.0
 
 
-def move_hit_threshold(move: Move,
+def move_hit_threshold(params: BattleRuleParam,
+                       move: Move,
                        attacker: BattlingPokemon,
                        defender: BattlingPokemon) -> float:
-    return move.accuracy * accuracy_evasion_modifier(move, attacker, defender) * protect_modifier(move, attacker)
+    return (move.accuracy * accuracy_evasion_modifier(params, move, attacker, defender) *
+            protect_modifier(params, move, attacker))
 
 
-def thaw_threshold():
-    return 0.2
+def thaw_threshold(params: BattleRuleParam):
+    return params.THAW_THRESHOLD
 
 
-def paralysis_threshold():
-    return 0.25
+def paralysis_threshold(params: BattleRuleParam):
+    return params.PARALYSIS_THRESHOLD
