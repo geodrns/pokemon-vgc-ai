@@ -3,7 +3,7 @@ from vgc2.battle_engine.modifiers import Category, Status, Hazard, Weather, Terr
 
 class Move:
     __slots__ = ('id', 'pkm_type', 'base_power', 'accuracy', 'max_pp', 'category', 'priority', 'effect_prob',
-                 'force_switch', 'self_switch', 'ignore_evasion', 'protect', 'boosts', 'heal', 'recoil',
+                 'force_switch', 'self_switch', 'ignore_evasion', 'protect', 'boosts', 'self_boosts', 'heal', 'recoil',
                  'weather_start', 'field_start', 'toggle_trickroom', 'change_type', 'toggle_reflect',
                  'toggle_lightscreen', 'toggle_tailwind', 'hazard', 'status', 'disable', 'name')
 
@@ -20,6 +20,7 @@ class Move:
                  ignore_evasion: bool = False,
                  protect: bool = False,
                  boosts: tuple[int, int, int, int, int, int, int, int] = (0,) * 8,
+                 self_boosts: bool = True,
                  heal: float = 0.,
                  recoil: float = 0.,
                  weather_start: Weather = Weather.CLEAR,
@@ -48,6 +49,7 @@ class Move:
         self.ignore_evasion = ignore_evasion
         self.protect = protect
         self.boosts = boosts
+        self.self_boosts = self_boosts
         # boosts_reset)
         self.heal = heal
         # /heal_target)
@@ -81,7 +83,8 @@ class Move:
                 (", Self Switch" if self.self_switch else "") +
                 (", Ignore Evasion" if self.ignore_evasion else "") +
                 (", Protect" if self.protect else "") +
-                (", Boosts " + str(self.boosts) if any(b > 0 for b in self.boosts) else "") +
+                ((f", %sBoosts " % ("Self " if self.self_boosts else "Target ")) + str(self.boosts)
+                 if any(b != 0 for b in self.boosts) else "") +
                 (", Heal %.2f" % self.heal if self.heal > 0. else "") +
                 (", Recoil %.2f" % self.recoil if self.recoil > 0. else "") +
                 (", " + self.weather_start.name if self.weather_start != Weather.CLEAR else "") +

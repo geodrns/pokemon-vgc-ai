@@ -38,8 +38,9 @@ def gen_move(rng: Generator = _rng) -> Move:
         self_switch=1 / 17 <= effect < 2 / 17,
         ignore_evasion=2 / 17 <= effect < 3 / 17,
         protect=3 / 17 <= effect < 4 / 17,
-        boosts=tuple(list(int(x) for x in rng.multinomial(2, [1 / 8] * 8))) if 4 / 17 <= effect < 5 / 17
-        else (0,) * 8,
+        boosts=tuple([0] + list(int(x) if rng.random() > .5 else -int(x) for x in rng.multinomial(2, [1 / 7] * 7)))
+        if 4 / 17 <= effect < 5 / 17 else (0,) * 8,
+        self_boosts=rng.random() > .5 if 4 / 17 <= effect < 5 / 17 else True,
         heal=float(rng.random()) / 2 if 5 / 17 <= effect < 6 / 17 else 0.,
         recoil=float(rng.random()) / 2 if 6 / 17 <= effect < 7 / 17 else 0.,
         weather_start=Weather(rng.choice(len(Weather) - 1, 1)[0] + 1) if 7 / 17 <= effect < 8 / 17

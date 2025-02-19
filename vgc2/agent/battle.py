@@ -1,11 +1,16 @@
 from itertools import product
+from random import sample
 
 from numpy import argmax
 from numpy.random import choice
 
 from vgc2.agent import BattlePolicy
-from vgc2.battle_engine import State, BattleCommand, calculate_damage, BattleRuleParam
+from vgc2.battle_engine import State, BattleCommand, calculate_damage, BattleRuleParam, BattlingTeam, BattlingPokemon, \
+    BattlingMove, TeamView
+from vgc2.util.forward import copy_state, forward
 
+
+# RandomBattlePolicy
 
 class RandomBattlePolicy(BattlePolicy):
     """
@@ -33,6 +38,8 @@ class RandomBattlePolicy(BattlePolicy):
             cmds += [(action, target)]
         return cmds
 
+
+# GreedyBattlePolicy
 
 def greedy_single_battle_decision(params: BattleRuleParam,
                                   state: State) -> list[BattleCommand]:
@@ -83,6 +90,8 @@ class GreedyBattlePolicy(BattlePolicy):
                 return greedy_double_battle_decision(self.params, state)
 
 
+# TreeSearchBattlePolicy
+
 def select(max_action: int):
     while True:
         try:
@@ -93,6 +102,104 @@ def select(max_action: int):
                 print('Invalid action. Select again.')
         except:
             print('Invalid action. Select again.')
+
+
+def get_actions(team: tuple[BattlingTeam, BattlingTeam]) -> list[list[BattleCommand]]:
+    attackers = team[0].active
+    move_targets = [i for i in range(len(team[1].active))]
+    switch_targets = [i for i, p in enumerate(team[0].reserve) if p.hp > 0]
+    commands = []
+    for attacker in attackers:
+        moves = [i for i, m in enumerate(attacker.battling_moves) if m.pp > 0 and not m.disabled]
+        commands += [list(product(moves, move_targets)) + list(product([-1], switch_targets))]
+    return list(product(*commands))
+
+
+def _set_moves(pokemon: BattlingPokemon,
+               max_moves: int):
+    n_moves = len(pokemon.battling_moves)
+    if n_moves < max_moves:
+        ids = [m.constants.id for m in pokemon.battling_moves]
+        moves = [m for m in pokemon.constants.species.moves if m.id not in ids]
+        pokemon.battling_moves += [BattlingMove(m) for m in sample(moves, max_moves - n_moves)]  # ignoring meta
+
+
+def get_state(state: State,
+              opp_team_view: TeamView,
+              max_moves: int) -> State:
+    new_state = copy_state(state)
+    opp_team = new_state.sides[1].team
+    # randomly assume reserve of opponent
+    n_pokemon = len(opp_team.active + opp_team.reserve)
+    total_pokemon = len(opp_team_view.members)
+    if n_pokemon < total_pokemon:
+        ids = [p.constants.species.id for p in opp_team.active + opp_team.reserve]
+        pokemon = [p for p in opp_team_view.members if p.species.id not in ids]
+        opp_team.reserve += [BattlingPokemon(p) for p in sample(pokemon, total_pokemon - n_pokemon)]
+    # randomly set hidden moves of opponent
+    for p in opp_team.active + opp_team.reserve:
+        _set_moves(p, max_moves)
+    return new_state
+
+
+def eval_state(state: State,
+               depth: int) -> float:
+    my_team = state.sides[0].team
+    my_hp = sum(p.hp / p.constants.stats[0] for p in my_team.active + my_team.reserve)
+    opp_team = state.sides[1].team
+    opp_hp = sum(p.hp / p.constants.stats[0] for p in opp_team.active + opp_team.reserve)
+    return my_hp - 3 * opp_hp - 0.3 * depth
+
+
+class TreeSearchBattlePolicy(BattlePolicy):  # TODO (still unstable against GreedyBattlePolicy)
+
+    def __init__(self,
+                 opp_team: TeamView,
+                 max_team_size: int = 4,
+                 max_moves: int = 4,
+                 max_depth: int = 1,
+                 params: BattleRuleParam = BattleRuleParam()):
+        self.opp_team = opp_team
+        self.max_team_size = max_team_size
+        self.max_moves = max_moves
+        self.max_depth = max_depth
+        self.params = params
+        self.opp_policy = GreedyBattlePolicy(params)
+
+    def eval_action(self,
+                    state: State,
+                    commands: list[BattleCommand],
+                    opp_actions: list[list[BattleCommand]],
+                    depth: int = 0) -> float:
+        action_value = 0.
+        for opp_commands in opp_actions:
+            next_state = copy_state(state)
+            forward(next_state, (commands, opp_commands), self.params)  # assuming determinism
+            if next_state.terminal() or depth >= self.max_depth:
+                action_value += eval_state(next_state, depth)
+            else:
+                my_actions = get_actions((next_state.sides[0].team, next_state.sides[1].team))
+                opp_actions = [
+                    self.opp_policy.decision(State((state.sides[1], state.sides[0])))]  # assume greedy opponent
+                evals = [self.eval_action(next_state, _commands, opp_actions, depth + 1) for _commands in my_actions]
+                action_value += max(evals, default=0.)  # assuming greedy
+        return action_value / max(1., len(opp_actions))
+
+    def decision(self,
+                 state: State) -> list[BattleCommand]:
+        action_eval: dict[tuple[tuple[int, int], ...], float] = {}
+        _state = get_state(state, self.opp_team, self.max_moves)
+        for actions in get_actions((state.sides[0].team, state.sides[1].team)):
+            opp_actions = [
+                self.opp_policy.decision(State((state.sides[1], state.sides[0])))]  # assume greedy opponent
+            value = self.eval_action(_state, actions, opp_actions)
+            keys = tuple(tuple(a) for a in actions)
+            action_eval[keys] = value + action_eval[keys] if keys in action_eval else value
+        if not action_eval:
+            action_eval = {((0, 0), (0, 0)): 0.}
+        print(action_eval)
+        print(max(action_eval, key=action_eval.get, default=0))
+        return list(max(action_eval, key=action_eval.get, default=0))
 
 
 class TerminalBattle(BattlePolicy):

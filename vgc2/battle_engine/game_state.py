@@ -140,7 +140,7 @@ class State:
                 self.trickroom = False
                 self._trickroom_turns = 0
         for side in self.sides:
-            side._on_turn_end()
+            side._on_turn_end(params)
 
     def terminal(self) -> bool:
         return any(s.team.fainted() for s in self.sides)

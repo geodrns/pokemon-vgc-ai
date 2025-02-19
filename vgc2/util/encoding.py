@@ -111,6 +111,8 @@ def encode_move(e: array,
     for j in range(0, ctx.n_boosts):
         e[j + i] = move.boosts[j] / ctx.max_boost
     i += ctx.n_boosts
+    e[i] = 0. if all(b == 0 for b in move.boosts) else (-1. if move.self_boosts else 1.)
+    i += 1
     i += one_hot(e[i:], move.pkm_type, ctx.n_types)
     i += one_hot(e[i:], move.category, ctx.n_category)
     if move.weather_start != Weather.CLEAR:
@@ -223,6 +225,6 @@ def encode_state(e: array,
     if state.field != Terrain.NONE:
         one_hot(e[i:], state.field - 1, ctx.n_terrain)
     i += ctx.n_terrain
-    e[i] += float(state.trickroom)
+    e[i] = float(state.trickroom)
     i += 1
     return i

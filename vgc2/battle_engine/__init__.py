@@ -181,25 +181,27 @@ class BattleEngine:  # TODO Debug mode
                                                self.state.sides[side].team.first_from_reserve())
         elif _move.change_type:
             attacker.types = [attacker.battling_moves[0].constants.pkm_type]
-        elif any(b > 0 for b in _move.boosts):
+        elif _move.self_boosts and any(b != 0 for b in _move.boosts):
             attacker.boosts = [int(clip(_b + b, -6, 6)) for _b, b in zip(attacker.boosts, _move.boosts)]
         elif _move.protect:
             attacker.protect = True
 
     def _perform_target_effects(self,
-                                move: Move,
+                                _move: Move,
                                 side: int,
                                 defender: BattlingPokemon):
         # Pokémon effects
-        if move.status != Status.NONE and defender.status == Status.NONE:
-            defender.status = move.status
+        if _move.status != Status.NONE and defender.status == Status.NONE:
+            defender.status = _move.status
         # Move Effects
-        elif move.disable and not any(
+        elif _move.disable and not any(
                 m.disabled for m in defender.battling_moves) and defender.last_used_move is not None:
             defender.last_used_move.disabled = True
-        elif move.force_switch:
+        elif _move.force_switch:
             self.state.sides[not side].team.switch(self.state.sides[not side].team.get_active_pos(defender),
                                                    self.state.sides[not side].team.first_from_reserve())
+        elif not _move.self_boosts and any(b != 0 for b in _move.boosts):
+            defender.boosts = [int(clip(_b + b, -6, 6)) for _b, b in zip(defender.boosts, _move.boosts)]
 
     def _end_of_turn_state_effects(self):
         all_active = self.state.sides[0].team.active + self.state.sides[1].team.active
