@@ -16,7 +16,7 @@ def trickroom_modifier(params: BattleRuleParam,
 
 
 def boosted_speed(params: BattleRuleParam,
-                  attacker):
+                  attacker: BattlingPokemon):
     return params.BOOST_MULTIPLIER_LOOKUP[attacker.boosts[Stat.SPEED]] * attacker.constants.stats[Stat.SPEED]
 
 

@@ -1,5 +1,88 @@
 from vgc2.battle_engine.modifiers import Stat, Nature
 
+NATURES = {
+    Nature.LONELY: {
+        'plus': Stat.ATTACK,
+        'minus': Stat.DEFENSE
+    },
+    Nature.ADAMANT: {
+        'plus': Stat.ATTACK,
+        'minus': Stat.SPECIAL_ATTACK
+    },
+    Nature.NAUGHTY: {
+        'plus': Stat.ATTACK,
+        'minus': Stat.SPECIAL_DEFENSE
+    },
+    Nature.BRAVE: {
+        'plus': Stat.ATTACK,
+        'minus': Stat.SPEED
+    },
+    Nature.BOLD: {
+        'plus': Stat.DEFENSE,
+        'minus': Stat.ATTACK
+    },
+    Nature.IMPISH: {
+        'plus': Stat.DEFENSE,
+        'minus': Stat.SPECIAL_ATTACK
+    },
+    Nature.LAX: {
+        'plus': Stat.DEFENSE,
+        'minus': Stat.SPECIAL_DEFENSE
+    },
+    Nature.RELAXED: {
+        'plus': Stat.DEFENSE,
+        'minus': Stat.SPEED
+    },
+    Nature.MODEST: {
+        'plus': Stat.SPECIAL_ATTACK,
+        'minus': Stat.ATTACK
+    },
+    Nature.MILD: {
+        'plus': Stat.SPECIAL_ATTACK,
+        'minus': Stat.DEFENSE
+    },
+    Nature.RASH: {
+        'plus': Stat.SPECIAL_ATTACK,
+        'minus': Stat.SPECIAL_DEFENSE
+    },
+    Nature.QUIET: {
+        'plus': Stat.SPECIAL_ATTACK,
+        'minus': Stat.SPEED
+    },
+    Nature.CALM: {
+        'plus': Stat.SPECIAL_DEFENSE,
+        'minus': Stat.ATTACK
+    },
+    Nature.GENTLE: {
+        'plus': Stat.SPECIAL_DEFENSE,
+        'minus': Stat.DEFENSE
+    },
+    Nature.CAREFUL: {
+        'plus': Stat.SPECIAL_DEFENSE,
+        'minus': Stat.SPECIAL_ATTACK
+    },
+    Nature.SASSY: {
+        'plus': Stat.SPECIAL_DEFENSE,
+        'minus': Stat.SPEED
+    },
+    Nature.TIMID: {
+        'plus': Stat.SPEED,
+        'minus': Stat.ATTACK
+    },
+    Nature.HASTY: {
+        'plus': Stat.SPEED,
+        'minus': Stat.DEFENSE
+    },
+    Nature.JOLLY: {
+        'plus': Stat.SPEED,
+        'minus': Stat.SPECIAL_ATTACK
+    },
+    Nature.NAIVE: {
+        'plus': Stat.SPEED,
+        'minus': Stat.SPECIAL_DEFENSE
+    },
+}
+
 
 class BattleRuleParam:
 
@@ -52,88 +135,6 @@ class BattleRuleParam:
             4: 7 / 3,
             5: 8 / 3,
             6: 9 / 3
-        }
-        self.NATURES = {
-            Nature.LONELY: {
-                'plus': Stat.ATTACK,
-                'minus': Stat.DEFENSE
-            },
-            Nature.ADAMANT: {
-                'plus': Stat.ATTACK,
-                'minus': Stat.SPECIAL_ATTACK
-            },
-            Nature.NAUGHTY: {
-                'plus': Stat.ATTACK,
-                'minus': Stat.SPECIAL_DEFENSE
-            },
-            Nature.BRAVE: {
-                'plus': Stat.ATTACK,
-                'minus': Stat.SPEED
-            },
-            Nature.BOLD: {
-                'plus': Stat.DEFENSE,
-                'minus': Stat.ATTACK
-            },
-            Nature.IMPISH: {
-                'plus': Stat.DEFENSE,
-                'minus': Stat.SPECIAL_ATTACK
-            },
-            Nature.LAX: {
-                'plus': Stat.DEFENSE,
-                'minus': Stat.SPECIAL_DEFENSE
-            },
-            Nature.RELAXED: {
-                'plus': Stat.DEFENSE,
-                'minus': Stat.SPEED
-            },
-            Nature.MODEST: {
-                'plus': Stat.SPECIAL_ATTACK,
-                'minus': Stat.ATTACK
-            },
-            Nature.MILD: {
-                'plus': Stat.SPECIAL_ATTACK,
-                'minus': Stat.DEFENSE
-            },
-            Nature.RASH: {
-                'plus': Stat.SPECIAL_ATTACK,
-                'minus': Stat.SPECIAL_DEFENSE
-            },
-            Nature.QUIET: {
-                'plus': Stat.SPECIAL_ATTACK,
-                'minus': Stat.SPEED
-            },
-            Nature.CALM: {
-                'plus': Stat.SPECIAL_DEFENSE,
-                'minus': Stat.ATTACK
-            },
-            Nature.GENTLE: {
-                'plus': Stat.SPECIAL_DEFENSE,
-                'minus': Stat.DEFENSE
-            },
-            Nature.CAREFUL: {
-                'plus': Stat.SPECIAL_DEFENSE,
-                'minus': Stat.SPECIAL_ATTACK
-            },
-            Nature.SASSY: {
-                'plus': Stat.SPECIAL_DEFENSE,
-                'minus': Stat.SPEED
-            },
-            Nature.TIMID: {
-                'plus': Stat.SPEED,
-                'minus': Stat.ATTACK
-            },
-            Nature.HASTY: {
-                'plus': Stat.SPEED,
-                'minus': Stat.DEFENSE
-            },
-            Nature.JOLLY: {
-                'plus': Stat.SPEED,
-                'minus': Stat.SPECIAL_ATTACK
-            },
-            Nature.NAIVE: {
-                'plus': Stat.SPEED,
-                'minus': Stat.SPECIAL_DEFENSE
-            },
         }
         self.TRICKROOM_TURNS = 5
         self.WEATHER_TURNS = 5

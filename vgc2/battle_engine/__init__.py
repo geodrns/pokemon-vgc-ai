@@ -66,7 +66,7 @@ class BattleEngine:  # TODO Debug mode
             if self.state.sides[0].team.fainted() and not self.state.sides[1].team.fainted():
                 self.winning_side = 1
             return
-        self.state._on_turn_end()
+        self.state._on_turn_end(self.params)
 
     def finished(self) -> bool:
         return self.state.terminal()

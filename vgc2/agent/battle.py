@@ -4,7 +4,7 @@ from numpy import argmax
 from numpy.random import choice
 
 from vgc2.agent import BattlePolicy
-from vgc2.battle_engine import State, BattleCommand, calculate_damage
+from vgc2.battle_engine import State, BattleCommand, calculate_damage, BattleRuleParam
 
 
 class RandomBattlePolicy(BattlePolicy):
@@ -34,14 +34,16 @@ class RandomBattlePolicy(BattlePolicy):
         return cmds
 
 
-def greedy_single_battle_decision(state: State) -> list[BattleCommand]:
+def greedy_single_battle_decision(params: BattleRuleParam,
+                                  state: State) -> list[BattleCommand]:
     attacker, defender = state.sides[0].team.active[0], state.sides[1].team.active[0]
-    outcomes = [calculate_damage(0, move.constants, state, attacker, defender)
+    outcomes = [calculate_damage(params, 0, move.constants, state, attacker, defender)
                 if move.pp > 0 and not move.disabled else 0 for move in attacker.battling_moves]
     return [(int(argmax(outcomes)), 0) if outcomes else (0, 0)]
 
 
-def greedy_double_battle_decision(state: State) -> list[BattleCommand]:
+def greedy_double_battle_decision(params: BattleRuleParam,
+                                  state: State) -> list[BattleCommand]:
     attackers, defenders = state.sides[0].team.active, state.sides[1].team.active
     strategies = []
     for sources in product(list(range(len(attackers[0].battling_moves))),
@@ -52,7 +54,7 @@ def greedy_double_battle_decision(state: State) -> list[BattleCommand]:
                 attacker, defender, move = attackers[i], defenders[target], attackers[i].battling_moves[source]
                 if move.pp == 0 or move.disabled:
                     continue
-                new_hp = max(0, hp[target] - calculate_damage(0, move.constants, state, attacker, defender))
+                new_hp = max(0, hp[target] - calculate_damage(params, 0, move.constants, state, attacker, defender))
                 damage += hp[target] - new_hp
                 ko += int(new_hp == 0)
                 hp[target] = new_hp
@@ -68,13 +70,17 @@ class GreedyBattlePolicy(BattlePolicy):
     Greedy strategy that prioritizes KOs and damage output with only one turn lookahead. Performs no switches.
     """
 
+    def __init__(self,
+                 params: BattleRuleParam = BattleRuleParam()):
+        self.params = params
+
     def decision(self, state: State) -> list[BattleCommand]:
         n_active_0, n_active_1 = len(state.sides[0].team.active), len(state.sides[1].team.active)
         match max(n_active_0, n_active_1):
             case 1:
-                return greedy_single_battle_decision(state)
+                return greedy_single_battle_decision(self.params, state)
             case 2:
-                return greedy_double_battle_decision(state)
+                return greedy_double_battle_decision(self.params, state)
 
 
 def select(max_action: int):
