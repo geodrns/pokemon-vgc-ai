@@ -1,4 +1,5 @@
 from itertools import product
+from math import prod
 from random import sample
 
 from numpy import argmax
@@ -92,18 +93,6 @@ class GreedyBattlePolicy(BattlePolicy):
 
 # TreeSearchBattlePolicy
 
-def select(max_action: int):
-    while True:
-        try:
-            act = int(input('Select Action: '))
-            if 0 < act < max_action:
-                return act
-            else:
-                print('Invalid action. Select again.')
-        except:
-            print('Invalid action. Select again.')
-
-
 def get_actions(team: tuple[BattlingTeam, BattlingTeam]) -> list[list[BattleCommand]]:
     attackers = team[0].active
     move_targets = [i for i in range(len(team[1].active))]
@@ -181,7 +170,11 @@ class TreeSearchBattlePolicy(BattlePolicy):  # TODO (still unstable against Gree
                 my_actions = get_actions((next_state.sides[0].team, next_state.sides[1].team))
                 opp_actions = [
                     self.opp_policy.decision(State((state.sides[1], state.sides[0])))]  # assume greedy opponent
-                evals = [self.eval_action(next_state, _commands, opp_actions, depth + 1) for _commands in my_actions]
+                accuracy = [prod([state.sides[0].team.active[i].battling_moves[command[0]].constants.accuracy if
+                                  command[0] >= 0 else 1. for i, command in enumerate(_commands)]) for _commands in
+                            my_actions]
+                evals = [self.eval_action(next_state, _commands, opp_actions, depth + 1) * accuracy[i] for i, _commands
+                         in enumerate(my_actions)]
                 action_value += max(evals, default=0.)  # assuming greedy
         return action_value / max(1., len(opp_actions))
 
@@ -200,6 +193,20 @@ class TreeSearchBattlePolicy(BattlePolicy):  # TODO (still unstable against Gree
         print(action_eval)
         print(max(action_eval, key=action_eval.get, default=0))
         return list(max(action_eval, key=action_eval.get, default=0))
+
+
+# TerminalBattle
+
+def select(max_action: int):
+    while True:
+        try:
+            act = int(input('Select Action: '))
+            if 0 < act < max_action:
+                return act
+            else:
+                print('Invalid action. Select again.')
+        except:
+            print('Invalid action. Select again.')
 
 
 class TerminalBattle(BattlePolicy):

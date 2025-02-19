@@ -6,7 +6,10 @@
 * state_encoding bug fixed
 * BattleEngine can now be parameterized with BattleRuleParam
 * Move's boosts field can either be to self or target with a new self_boosts field
-* Added
+    * changed Move_encoding to reflect this
+* Added TreeSearchBattlePolicy (unstable)
+* BattleEnv completely fixed
+
 ### Version 1.0.3 (February 2025)
 
 * Added Greedy Battle Policy

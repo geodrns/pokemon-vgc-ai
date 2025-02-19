@@ -1,8 +1,8 @@
 from vgc2.agent import BattlePolicy, SelectionPolicy
 from vgc2.battle_engine import BattleEngine, State
+from vgc2.battle_engine.game_state import get_battle_teams
 from vgc2.battle_engine.team import Team
 from vgc2.battle_engine.view import TeamView, StateView
-from vgc2.battle_engine.game_state import get_battle_teams
 from vgc2.competition import CompetitorManager
 from vgc2.util.generator import TeamGenerator, _rng
 
