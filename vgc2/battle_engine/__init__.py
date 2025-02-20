@@ -32,8 +32,8 @@ class BattleEngine:  # TODO Debug mode
                  rng: Generator = _rng):
         self.state = state
         self.params = params
-        self.winning_side: int = -1
         self.rng = rng
+        self.winning_side: int = -1
         self._move_queue: list[tuple[int, BattlingPokemon, BattlingMove, list[BattlingPokemon]]] = []
         self._switch_queue: list[tuple[int, int, int]] = []
         self._set_state_engine()
@@ -182,7 +182,7 @@ class BattleEngine:  # TODO Debug mode
         elif _move.change_type:
             attacker.types = [attacker.battling_moves[0].constants.pkm_type]
         elif _move.self_boosts and any(b != 0 for b in _move.boosts):
-            attacker.boosts = [int(clip(_b + b, -6, 6)) for _b, b in zip(attacker.boosts, _move.boosts)]
+            attacker.boosts = [int(clip(_b + b, a_min=-6, a_max=6)) for _b, b in zip(attacker.boosts, _move.boosts)]
         elif _move.protect:
             attacker.protect = True
 

@@ -36,19 +36,18 @@ class BattleEnv(Env):
                  opponent: BattlePolicy = RandomBattlePolicy(),
                  _encode_state=encode_state,
                  _gen_team: TeamGenerator = gen_team):
-        self.encode_state = _encode_state
-        self.gen_team = gen_team
-        encode_len = obs_encode_len(self.encode_state, n_active, max_team_size, max_pkm_moves)
         self.ctx = ctx
-        self.n_active = n_active
-        self.action_space = MultiDiscrete([max_pkm_moves + 1, max(max_team_size - n_active, n_active)] * n_active,
-                                          start=[-1, 0] * n_active)
-        self.observation_space = Box(-1., 1., (1, encode_len))  # TODO gym define obs limits per dim
-        self.opponent = opponent
         self.n_active = n_active
         self.max_team_size = max_team_size
         self.max_pkm_moves = max_pkm_moves
         self.params = params
+        self.opponent = opponent
+        self.encode_state = _encode_state
+        self.gen_team = gen_team
+        encode_len = obs_encode_len(self.encode_state, n_active, max_team_size, max_pkm_moves)
+        self.action_space = MultiDiscrete([max_pkm_moves + 1, max(max_team_size - n_active, n_active)] * n_active,
+                                          start=[-1, 0] * n_active)
+        self.observation_space = Box(-1., 1., (1, encode_len))  # TODO gym define obs limits per dim
         self.engine, self.state_view = self._get_engine_view()
         self.encode_buffer = zeros(encode_len)
 

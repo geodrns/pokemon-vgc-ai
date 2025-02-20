@@ -1,5 +1,4 @@
 from itertools import product
-from math import prod
 from random import sample
 
 from numpy import argmax
@@ -104,8 +103,8 @@ def get_actions(team: tuple[BattlingTeam, BattlingTeam]) -> list[list[BattleComm
     return list(product(*commands))
 
 
-def _set_moves(pokemon: BattlingPokemon,
-               max_moves: int):
+def _deduce_moves(pokemon: BattlingPokemon,
+                  max_moves: int):
     n_moves = len(pokemon.battling_moves)
     if n_moves < max_moves:
         ids = [m.constants.id for m in pokemon.battling_moves]
@@ -113,31 +112,30 @@ def _set_moves(pokemon: BattlingPokemon,
         pokemon.battling_moves += [BattlingMove(m) for m in sample(moves, max_moves - n_moves)]  # ignoring meta
 
 
-def get_state(state: State,
-              opp_team_view: TeamView,
-              max_moves: int) -> State:
-    new_state = copy_state(state)
-    opp_team = new_state.sides[1].team
+def deduce_state(state: State,
+                 opp_team_view: TeamView,
+                 max_moves: int) -> State:
+    _state = copy_state(state)
+    opp_team = _state.sides[1].team
     # randomly assume reserve of opponent
-    n_pokemon = len(opp_team.active + opp_team.reserve)
+    current_pokemon = len(opp_team.active + opp_team.reserve)
     total_pokemon = len(opp_team_view.members)
-    if n_pokemon < total_pokemon:
+    if current_pokemon < total_pokemon:
         ids = [p.constants.species.id for p in opp_team.active + opp_team.reserve]
         pokemon = [p for p in opp_team_view.members if p.species.id not in ids]
-        opp_team.reserve += [BattlingPokemon(p) for p in sample(pokemon, total_pokemon - n_pokemon)]
+        opp_team.reserve += [BattlingPokemon(p) for p in sample(pokemon, total_pokemon - current_pokemon)]
     # randomly set hidden moves of opponent
     for p in opp_team.active + opp_team.reserve:
-        _set_moves(p, max_moves)
-    return new_state
+        _deduce_moves(p, max_moves)
+    return _state
 
 
-def eval_state(state: State,
-               depth: int) -> float:
+def eval_state(state: State) -> float:
     my_team = state.sides[0].team
     my_hp = sum(p.hp / p.constants.stats[0] for p in my_team.active + my_team.reserve)
     opp_team = state.sides[1].team
     opp_hp = sum(p.hp / p.constants.stats[0] for p in opp_team.active + opp_team.reserve)
-    return my_hp - 3 * opp_hp - 0.3 * depth
+    return my_hp - 3 * opp_hp + 9.
 
 
 class TreeSearchBattlePolicy(BattlePolicy):  # TODO (still unstable against GreedyBattlePolicy)
@@ -157,41 +155,32 @@ class TreeSearchBattlePolicy(BattlePolicy):  # TODO (still unstable against Gree
 
     def eval_action(self,
                     state: State,
-                    commands: list[BattleCommand],
-                    opp_actions: list[list[BattleCommand]],
+                    action: list[BattleCommand],
+                    opp_action: list[BattleCommand],
                     depth: int = 0) -> float:
-        action_value = 0.
-        for opp_commands in opp_actions:
-            next_state = copy_state(state)
-            forward(next_state, (commands, opp_commands), self.params)  # assuming determinism
-            if next_state.terminal() or depth >= self.max_depth:
-                action_value += eval_state(next_state, depth)
-            else:
-                my_actions = get_actions((next_state.sides[0].team, next_state.sides[1].team))
-                opp_actions = [
-                    self.opp_policy.decision(State((state.sides[1], state.sides[0])))]  # assume greedy opponent
-                accuracy = [prod([state.sides[0].team.active[i].battling_moves[command[0]].constants.accuracy if
-                                  command[0] >= 0 else 1. for i, command in enumerate(_commands)]) for _commands in
-                            my_actions]
-                evals = [self.eval_action(next_state, _commands, opp_actions, depth + 1) * accuracy[i] for i, _commands
-                         in enumerate(my_actions)]
-                action_value += max(evals, default=0.)  # assuming greedy
-        return action_value / max(1., len(opp_actions))
+        _state = copy_state(state)
+        forward(_state, (action, opp_action), self.params)  # assuming determinism
+        if _state.terminal() or depth >= self.max_depth:
+            return eval_state(_state)
+        else:
+            actions = get_actions((_state.sides[0].team, _state.sides[1].team))
+            opp_action = self.opp_policy.decision(State((_state.sides[1], _state.sides[0])))  # assume greedy and single decision
+            evals = [self.eval_action(_state, action, opp_action, depth + 1) for action in actions]
+            return 0.975 * max(evals, default=0.)  # assuming greedy
 
     def decision(self,
                  state: State) -> list[BattleCommand]:
         action_eval: dict[tuple[tuple[int, int], ...], float] = {}
-        _state = get_state(state, self.opp_team, self.max_moves)
-        for actions in get_actions((state.sides[0].team, state.sides[1].team)):
-            opp_actions = [
-                self.opp_policy.decision(State((state.sides[1], state.sides[0])))]  # assume greedy opponent
-            value = self.eval_action(_state, actions, opp_actions)
-            keys = tuple(tuple(a) for a in actions)
-            action_eval[keys] = value + action_eval[keys] if keys in action_eval else value
+        _state = deduce_state(state, self.opp_team, self.max_moves)  # assume only one possible state
+        for action in get_actions((_state.sides[0].team, _state.sides[1].team)):
+            opp_action = self.opp_policy.decision(State((_state.sides[1], _state.sides[0])))  # assume greedy and single decision
+            value = self.eval_action(_state, action, opp_action, 0)
+            key = tuple(tuple(a) for a in action)
+            action_eval[key] = value
         if not action_eval:
             action_eval = {((0, 0), (0, 0)): 0.}
         print(action_eval)
-        print(max(action_eval, key=action_eval.get, default=0))
+        print(list(max(action_eval, key=action_eval.get, default=0)))
         return list(max(action_eval, key=action_eval.get, default=0))
 
 

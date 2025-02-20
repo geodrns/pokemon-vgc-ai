@@ -9,6 +9,7 @@
     * changed Move_encoding to reflect this
 * Added TreeSearchBattlePolicy (unstable)
 * BattleEnv completely fixed
+* Clip error fixed
 
 ### Version 1.0.3 (February 2025)
 
