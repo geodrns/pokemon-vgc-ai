@@ -8,6 +8,7 @@ from vgc2.agent import BattlePolicy
 from vgc2.battle_engine import State, BattleCommand, calculate_damage, BattleRuleParam, BattlingTeam, BattlingPokemon, \
     BattlingMove, TeamView
 from vgc2.util.forward import copy_state, forward
+from vgc2.util.rng import ZERO_RNG
 
 
 # RandomBattlePolicy
@@ -159,7 +160,8 @@ class TreeSearchBattlePolicy(BattlePolicy):  # TODO (still unstable against Gree
                     opp_action: list[BattleCommand],
                     depth: int = 0) -> float:
         _state = copy_state(state)
-        forward(_state, (action, opp_action), self.params)  # assuming determinism
+        forward(_state, (action, opp_action), self.params,
+                acc_rng=(ZERO_RNG, ZERO_RNG), eff_rng=(ZERO_RNG, ZERO_RNG), sta_rng=(ZERO_RNG, ZERO_RNG))  # assuming determinism
         if _state.terminal() or depth >= self.max_depth:
             return eval_state(_state)
         else:

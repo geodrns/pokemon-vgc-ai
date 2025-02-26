@@ -25,11 +25,13 @@ def gen_move(rng: Generator = _rng) -> Move:
     category = Category(rng.choice(len(Category), 1, False))
     base_power = 0 if category == Category.OTHER else int(clip(rng.normal(100, 40, 1)[0], 0, 140))
     effect_prob = 1. - base_power / 140
+    # effect_prob = 1. if 1. - base_power / 140 > 0. else 0.
     effect = float(rng.random()) if effect_prob > 0. else -1
     return Move(
         pkm_type=Type(rng.choice(len(Type) - 1, 1, False)),  # no typeless
         base_power=base_power,
         accuracy=1. if rng.random() < .5 else float(rng.uniform(.75, 1.)),
+        # accuracy=1.,
         max_pp=int(clip(rng.normal(10, 2, 1)[0], 5, 20)),
         category=category,
         priority=1 if rng.random() < .3 else 0,

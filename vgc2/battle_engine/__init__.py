@@ -24,15 +24,19 @@ class BattleEngine:  # TODO Debug mode
     class TeamFainted(Exception):
         pass
 
-    __slots__ = ('state', 'params', 'winning_side', 'rng', '_move_queue', '_switch_queue')
+    __slots__ = ('state', 'params', 'winning_side', 'acc_rng', 'eff_rng', 'sta_rng', '_move_queue', '_switch_queue')
 
     def __init__(self,
                  state: State,
                  params: BattleRuleParam = BattleRuleParam(),
-                 rng: Generator = _rng):
+                 acc_rng: tuple[Generator, Generator] = (_rng, _rng),
+                 eff_rng: tuple[Generator, Generator] = (_rng, _rng),
+                 sta_rng: tuple[Generator, Generator] = (_rng, _rng)):
         self.state = state
         self.params = params
-        self.rng = rng
+        self.acc_rng = acc_rng
+        self.eff_rng = eff_rng
+        self.sta_rng = sta_rng
         self.winning_side: int = -1
         self._move_queue: list[tuple[int, BattlingPokemon, BattlingMove, list[BattlingPokemon]]] = []
         self._switch_queue: list[tuple[int, int, int]] = []
@@ -99,7 +103,7 @@ class BattleEngine:  # TODO Debug mode
                 self._move_queue.pop(max(enumerate([priority_calculator(self.params, a[2].constants, a[1], self.state)
                                                     for a in self._move_queue]), key=lambda x: x[1])[0]))
             # before each move check if Pokémon can attack due status or have its status removed
-            if self._perform_status(attacker, _move.constants):
+            if self._perform_status(attacker, side, _move.constants):
                 continue
             if all(m.pp == 0 for m in attacker.battling_moves):
                 _move = struggle
@@ -113,7 +117,7 @@ class BattleEngine:  # TODO Debug mode
                 if defender.protect:
                     protected = True
                     continue
-                if self.rng.random() >= move_hit_threshold(self.params, _move.constants, attacker, defender):
+                if self.acc_rng[side].random() >= move_hit_threshold(self.params, _move.constants, attacker, defender):
                     continue
                 failed = False
                 # perform next move, damaged is applied first and then effects, unless opponent protected itself
@@ -121,20 +125,21 @@ class BattleEngine:  # TODO Debug mode
                 defender.deal_damage(damage)
                 if defender.fainted():
                     continue
-                if self.rng.random() < _move.constants.effect_prob:
+                if self.eff_rng[side].random() < _move.constants.effect_prob:
                     self._perform_target_effects(_move.constants, side, defender)
                 # a fire move will thaw a frozen target
                 if _move.constants.pkm_type == Type.FIRE and damage > 0 and defender.status == Status.FROZEN:
                     defender.status = Status.NONE
-            if not protected and not failed and self.rng.random() < _move.constants.effect_prob:
+            if not protected and not failed and self.eff_rng[side].random() < _move.constants.effect_prob:
                 self._perform_single_effects(_move.constants, side, attacker, damage)
 
     def _perform_status(self,
                         attacker: BattlingPokemon,
+                        side: int,
                         _move: Move) -> bool:
         match attacker.status:
             case Status.PARALYZED:
-                if self.rng.random() < paralysis_threshold(self.params):
+                if self.sta_rng[side].random() < paralysis_threshold(self.params):
                     return True
             case Status.SLEEP:
                 if attacker._wake_turns == 0:
@@ -142,7 +147,7 @@ class BattleEngine:  # TODO Debug mode
                 else:
                     return True
             case Status.FROZEN:
-                if _move.pkm_type == Type.FIRE or self.rng.random() < thaw_threshold(self.params):
+                if _move.pkm_type == Type.FIRE or self.sta_rng[side].random() < thaw_threshold(self.params):
                     attacker.status = Status.NONE
                 else:
                     return True

@@ -64,6 +64,8 @@ def copy_state(state: State) -> State:
 def forward(state: State,
             commands: FullCommand,
             params: BattleRuleParam = BattleRuleParam(),
-            rng: Generator = _rng):
-    new_engine = BattleEngine(state, params, rng)
+            acc_rng: tuple[Generator, Generator] = (_rng, _rng),
+            eff_rng: tuple[Generator, Generator] = (_rng, _rng),
+            sta_rng: tuple[Generator, Generator] = (_rng, _rng)):
+    new_engine = BattleEngine(state, params, acc_rng, eff_rng, sta_rng)
     new_engine.run_turn(commands)
