@@ -1,4 +1,5 @@
 from itertools import product
+from math import prod
 from random import sample
 
 from numpy import argmax
@@ -136,7 +137,7 @@ def eval_state(state: State) -> float:
     my_hp = sum(p.hp / p.constants.stats[0] for p in my_team.active + my_team.reserve)
     opp_team = state.sides[1].team
     opp_hp = sum(p.hp / p.constants.stats[0] for p in opp_team.active + opp_team.reserve)
-    return my_hp - 3 * opp_hp + 9.
+    return my_hp - 3 * opp_hp + 3. * (len(opp_team.active) + len(opp_team.reserve))
 
 
 class TreeSearchBattlePolicy(BattlePolicy):
@@ -166,22 +167,26 @@ class TreeSearchBattlePolicy(BattlePolicy):
         action = list(action)
         states: list[tuple[State, float]] = []
         combs = [[] for _ in range(len(action) + len(opp_action))]
-        for i, _a in enumerate(action + opp_action):
-            if _a[0] == -1:
-                prob = 1.
-            else:
-                prob = state.sides[i].team.active[0].battling_moves[_a[1]].constants.accuracy
-            if prob < .9:
-                combs[i] += [(i, ZERO_RNG, prob), (i, ONE_RNG, 1. - prob)]
-            else:
-                combs[i] += [(i, ZERO_RNG, prob)]
-        for x in product(*combs):
-            prob = x[0][2] * x[1][2]
+        i = 0
+        # iterate over all possible outcomes, setting fixed RNG and respective probabilities
+        for side, _a in enumerate([list(enumerate(action)), list(enumerate(opp_action))]):
+            for pos, a in _a:
+                if a[0] == -1:
+                    prob = 1.
+                else:
+                    prob = state.sides[side].team.active[pos].battling_moves[a[1]].constants.accuracy
+                if prob < .9:
+                    combs[i] += [(side, pos, ZERO_RNG, prob), (side, pos, ONE_RNG, 1. - prob)]
+                else:
+                    combs[i] += [(side, pos, ZERO_RNG, prob)]
+                i += 1
+        for comb in product(*combs):
+            prob = prod([e[3] for e in comb])
+            acc_rng = [[], []]
+            for e in comb:
+                acc_rng[e[0]] += [e[2]]
             _state = copy_state(state)
-            forward(_state, (action, opp_action), self.params, acc_rng=(x[0][1], x[1][1]),
-                    #eff_rng=(ZERO_RNG, ONE_RNG),
-                    #sta_rng=(ONE_RNG, ONE_RNG)
-                    )
+            forward(_state, (action, opp_action), self.params, acc_rng=(tuple(acc_rng[0]), tuple(acc_rng[1])))
             states += [(_state, prob)]
         return states
 
@@ -190,12 +195,15 @@ class TreeSearchBattlePolicy(BattlePolicy):
                     action: list[BattleCommand],
                     opp_action: list[BattleCommand],
                     depth: int = 0) -> float:
+        # predict possible states and probabilities after a turn passes
         states = self.get_states(state, action, opp_action)
         val = 0.
         weight = 0.
         for _state, prob in states:
+            # if terminal or depth depleted we add the estimated state value
             if _state.terminal() or depth >= self.max_depth:
                 val += prob * eval_state(_state)
+            # otherwise lookahead one more turn
             else:
                 actions = get_actions((_state.sides[0].team, _state.sides[1].team))
                 opp_action = self.opp_policy.decision(State((_state.sides[1], _state.sides[0])))  # assume greedy and single decision
@@ -207,16 +215,20 @@ class TreeSearchBattlePolicy(BattlePolicy):
     def decision(self,
                  state: State) -> list[BattleCommand]:
         action_eval: dict[tuple[tuple[int, int], ...], float] = {}
-        _state = deduce_state(state, self.opp_team, self.max_moves)  # assume only one possible state
+        # deduce initial state
+        _state = deduce_state(state, self.opp_team, self.max_moves)
+        # iterate over all our possible actions
         for action in get_actions((_state.sides[0].team, _state.sides[1].team)):
-            opp_action = self.opp_policy.decision(State((_state.sides[1], _state.sides[0])))  # assume greedy and single decision
+            # assume a single and greedy decision from opponent
+            opp_action = self.opp_policy.decision(State((_state.sides[1], _state.sides[0])))
             value = self.eval_action(_state, action, opp_action, 0)
             key = tuple(tuple(a) for a in action)
             action_eval[key] = value
         if not action_eval:
             action_eval = {((0, 0), (0, 0)): 0.}
-        print(action_eval)
-        print(list(max(action_eval, key=action_eval.get, default=0)))
+        # print(action_eval)
+        # print(list(max(action_eval, key=action_eval.get, default=0)))
+        # return action that maximizes value
         return list(max(action_eval, key=action_eval.get, default=0))
 
 

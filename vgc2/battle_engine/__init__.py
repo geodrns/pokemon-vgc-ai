@@ -16,8 +16,8 @@ from vgc2.battle_engine.view import StateView, TeamView
 BattleCommand = tuple[int, int]  # action, target
 FullCommand = tuple[list[BattleCommand], list[BattleCommand]]
 
-_rng = default_rng()
-struggle = BattlingMove(Move(Type.TYPELESS, 50, 1., 0, Category.PHYSICAL, recoil=.5))
+_RNG = default_rng()
+STRUGGLE = BattlingMove(Move(Type.TYPELESS, 50, 1., 0, Category.PHYSICAL, recoil=.5))
 
 
 class BattleEngine:  # TODO Debug mode
@@ -29,9 +29,9 @@ class BattleEngine:  # TODO Debug mode
     def __init__(self,
                  state: State,
                  params: BattleRuleParam = BattleRuleParam(),
-                 acc_rng: tuple[Generator, Generator] = (_rng, _rng),
-                 eff_rng: tuple[Generator, Generator] = (_rng, _rng),
-                 sta_rng: tuple[Generator, Generator] = (_rng, _rng)):
+                 acc_rng: tuple[tuple[Generator, ...], tuple[Generator, ...]] = ((_RNG, _RNG), (_RNG, _RNG)),
+                 eff_rng: tuple[tuple[Generator, ...], tuple[Generator, ...]] = ((_RNG, _RNG), (_RNG, _RNG)),
+                 sta_rng: tuple[tuple[Generator, ...], tuple[Generator, ...]] = ((_RNG, _RNG), (_RNG, _RNG))):
         self.state = state
         self.params = params
         self.acc_rng = acc_rng
@@ -103,21 +103,23 @@ class BattleEngine:  # TODO Debug mode
                 self._move_queue.pop(max(enumerate([priority_calculator(self.params, a[2].constants, a[1], self.state)
                                                     for a in self._move_queue]), key=lambda x: x[1])[0]))
             # before each move check if Pokémon can attack due status or have its status removed
-            if self._perform_status(attacker, side, _move.constants):
+            pos = self.state.sides[side].team.get_active_pos(attacker)
+            if self._perform_status(attacker, side, pos, _move.constants):
                 continue
             if all(m.pp == 0 for m in attacker.battling_moves):
-                _move = struggle
+                _move = STRUGGLE
             elif _move.disabled or _move.pp == 0:
                 _move = next(m for m in attacker.battling_moves if m.pp > 0 and not m.disabled)
             damage, protected, failed = 0, False, True
-            if _move != struggle:
+            if _move != STRUGGLE:
                 _move.pp = max(0, _move.pp - 1)
                 attacker.on_move_used(_move)
             for defender in defenders:
                 if defender.protect:
                     protected = True
                     continue
-                if self.acc_rng[side].random() >= move_hit_threshold(self.params, _move.constants, attacker, defender):
+                if (self.acc_rng[side][pos].random() >=
+                        move_hit_threshold(self.params, _move.constants, attacker, defender)):
                     continue
                 failed = False
                 # perform next move, damaged is applied first and then effects, unless opponent protected itself
@@ -125,21 +127,22 @@ class BattleEngine:  # TODO Debug mode
                 defender.deal_damage(damage)
                 if defender.fainted():
                     continue
-                if self.eff_rng[side].random() < _move.constants.effect_prob:
+                if self.eff_rng[side][pos].random() < _move.constants.effect_prob:
                     self._perform_target_effects(_move.constants, side, defender)
                 # a fire move will thaw a frozen target
                 if _move.constants.pkm_type == Type.FIRE and damage > 0 and defender.status == Status.FROZEN:
                     defender.status = Status.NONE
-            if not protected and not failed and self.eff_rng[side].random() < _move.constants.effect_prob:
+            if not protected and not failed and self.eff_rng[side][pos].random() < _move.constants.effect_prob:
                 self._perform_single_effects(_move.constants, side, attacker, damage)
 
     def _perform_status(self,
                         attacker: BattlingPokemon,
                         side: int,
+                        pos: int,
                         _move: Move) -> bool:
         match attacker.status:
             case Status.PARALYZED:
-                if self.sta_rng[side].random() < paralysis_threshold(self.params):
+                if self.sta_rng[side][pos].random() < paralysis_threshold(self.params):
                     return True
             case Status.SLEEP:
                 if attacker._wake_turns == 0:
@@ -147,7 +150,7 @@ class BattleEngine:  # TODO Debug mode
                 else:
                     return True
             case Status.FROZEN:
-                if _move.pkm_type == Type.FIRE or self.sta_rng[side].random() < thaw_threshold(self.params):
+                if _move.pkm_type == Type.FIRE or self.sta_rng[side][pos].random() < thaw_threshold(self.params):
                     attacker.status = Status.NONE
                 else:
                     return True

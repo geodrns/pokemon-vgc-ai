@@ -18,10 +18,10 @@ PokemonGenerator = Callable[[PokemonSpecies, int, Generator], Pokemon]
 RosterGenerator = Callable[[int, MoveSet, int, Generator, PokemonSpeciesGenerator], Roster]
 TeamGenerator = Callable[[int, int, Generator, MoveSetGenerator, PokemonSpeciesGenerator, PokemonGenerator], Team]
 
-_rng = default_rng()
+_RNG = default_rng()
 
 
-def gen_move(rng: Generator = _rng) -> Move:
+def gen_move(rng: Generator = _RNG) -> Move:
     category = Category(rng.choice(len(Category), 1, False))
     base_power = 0 if category == Category.OTHER else int(clip(rng.normal(100, 40, 1)[0], 0, 140))
     effect_prob = 1. - base_power / 140
@@ -58,7 +58,7 @@ def gen_move(rng: Generator = _rng) -> Move:
 
 
 def gen_move_set(n: int,
-                 rng: Generator = _rng,
+                 rng: Generator = _RNG,
                  _gen_move: MoveGenerator = gen_move) -> MoveSet:
     return [_gen_move(rng) for _ in range(n)]
 
@@ -70,7 +70,7 @@ def gen_move_subset(n: int,
 
 def gen_pkm_species(moves: MoveSet,
                     n_moves: int = 4,
-                    rng: Generator = _rng) -> PokemonSpecies:
+                    rng: Generator = _RNG) -> PokemonSpecies:
     n_types = 1 if rng.random() < 0.5 else 2
     return PokemonSpecies(
         base_stats=(
@@ -87,14 +87,14 @@ def gen_pkm_species(moves: MoveSet,
 def gen_pkm_roster(n: int,
                    moves: MoveSet,
                    n_moves: int = 4,
-                   rng: Generator = _rng,
+                   rng: Generator = _RNG,
                    _gen_pkm_species: PokemonSpeciesGenerator = gen_pkm_species) -> Roster:
     return [_gen_pkm_species(moves, n_moves, rng) for _ in range(n)]
 
 
 def gen_pkm(species: PokemonSpecies,
             max_moves: int = 4,
-            rng: Generator = _rng) -> Pokemon:
+            rng: Generator = _RNG) -> Pokemon:
     n_moves = len(species.moves)
     return Pokemon(
         species=species,
@@ -107,7 +107,7 @@ def gen_pkm(species: PokemonSpecies,
 
 def gen_team(n: int,
              n_moves: int,
-             rng: Generator = _rng,
+             rng: Generator = _RNG,
              _gen_move_set: MoveSetGenerator = gen_move_set,
              _gen_pkm_species: PokemonSpeciesGenerator = gen_pkm_species,
              _gen_pkm: PokemonGenerator = gen_pkm) -> Team:
@@ -117,6 +117,6 @@ def gen_team(n: int,
 def gen_team_from_roster(roster: Roster,
                          n: int,
                          n_moves: int,
-                         rng: Generator = _rng,
+                         rng: Generator = _RNG,
                          _gen_pkm: PokemonGenerator = gen_pkm) -> Team:
     return Team([_gen_pkm(roster[i], n_moves, rng) for i in rng.choice(len(roster), n)])
