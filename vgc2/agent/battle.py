@@ -8,7 +8,7 @@ from vgc2.agent import BattlePolicy
 from vgc2.battle_engine import State, BattleCommand, calculate_damage, BattleRuleParam, BattlingTeam, BattlingPokemon, \
     BattlingMove, TeamView
 from vgc2.util.forward import copy_state, forward
-from vgc2.util.rng import ZERO_RNG
+from vgc2.util.rng import ZERO_RNG, ONE_RNG
 
 
 # RandomBattlePolicy
@@ -139,7 +139,12 @@ def eval_state(state: State) -> float:
     return my_hp - 3 * opp_hp + 9.
 
 
-class TreeSearchBattlePolicy(BattlePolicy):  # TODO (still unstable against GreedyBattlePolicy)
+class TreeSearchBattlePolicy(BattlePolicy):
+    """
+    Look ahead strategy that can takes into account multiple actions from our side, and the possibility of multiple
+    random scenarios. However, assumes a GreedyBattlePolicy as the opponent, so it only considers one possible action
+    from the opponent and only branches the accuracy of moves.
+    """
 
     def __init__(self,
                  opp_team: TeamView,
@@ -154,21 +159,50 @@ class TreeSearchBattlePolicy(BattlePolicy):  # TODO (still unstable against Gree
         self.params = params
         self.opp_policy = GreedyBattlePolicy(params)
 
+    def get_states(self,
+                   state: State,
+                   action: list[BattleCommand],
+                   opp_action: list[BattleCommand]) -> list[tuple[State, float]]:
+        action = list(action)
+        states: list[tuple[State, float]] = []
+        combs = [[] for _ in range(len(action) + len(opp_action))]
+        for i, _a in enumerate(action + opp_action):
+            if _a[0] == -1:
+                prob = 1.
+            else:
+                prob = state.sides[i].team.active[0].battling_moves[_a[1]].constants.accuracy
+            if prob < .9:
+                combs[i] += [(i, ZERO_RNG, prob), (i, ONE_RNG, 1. - prob)]
+            else:
+                combs[i] += [(i, ZERO_RNG, prob)]
+        for x in product(*combs):
+            prob = x[0][2] * x[1][2]
+            _state = copy_state(state)
+            forward(_state, (action, opp_action), self.params, acc_rng=(x[0][1], x[1][1]),
+                    #eff_rng=(ZERO_RNG, ONE_RNG),
+                    #sta_rng=(ONE_RNG, ONE_RNG)
+                    )
+            states += [(_state, prob)]
+        return states
+
     def eval_action(self,
                     state: State,
                     action: list[BattleCommand],
                     opp_action: list[BattleCommand],
                     depth: int = 0) -> float:
-        _state = copy_state(state)
-        forward(_state, (action, opp_action), self.params,
-                acc_rng=(ZERO_RNG, ZERO_RNG), eff_rng=(ZERO_RNG, ZERO_RNG), sta_rng=(ZERO_RNG, ZERO_RNG))  # assuming determinism
-        if _state.terminal() or depth >= self.max_depth:
-            return eval_state(_state)
-        else:
-            actions = get_actions((_state.sides[0].team, _state.sides[1].team))
-            opp_action = self.opp_policy.decision(State((_state.sides[1], _state.sides[0])))  # assume greedy and single decision
-            evals = [self.eval_action(_state, action, opp_action, depth + 1) for action in actions]
-            return 0.975 * max(evals, default=0.)  # assuming greedy
+        states = self.get_states(state, action, opp_action)
+        val = 0.
+        weight = 0.
+        for _state, prob in states:
+            if _state.terminal() or depth >= self.max_depth:
+                val += prob * eval_state(_state)
+            else:
+                actions = get_actions((_state.sides[0].team, _state.sides[1].team))
+                opp_action = self.opp_policy.decision(State((_state.sides[1], _state.sides[0])))  # assume greedy and single decision
+                evals = [self.eval_action(_state, action, opp_action, depth + 1) for action in actions]
+                val += prob * max(evals, default=0.)  # assuming greedy
+            weight += prob
+        return 0.975 * val / weight
 
     def decision(self,
                  state: State) -> list[BattleCommand]:

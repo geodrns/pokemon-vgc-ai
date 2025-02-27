@@ -10,6 +10,9 @@ class DeterministicGenerator(Generator):
         if self.config_value >= 1:
             self.config_value = 1 - np.finfo(float).eps
 
+    def __str__(self):
+        return "DeterministicGenerator(" + str(self.config_value) + ")"
+
     def random(self, size=None, dtype=float, out=None):
         result = full(size, self.config_value, dtype=dtype)
         if out is not None:
