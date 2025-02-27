@@ -1,10 +1,10 @@
 from vgc2.agent import BattlePolicy, SelectionPolicy
 from vgc2.battle_engine import BattleEngine, State
+from vgc2.battle_engine.game_state import get_battle_teams
 from vgc2.battle_engine.team import Team
 from vgc2.battle_engine.view import TeamView, StateView
-from vgc2.battle_engine.game_state import get_battle_teams
 from vgc2.competition import CompetitorManager
-from vgc2.util.generator import TeamGenerator, _rng
+from vgc2.util.generator import TeamGenerator, _RNG
 
 
 def subteam(team: Team,
@@ -79,8 +79,8 @@ class Match:
         tie = True
         runs = 0
         while tie or runs < self.n_battles:
-            base_team = (self.gen(self.max_team_size, self.max_pkm_moves, _rng),
-                         self.gen(self.max_team_size, self.max_pkm_moves, _rng))
+            base_team = (self.gen(self.max_team_size, self.max_pkm_moves, _RNG),
+                         self.gen(self.max_team_size, self.max_pkm_moves, _RNG))
             label_teams(base_team)
             base_view = TeamView(base_team[0]), TeamView(base_team[1])
             self._run_once(selector, base_team, base_view, agent)

@@ -1,6 +1,7 @@
 from numpy.random import Generator
 
-from vgc2.battle_engine import State, BattleEngine, Side, BattlingTeam, BattlingPokemon, BattlingMove, FullCommand, _rng
+from vgc2.battle_engine import State, BattleEngine, Side, BattlingTeam, BattlingPokemon, BattlingMove, FullCommand, \
+    _RNG, BattleRuleParam
 from vgc2.battle_engine.game_state import SideConditions
 
 
@@ -62,6 +63,9 @@ def copy_state(state: State) -> State:
 
 def forward(state: State,
             commands: FullCommand,
-            rng: Generator = _rng):
-    new_engine = BattleEngine(state, rng)
+            params: BattleRuleParam = BattleRuleParam(),
+            acc_rng: tuple[tuple[Generator, ...], tuple[Generator, ...]] = ((_RNG, _RNG), (_RNG, _RNG)),
+            eff_rng: tuple[tuple[Generator, ...], tuple[Generator, ...]] = ((_RNG, _RNG), (_RNG, _RNG)),
+            sta_rng: tuple[tuple[Generator, ...], tuple[Generator, ...]] = ((_RNG, _RNG), (_RNG, _RNG))):
+    new_engine = BattleEngine(state, params, acc_rng, eff_rng, sta_rng)
     new_engine.run_turn(commands)

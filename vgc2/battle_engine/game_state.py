@@ -1,5 +1,4 @@
-from vgc2.battle_engine.constants import WEATHER_TURNS, TERRAIN_TURNS, TRICKROOM_TURNS, REFLECT_TURNS, \
-    LIGHTSCREEN_TURNS, TAILWIND_TURNS
+from vgc2.battle_engine import BattleRuleParam
 from vgc2.battle_engine.modifiers import Weather, Terrain
 from vgc2.battle_engine.pokemon import BattlingPokemon
 from vgc2.battle_engine.team import BattlingTeam, Team
@@ -36,20 +35,21 @@ class SideConditions:
         self.stealth_rock = False
         self.poison_spikes = False
 
-    def _on_turn_end(self):
+    def _on_turn_end(self,
+                     params: BattleRuleParam):
         if self.reflect:
             self._reflect_turns += 1
-            if self._reflect_turns >= REFLECT_TURNS:
+            if self._reflect_turns >= params.REFLECT_TURNS:
                 self.reflect = False
                 self._reflect_turns = 0
         if self.lightscreen:
             self._lightscreen_turns += 1
-            if self._lightscreen_turns >= LIGHTSCREEN_TURNS:
+            if self._lightscreen_turns >= params.LIGHTSCREEN_TURNS:
                 self.lightscreen = False
                 self._lightscreen_turns = 0
         if self.tailwind:
             self._tailwind_turns += 1
-            if self._tailwind_turns >= TAILWIND_TURNS:
+            if self._tailwind_turns >= params.TAILWIND_TURNS:
                 self.tailwind = False
                 self._tailwind_turns = 0
 
@@ -78,8 +78,9 @@ class Side:
             self.team.reset()
         self.conditions.reset()
 
-    def _on_turn_end(self):
-        self.conditions._on_turn_end()
+    def _on_turn_end(self,
+                     params: BattleRuleParam):
+        self.conditions._on_turn_end(params)
         self.team._on_turn_end()
 
 
@@ -118,27 +119,28 @@ class State:
         self.trickroom = False
         self._trickroom_turns = 0
 
-    def _on_turn_end(self):
+    def _on_turn_end(self,
+                     params: BattleRuleParam):
         # weather advance
         if self.weather != Weather.CLEAR:
             self._weather_turns += 1
-            if self._weather_turns >= WEATHER_TURNS:
+            if self._weather_turns >= params.WEATHER_TURNS:
                 self._weather_turns = 0
                 self.weather = Weather.CLEAR
         # terrain advance
         if self.field != Terrain.NONE:
             self._field_turns += 1
-            if self._field_turns >= TERRAIN_TURNS:
+            if self._field_turns >= params.TERRAIN_TURNS:
                 self._field_turns = 0
                 self.field = Terrain.NONE
         # trickroom advance
         if self.trickroom:
             self._trickroom_turns += 1
-            if self._trickroom_turns >= TRICKROOM_TURNS:
+            if self._trickroom_turns >= params.TRICKROOM_TURNS:
                 self.trickroom = False
                 self._trickroom_turns = 0
         for side in self.sides:
-            side._on_turn_end()
+            side._on_turn_end(params)
 
     def terminal(self) -> bool:
         return any(s.team.fainted() for s in self.sides)

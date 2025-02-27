@@ -20,7 +20,8 @@ class BattlingTeam:
                  reserve: list[Pokemon] | list[BattlingPokemon]):
         self.active = [BattlingPokemon(p) for p in active] if isinstance(active[0], Pokemon) else active
         self._initial_active = self.active[:]
-        self.reserve = ([BattlingPokemon(p) for p in reserve] if isinstance(reserve[0], Pokemon) else reserve) if len(reserve) > 0 else []
+        self.reserve = ([BattlingPokemon(p) for p in reserve] if isinstance(reserve[0], Pokemon) else reserve) if len(
+            reserve) > 0 else []
         self._initial_reserve = self.active[:]
         self._views = []
         self._engine = None

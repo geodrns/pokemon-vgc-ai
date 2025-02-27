@@ -1,5 +1,17 @@
 ## Changelog
 
+### Version 1.0.4 (February 2025)
+
+* Introduced BattleRuleParam
+* state_encoding bug fixed
+* BattleEngine can now be parameterized with BattleRuleParam
+    * and with multiple RNG sources
+* Move's boosts field can either be to self or target with a new self_boosts field
+    * changed Move_encoding to reflect this
+* Added TreeSearchBattlePolicy
+* BattleEnv completely fixed
+* Clip error fixed
+
 ### Version 1.0.3 (February 2025)
 
 * Added Greedy Battle Policy

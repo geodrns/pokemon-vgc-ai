@@ -4,11 +4,11 @@ from typing import Callable
 from numpy import clip
 from numpy.random import default_rng, Generator
 
+from vgc2.battle_engine import Type
 from vgc2.battle_engine.modifiers import Category, Weather, Terrain, Hazard, Status, Nature
 from vgc2.battle_engine.move import Move
 from vgc2.battle_engine.pokemon import PokemonSpecies, Pokemon
 from vgc2.battle_engine.team import Team
-from vgc2.battle_engine import Type
 from vgc2.meta import MoveSet, Roster
 
 MoveGenerator = Callable[[Generator], Move]
@@ -18,10 +18,10 @@ PokemonGenerator = Callable[[PokemonSpecies, int, Generator], Pokemon]
 RosterGenerator = Callable[[int, MoveSet, int, Generator, PokemonSpeciesGenerator], Roster]
 TeamGenerator = Callable[[int, int, Generator, MoveSetGenerator, PokemonSpeciesGenerator, PokemonGenerator], Team]
 
-_rng = default_rng()
+_RNG = default_rng()
 
 
-def gen_move(rng: Generator = _rng) -> Move:
+def gen_move(rng: Generator = _RNG) -> Move:
     category = Category(rng.choice(len(Category), 1, False))
     base_power = 0 if category == Category.OTHER else int(clip(rng.normal(100, 40, 1)[0], 0, 140))
     effect_prob = 1. - base_power / 140
@@ -38,8 +38,9 @@ def gen_move(rng: Generator = _rng) -> Move:
         self_switch=1 / 17 <= effect < 2 / 17,
         ignore_evasion=2 / 17 <= effect < 3 / 17,
         protect=3 / 17 <= effect < 4 / 17,
-        boosts=tuple(list(int(x) for x in rng.multinomial(2, [1 / 8] * 8))) if 4 / 17 <= effect < 5 / 17
-        else (0,) * 8,
+        boosts=tuple([0] + list(int(x) if rng.random() > .5 else -int(x) for x in rng.multinomial(2, [1 / 7] * 7)))
+        if 4 / 17 <= effect < 5 / 17 else (0,) * 8,
+        self_boosts=rng.random() > .5 if 4 / 17 <= effect < 5 / 17 else True,
         heal=float(rng.random()) / 2 if 5 / 17 <= effect < 6 / 17 else 0.,
         recoil=float(rng.random()) / 2 if 6 / 17 <= effect < 7 / 17 else 0.,
         weather_start=Weather(rng.choice(len(Weather) - 1, 1)[0] + 1) if 7 / 17 <= effect < 8 / 17
@@ -57,7 +58,7 @@ def gen_move(rng: Generator = _rng) -> Move:
 
 
 def gen_move_set(n: int,
-                 rng: Generator = _rng,
+                 rng: Generator = _RNG,
                  _gen_move: MoveGenerator = gen_move) -> MoveSet:
     return [_gen_move(rng) for _ in range(n)]
 
@@ -69,7 +70,7 @@ def gen_move_subset(n: int,
 
 def gen_pkm_species(moves: MoveSet,
                     n_moves: int = 4,
-                    rng: Generator = _rng) -> PokemonSpecies:
+                    rng: Generator = _RNG) -> PokemonSpecies:
     n_types = 1 if rng.random() < 0.5 else 2
     return PokemonSpecies(
         base_stats=(
@@ -86,14 +87,14 @@ def gen_pkm_species(moves: MoveSet,
 def gen_pkm_roster(n: int,
                    moves: MoveSet,
                    n_moves: int = 4,
-                   rng: Generator = _rng,
+                   rng: Generator = _RNG,
                    _gen_pkm_species: PokemonSpeciesGenerator = gen_pkm_species) -> Roster:
     return [_gen_pkm_species(moves, n_moves, rng) for _ in range(n)]
 
 
 def gen_pkm(species: PokemonSpecies,
             max_moves: int = 4,
-            rng: Generator = _rng) -> Pokemon:
+            rng: Generator = _RNG) -> Pokemon:
     n_moves = len(species.moves)
     return Pokemon(
         species=species,
@@ -106,7 +107,7 @@ def gen_pkm(species: PokemonSpecies,
 
 def gen_team(n: int,
              n_moves: int,
-             rng: Generator = _rng,
+             rng: Generator = _RNG,
              _gen_move_set: MoveSetGenerator = gen_move_set,
              _gen_pkm_species: PokemonSpeciesGenerator = gen_pkm_species,
              _gen_pkm: PokemonGenerator = gen_pkm) -> Team:
@@ -116,6 +117,6 @@ def gen_team(n: int,
 def gen_team_from_roster(roster: Roster,
                          n: int,
                          n_moves: int,
-                         rng: Generator = _rng,
+                         rng: Generator = _RNG,
                          _gen_pkm: PokemonGenerator = gen_pkm) -> Team:
     return Team([_gen_pkm(roster[i], n_moves, rng) for i in rng.choice(len(roster), n)])

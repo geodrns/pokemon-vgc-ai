@@ -1,4 +1,4 @@
-# VGC AI Framework 2 1.0.3
+# VGC AI Framework 2 1.0.4
 
 [[_TOC_]]
 
