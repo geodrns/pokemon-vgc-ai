@@ -13,10 +13,10 @@ from vgc2.agent.selection import RandomSelectionPolicy
 
 # Función para conectar con LM Studio (adaptada para extraer una lista de dígitos)
 def query_llm(prompt):
-    url = "http://10.163.144.61:1234/v1/chat/completions"  # API de LM Studio
+    url = "http://192.168.1.136:1234/v1/chat/completions"  # API de LM Studio 192.168.1.136    ext: 10.163.144.61
     headers = {"Content-Type": "application/json"}
     data = {
-        "model": "meta-llama-3.1-8b-instruct",  # nombre del modelo usado en LM Studio
+        "model": "deepseek-r1-distill-llama-8b",  # deepseek-r1-distill-llama-8b  meta-llama-3.1-8b-instruct
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.7,
         "max_tokens": 10000
@@ -135,18 +135,18 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
             node.wins += reward
             node = node.parent
 
-    # Integración con LM Studio: se construye el prompt y se llama a query_llm
+    # llamada a LM Studio: se construye el prompt y se llama a query_llm
     def call_llm(self, game_state):
         prompt = self.build_prompt(game_state)
         indices = query_llm(prompt)
         if not indices:
-            # Fallback a una acción aleatoria si LM Studio no responde correctamente
+            # si LM Studio no responde correctamente, se hace una aleatoria
             possible_actions = game_state.get_possible_actions()
             return random.choice(possible_actions)
         return indices
 
     def build_prompt(self, game_state):
-        # Construye un prompt con la información necesaria para que el LLM proponga un equipo
+        # prompt en ingles bc mas facil para deepseek
         prompt = (
             "You are a team building machine of a simplified version of pokemon. You will receive a Roster, a Team and a Veredict in a dictionary format. The Roster will be a list with the only possibilities to form a new team to win the next battle competition. The Team will be the last team used in the battle competition. And the Veredict will be a number that represents the number of victories in the last battle competition, the higher this number is the better. With this data you will have to make a new team from the Roster that will win the next battle competiton. Return the results in a list with the three indexes of the chosen pokemon from the Roster. JUST RETURN THE LIST OF THREE INDEXES. DO NOT WRITE ANYTHING ELSE. Return the response according with the following format inside the --- pattern: ---index1, index2, index3---, for example: ---14, 30, 50---. The response must be only simple text, no markdown. No explanation is needed. The teams must be of three pokemon, so just return 3 indexes in the specified format.\n"
             f"Roster: {game_state.roster}\n"
