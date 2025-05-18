@@ -1,68 +1,49 @@
 #!/bin/bash
 # run_MCTSCompetition.sh
 
-# Registrar tiempo de inicio
+# Registrar tiempo de inicio (segundos desde epoch)
 START_TIME=$(date +%s)
 
 # Crear directorio de logs si no existe
 mkdir -p logs
 
-# Array para guardar los PIDs
-declare -a PIDS
+echo "Starting competitor using template/main.py (id 0)..."
+cd template
+# Lanzar competidor 0 y loguear
+python3 main.py --id 0 > ../logs/main_0.log 2>&1 &
+PID0=$!
 
-#
-# 1) Levantamos 20 bots (IDs 0..19).
-#    ID 1 lo lanzamos con main_mcts.py, los demás con main.py
-#
-for ID in $(seq 0 19); do
-  if [ "$ID" -eq 1 ]; then
-    SCRIPT="main_mcts.py"
-  else
-    SCRIPT="main.py"
-  fi
+echo "Starting MCTS Competitor using template/main_mcts.py (id 1)..."
+# Lanzar competidor MCTS y loguear
+python3 main_mcts.py --id 1 > ../logs/main_mcts.log 2>&1 &
+PID1=$!
 
-  echo "Starting competitor id=$ID using template/$SCRIPT …"
-  (
-    cd template
-    python3 "$SCRIPT" --id "$ID" \
-      > "../logs/$LOGFILE" 2>&1 &
-    echo $!  # devolvemos PID
-  ) &
-  # recogemos el PID real del subshell que lanzó el python
-  PIDS[$ID]=$!
-done
-
-# Damos 5 s para que todos se levanten
+# Esperar a que ambos procesos estén inicializados
 sleep 5
 
-#
-# 2) Ejecutamos el Championship Track con 20 agentes
-#
-RESULTS_LOG="logs/MCTS_Results.log"
+echo "Starting Championship Track in organization/run_championship_track.py..."
+cd ../organization
 
+RESULTS_LOG="../logs/MCTS_Results.log"
+
+# Cabecera para distinguir ejecuciones
 {
   echo "============================================"
   echo "Ejecución iniciada el: $(date '+%Y-%m-%d %H:%M:%S')"
   echo "--------------------------------------------"
 } >> "${RESULTS_LOG}"
 
-python3 organization/run_championship_track.py \
-  --n_agents 20 \
-  --epochs 10 \
-  --n_moves 100 \
-  --roster_size 50 \
-  --max_team_size 3 \
-  --n_active 2 \
-  --max_pkm_moves 4 \
-  --n_battles 3 \
-  --base_port 5000 \
-  >> "${RESULTS_LOG}" 2>&1
+# Ejecutar la competición y **añadir** su salida al log
+python3 run_championship_track.py >> "${RESULTS_LOG}" 2>&1
 
-# Registrar tiempo de fin y duración
+# Registrar tiempo de fin
 END_TIME=$(date +%s)
+# Calcular duración en segundos
 DURATION_SEC=$((END_TIME - START_TIME))
+# Convertir a minutos con dos decimales
 DURATION_MIN=$(awk "BEGIN {printf \"%.2f\", ${DURATION_SEC}/60}")
 
+# Añadir pie de ejecución
 {
   echo ""
   echo "Log generado el: $(date '+%Y-%m-%d %H:%M:%S')"
@@ -70,18 +51,11 @@ DURATION_MIN=$(awk "BEGIN {printf \"%.2f\", ${DURATION_SEC}/60}")
   echo ""
 } >> "${RESULTS_LOG}"
 
-#
-# 3) Cerramos los puertos 5000..5019
-#
-for PORT in $(seq 5000 5019); do
-  lsof -ti:"$PORT" | xargs -r kill -9
-done
+# Matar cualquier proceso que quede escuchando en los puertos
+lsof -ti:5000 | xargs -r kill -9
+lsof -ti:5001 | xargs -r kill -9
 
-#
-# 4) Esperamos a que mueran los bots
-#
-for PID in "${PIDS[@]}"; do
-  [ -n "$PID" ] && wait "$PID"
-done
-
+echo "All processes have finished."
+# Esperar a que cierren los procesos de los competidores
+wait $PID0 $PID1
 echo "All processes have finished."

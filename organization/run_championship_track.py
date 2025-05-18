@@ -36,7 +36,7 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', type=int, default=10) #default 100
     parser.add_argument('--n_moves', type=int, default=100)
     parser.add_argument('--roster_size', type=int, default=50)
-    parser.add_argument('--n_agents', type=int, default=20)
+    parser.add_argument('--n_agents', type=int, default=2)
     parser.add_argument('--max_team_size', type=int, default=3)
     parser.add_argument('--n_active', type=int, default=2)
     parser.add_argument('--max_pkm_moves', type=int, default=4)

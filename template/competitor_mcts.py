@@ -21,7 +21,7 @@ logging.basicConfig(
 
 # — Politica de team build basada en MCTS local —
 class MCTSTeamBuildPolicy(TeamBuildPolicy):
-    def __init__(self, mcts_iterations=50):
+    def __init__(self, mcts_iterations=100):
         self.mcts_iterations = mcts_iterations
 
     class MCTSState:
@@ -109,7 +109,7 @@ class MCTSCompetitor(Competitor):
         self.__name = name
         self.__battle_policy = RandomBattlePolicy()
         self.__selection_policy = RandomSelectionPolicy()
-        self.__team_build_policy = MCTSTeamBuildPolicy(mcts_iterations=50)
+        self.__team_build_policy = MCTSTeamBuildPolicy(mcts_iterations=100)
 
     @property
     def battle_policy(self) -> BattlePolicy | None:
