@@ -1,0 +1,159 @@
+MCTSCompetitor 1 wins the tournament!
+ELO 1361.1763942915159
+
+Log generado el: 2025-05-17 13:28:02
+Duración total: 0.48 minutos
+============================================
+Ejecución iniciada el: 2025-05-17 13:29:25
+--------------------------------------------
+Example 0 wins the tournament!
+ELO 1251.9587497839718
+
+Log generado el: 2025-05-17 13:29:49
+Duración total: 0.48 minutos
+
+============================================
+Ejecución iniciada el: 2025-05-17 13:30:13
+--------------------------------------------
+MCTSCompetitor 1 wins the tournament!
+ELO 1259.7306148455368
+
+Log generado el: 2025-05-17 13:30:46
+Duración total: 0.63 minutos
+
+============================================
+Ejecución iniciada el: 2025-05-17 18:18:32
+--------------------------------------------
+MCTSCompetitor 1 wins the tournament!
+ELO 1345.6684696663176
+
+Log generado el: 2025-05-17 18:19:00
+Duración total: 0.55 minutos
+
+============================================
+Ejecución iniciada el: 2025-05-17 18:19:58
+--------------------------------------------
+MCTSCompetitor 1 wins the tournament!
+ELO 1350.4352321771335
+
+Log generado el: 2025-05-17 18:20:20
+Duración total: 0.45 minutos
+
+============================================
+Ejecución iniciada el: 2025-05-17 18:20:32
+--------------------------------------------
+MCTSCompetitor 1 wins the tournament!
+ELO 1294.9327824858858
+
+Log generado el: 2025-05-17 18:21:00
+Duración total: 0.55 minutos
+
+============================================
+Ejecución iniciada el: 2025-05-17 18:23:09
+--------------------------------------------
+MCTSCompetitor 1 wins the tournament!
+ELO 3802.234322630779
+
+Log generado el: 2025-05-17 18:31:53
+Duración total: 8.82 minutos
+
+============================================
+Ejecución iniciada el: 2025-05-17 18:34:53
+--------------------------------------------
+Example 0 wins the tournament!
+ELO 1367.545411258866
+
+Log generado el: 2025-05-17 18:35:28
+Duración total: 0.67 minutos
+
+============================================
+Ejecución iniciada el: 2025-05-17 18:35:46
+--------------------------------------------
+Example 0 wins the tournament!
+ELO 1201.3977458417114
+
+Log generado el: 2025-05-17 18:36:15
+Duración total: 0.57 minutos
+
+============================================
+Ejecución iniciada el: 2025-05-17 18:38:14
+--------------------------------------------
+Traceback (most recent call last):
+  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 46, in <module>
+    main(args)
+  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 22, in main
+    conn = Client(address, authkey=f'Competitor {i}'.encode('utf-8'))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/multiprocessing/connection.py", line 519, in Client
+    c = SocketClient(address)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/multiprocessing/connection.py", line 647, in SocketClient
+    s.connect(address)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+Log generado el: 2025-05-17 18:38:14
+Duración total: 0.08 minutos
+
+============================================
+Ejecución iniciada el: 2025-05-17 18:40:31
+--------------------------------------------
+Traceback (most recent call last):
+  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 46, in <module>
+    main(args)
+  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 22, in main
+    conn = Client(address, authkey=f'Competitor {i}'.encode('utf-8'))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/multiprocessing/connection.py", line 519, in Client
+    c = SocketClient(address)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/multiprocessing/connection.py", line 647, in SocketClient
+    s.connect(address)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+Log generado el: 2025-05-17 18:40:31
+Duración total: 0.08 minutos
+
+============================================
+Ejecución iniciada el: 2025-05-17 18:40:43
+--------------------------------------------
+Traceback (most recent call last):
+  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 46, in <module>
+    main(args)
+  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 25, in main
+    championship.run()
+  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/ecosystem.py", line 65, in run
+    self._matches()
+  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/ecosystem.py", line 86, in _matches
+    match.run()
+  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/match.py", line 60, in run
+    self._run_non_random()
+  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/match.py", line 99, in _run_non_random
+    self._run_once(selector, base_team, base_view, agent)
+  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/match.py", line 74, in _run_once
+    self.wins[run_battle(engine, agent, state_view)] += 1
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/match.py", line 22, in run_battle
+    engine.run_turn((agent[0].decision(view[0]), agent[1].decision(view[1])))
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/net/client.py", line 20, in decision
+    return self.__conn.recv()
+           ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/multiprocessing/connection.py", line 250, in recv
+    buf = self._recv_bytes()
+          ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/multiprocessing/connection.py", line 430, in _recv_bytes
+    buf = self._recv(4)
+          ^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/multiprocessing/connection.py", line 395, in _recv
+    chunk = read(handle, remaining)
+            ^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+============================================
+Ejecución iniciada el: 2025-05-17 19:19:19
+--------------------------------------------
+Example 3 wins the tournament!
+ELO 1368.9649501865938
+
+Log generado el: 2025-05-17 19:30:35
+Duración total: 11.35 minutos
+
