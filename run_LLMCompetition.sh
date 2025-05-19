@@ -1,61 +1,89 @@
 #!/bin/bash
 # run_LLMCompetition.sh
 
-# Registrar tiempo de inicio (segundos desde epoch)
-START_TIME=$(date +%s)
+set -euo pipefail
 
-# Crear directorio de logs si no existe
+# Número total de agentes y puerto base
+NUM_AGENTS=20
+BASE_PORT=5000
+# El ID que ejecutará tu agente LLM
+LLM_ID=1
+
+START_TIME=$(date +%s)
 mkdir -p logs
 
-echo "Starting competitor using template/main.py (id 0)..."
-cd template
-# Lanzar competidor 0 y loguear
-python3 main.py --id 0 > ../logs/main_0.log 2>&1 &
-PID0=$!
+declare -a PIDS
 
-echo "Starting LLM Competitor using template/main_llm.py (id 1)..."
-# Lanzar competidor MCTS y loguear
-python3 main_llm.py --id 1 > ../logs/main_llm.log 2>&1 &
-PID1=$!
+echo "Lanzando $NUM_AGENTS competidores en puertos $BASE_PORT…$((BASE_PORT+NUM_AGENTS-1))"
 
-# Esperar a que ambos procesos estén inicializados
+# 1) Levantamos los bots ID=0..19
+for ID in $(seq 0 $((NUM_AGENTS-1))); do
+  PORT=$((BASE_PORT + ID))
+  if [ "$ID" -eq "$LLM_ID" ]; then
+    echo "ID=$ID → template/main_llm.py en puerto $PORT (log: logs/main_llm.log)"
+    cd template
+    python3 main_llm.py --id "$ID" \
+      > "../logs/main_llm.log" 2>&1 &
+    pid=$!
+    cd - >/dev/null
+  else
+    echo "ID=$ID → template/main.py en puerto $PORT"
+    cd template
+    python3 main.py --id "$ID" \
+      > /dev/null 2>&1 &
+    pid=$!
+    cd - >/dev/null
+  fi
+  PIDS[$ID]=$pid
+done
+
+# Damos un breve margen para que todos los agentes arranquen
 sleep 5
 
-echo "Starting Championship Track in organization/run_championship_track.py..."
-cd ../organization
-
-RESULTS_LOG="../logs/LLM_Results.log"
-
-# Cabecera para distinguir ejecuciones
+# 2) Lanzamos el Championship Track
+echo "Arrancando Championship Track…"
+RESULTS_LOG="logs/LLM_Results.log"
 {
   echo "============================================"
   echo "Ejecución iniciada el: $(date '+%Y-%m-%d %H:%M:%S')"
+  echo "Competidores: $NUM_AGENTS (LLM en ID=$LLM_ID)"
   echo "--------------------------------------------"
-} >> "${RESULTS_LOG}"
+} >> "$RESULTS_LOG"
 
-# Ejecutar la competición y **añadir** su salida al log
-python3 run_championship_track.py >> "${RESULTS_LOG}" 2>&1
+python3 organization/run_championship_track.py \
+  --n_agents "$NUM_AGENTS" \
+  --base_port "$BASE_PORT" \
+  --epochs 10 \
+  --n_moves 100 \
+  --roster_size 50 \
+  --max_team_size 3 \
+  --n_active 2 \
+  --max_pkm_moves 4 \
+  --n_battles 3 \
+  >> "$RESULTS_LOG" 2>&1
 
-# Registrar tiempo de fin
 END_TIME=$(date +%s)
-# Calcular duración en segundos
-DURATION_SEC=$((END_TIME - START_TIME))
-# Convertir a minutos con dos decimales
-DURATION_MIN=$(awk "BEGIN {printf \"%.2f\", ${DURATION_SEC}/60}")
+DURATION=$((END_TIME - START_TIME))
+DURATION_MIN=$(awk "BEGIN{printf \"%.2f\", $DURATION/60}")
 
-# Añadir pie de ejecución
 {
   echo ""
-  echo "Log generado el: $(date '+%Y-%m-%d %H:%M:%S')"
-  echo "Duración total: ${DURATION_MIN} minutos"
+  echo "Finalizado : $(date '+%Y-%m-%d %H:%M:%S')"
+  echo "Duración   : ${DURATION_MIN} minutos"
   echo ""
-} >> "${RESULTS_LOG}"
+} >> "$RESULTS_LOG"
 
-# Matar cualquier proceso que quede escuchando en los puertos
-lsof -ti:5000 | xargs -r kill -9
-lsof -ti:5001 | xargs -r kill -9
+# 3) Cerramos cualquier servicio que aún escuche en los puertos 5000..5019
+echo "Cerrando puertos ${BASE_PORT}…$((BASE_PORT+NUM_AGENTS-1))"
+for P in $(lsof -ntiTCP:"$BASE_PORT"-"$((BASE_PORT+NUM_AGENTS-1))"); do
+  kill -9 "$P" || true
+done
 
-echo "All processes have finished."
-# Esperar a que cierren los procesos de los competidores
-wait $PID0 $PID1
+# 4) Terminamos los procesos Python que lanzamos
+echo "Matando procesos competidores…"
+for pid in "${PIDS[@]}"; do
+  kill -TERM "$pid" 2>/dev/null || true
+  wait "$pid" 2>/dev/null || true
+done
+
 echo "All processes have finished."
