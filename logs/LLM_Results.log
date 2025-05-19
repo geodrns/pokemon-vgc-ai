@@ -19,32 +19,6 @@ Finalizado : 2025-05-19 19:31:00
 Duración   : 10.58 minutos
 
 ============================================
-Ejecución iniciada el: 2025-05-19 19:42:10
-Competidores: 20 (LLM en ID=1)
---------------------------------------------
-Traceback (most recent call last):
-  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 46, in <module>
-    main(args)
-  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 25, in main
-    championship.run()
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/ecosystem.py", line 63, in run
-    self._build_teams()
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/ecosystem.py", line 70, in _build_teams
-    cm.team = build_team(cm.competitor.team_build_policy.decision(
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/net/client.py", line 49, in decision
-    return self.conn.recv()
-           ^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 250, in recv
-    buf = self._recv_bytes()
-          ^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 430, in _recv_bytes
-    buf = self._recv(4)
-          ^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 399, in _recv
-    raise EOFError
-EOFError
-============================================
 Ejecución iniciada el: 2025-05-19 19:42:46
 Competidores: 20 (LLM en ID=1)
 --------------------------------------------
