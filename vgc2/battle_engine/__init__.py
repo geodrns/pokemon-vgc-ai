@@ -24,14 +24,16 @@ class BattleEngine:  # TODO Debug mode
     class TeamFainted(Exception):
         pass
 
-    __slots__ = ('state', 'params', 'winning_side', 'acc_rng', 'eff_rng', 'sta_rng', '_move_queue', '_switch_queue')
+    __slots__ = ('state', 'params', 'winning_side', 'acc_rng', 'eff_rng', 'sta_rng', '_move_queue', '_switch_queue',
+                 'turn_limit', 'turn')
 
     def __init__(self,
                  state: State,
                  params: BattleRuleParam = BattleRuleParam(),
                  acc_rng: tuple[tuple[Generator, ...], tuple[Generator, ...]] = ((_RNG, _RNG), (_RNG, _RNG)),
                  eff_rng: tuple[tuple[Generator, ...], tuple[Generator, ...]] = ((_RNG, _RNG), (_RNG, _RNG)),
-                 sta_rng: tuple[tuple[Generator, ...], tuple[Generator, ...]] = ((_RNG, _RNG), (_RNG, _RNG))):
+                 sta_rng: tuple[tuple[Generator, ...], tuple[Generator, ...]] = ((_RNG, _RNG), (_RNG, _RNG)),
+                 turn_limit: int = 100):
         self.state = state
         self.params = params
         self.acc_rng = acc_rng
@@ -41,6 +43,8 @@ class BattleEngine:  # TODO Debug mode
         self._move_queue: list[tuple[int, BattlingPokemon, BattlingMove, list[BattlingPokemon]]] = []
         self._switch_queue: list[tuple[int, int, int]] = []
         self._set_state_engine()
+        self.turn_limit = turn_limit
+        self.turn = 0
 
     def __str__(self):
         return str(self.state)
@@ -56,24 +60,30 @@ class BattleEngine:  # TODO Debug mode
         self.winning_side = -1
         self._move_queue = []
         self._switch_queue = []
+        self.turn = 0
 
     def run_turn(self,
                  commands: FullCommand):
+        self.turn += 1
         self._set_action_queue(commands)
         try:
             self._perform_switches()
             self._perform_moves()
             self._end_of_turn_state_effects()
+            if self.turn >= self.turn_limit:
+                self.winning_side = int(self.state.sides[0].team.tie_breaker() > self.state.sides[1].team.tie_breaker())
+                return
         except BattleEngine.TeamFainted:
-            if self.state.sides[1].team.fainted() and not self.state.sides[0].team.fainted():
+            team0_fainted, team1_fainted = self.state.sides[0].team.fainted(), self.state.sides[1].team.fainted()
+            if team1_fainted and not team0_fainted:
                 self.winning_side = 0
-            if self.state.sides[0].team.fainted() and not self.state.sides[1].team.fainted():
+            if team0_fainted and not team1_fainted:
                 self.winning_side = 1
             return
         self.state._on_turn_end(self.params)
 
     def finished(self) -> bool:
-        return self.state.terminal()
+        return self.state.terminal() or self.turn >= self.turn_limit
 
     def _set_action_queue(self,
                           commands: FullCommand):
@@ -190,7 +200,7 @@ class BattleEngine:  # TODO Debug mode
         elif _move.change_type:
             attacker.types = [attacker.battling_moves[0].constants.pkm_type]
         elif _move.self_boosts and any(b != 0 for b in _move.boosts):
-            attacker.boosts = [int(clip(_b + b, a_min=-6, a_max=6)) for _b, b in zip(attacker.boosts, _move.boosts)]
+            attacker.boosts = clip([_b + b for _b, b in zip(attacker.boosts, _move.boosts)], a_min=-6, a_max=6).tolist()
         elif _move.protect:
             attacker.protect = True
 
@@ -209,7 +219,7 @@ class BattleEngine:  # TODO Debug mode
             self.state.sides[not side].team.switch(self.state.sides[not side].team.get_active_pos(defender),
                                                    self.state.sides[not side].team.first_from_reserve())
         elif not _move.self_boosts and any(b != 0 for b in _move.boosts):
-            defender.boosts = [int(clip(_b + b, -6, 6)) for _b, b in zip(defender.boosts, _move.boosts)]
+            defender.boosts = clip([_b + b for _b, b in zip(defender.boosts, _move.boosts)], a_min=-6, a_max=6).tolist()
 
     def _end_of_turn_state_effects(self):
         all_active = self.state.sides[0].team.active + self.state.sides[1].team.active
