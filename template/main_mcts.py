@@ -1,5 +1,5 @@
 import argparse
-from competitor_mcts import MCTSCompetitor  # Asegúrate de que la ruta sea correcta
+from competitor_mcts import MCTSCompetitor
 from vgc2.net.server import RemoteCompetitorManager, BASE_PORT
 
 def main(_args):
