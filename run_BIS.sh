@@ -1,12 +1,12 @@
 #!/bin/bash
-# run_LLMCompetition.sh
+# run_BIS.sh
 
 set -euo pipefail
 
 # Número total de agentes y puerto base
 NUM_AGENTS=20
 BASE_PORT=5000
-# El ID que ejecutará tu agente LLM
+# El ID que ejecutará tu agente LLM y el ID del MCTS puro
 LLM_ID=1
 
 START_TIME=$(date +%s)
@@ -14,31 +14,29 @@ mkdir -p logs
 
 declare -a PIDS
 
-echo "Lanzando $NUM_AGENTS competidores en puertos $BASE_PORT…$((BASE_PORT+NUM_AGENTS-1))"
+echo "Lanzando $NUM_AGENTS competidores en puertos ${BASE_PORT}…$((BASE_PORT+NUM_AGENTS-1))"
 
 # 1) Levantamos los bots ID=0..19
 for ID in $(seq 0 $((NUM_AGENTS-1))); do
   PORT=$((BASE_PORT + ID))
+  cd template
+
   if [ "$ID" -eq "$LLM_ID" ]; then
-    echo "ID=$ID → template/main_llm.py en puerto $PORT (log: logs/main_llm.log)"
-    cd template
+    echo "ID=$ID → main_llm.py en puerto $PORT (log: logs/main_llm.log)"
     python3 main_llm.py --id "$ID" \
       > "../logs/main_llm.log" 2>&1 &
-    pid=$!
-    cd - >/dev/null
   else
-    echo "ID=$ID → template/main.py en puerto $PORT"
-    cd template
+    echo "ID=$ID → main.py en puerto $PORT"
     python3 main.py --id "$ID" \
       > /dev/null 2>&1 &
-    pid=$!
-    cd - >/dev/null
   fi
+
+  pid=$!
+  cd - >/dev/null
   PIDS[$ID]=$pid
 done
 
-
-# Damos un breve margen para que todos los agentes arranquen
+# Dejamos tiempo a que arranquen todos los agentes
 sleep 5
 
 # 2) Lanzamos el Championship Track (BIS)
@@ -47,11 +45,11 @@ RESULTS_LOG="logs/LLM_Results.log"
 {
   echo "============================================"
   echo "Ejecución iniciada el: $(date '+%Y-%m-%d %H:%M:%S')"
-  echo "Competidores: $NUM_AGENTS (LLM en ID=$LLM_ID)"
+  echo "Competidores: $NUM_AGENTS (LLM ID=$LLM_ID, MCTS ID=$MCTS_ID)"
   echo "--------------------------------------------"
 } >> "$RESULTS_LOG"
 
-# Importante: poner todas las flags ANTES de la redirección
+# Importante: todas las flags ANTES de la redirección
 python3 organization/run_championship_track_BIS.py \
   --n_agents      "$NUM_AGENTS" \
   --base_port     "$BASE_PORT" \

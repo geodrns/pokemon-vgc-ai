@@ -1,0 +1,12 @@
+# ROSTER UTILIZADO:
+
+
+# ÚLTIMO EQUIPO (índices):
+
+
+# ÚLTIMO EQUIPO (species):
+
+
+# RESULTADO FINAL:
+POSITION: 20
+ELO     : 1064.54
