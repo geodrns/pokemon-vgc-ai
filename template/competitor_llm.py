@@ -49,17 +49,27 @@ def query_llm(prompt):
         "max_tokens": 10000
     }
     logging.info("Enviando prompt a LM Studio:\n%s", prompt)
-    response = requests.post(url, headers=headers, data=json.dumps(data))
-    content = response.json()["choices"][0]["message"]["content"]
-    logging.info("LM Studio respondió: %s", content)
     try:
+        response = requests.post(url, headers=headers, data=json.dumps(data), timeout=10)
+        resp_json = response.json()
+        if not response.ok or "choices" not in resp_json:
+            logging.error("Respuesta inesperada de LM Studio: %s", resp_json)
+            return []
+        content = resp_json["choices"][0]["message"]["content"]
+        logging.info("LM Studio respondió: %s", content)
         numbers = re.findall(r'\d+', content)
         result = [int(n) for n in numbers]
         logging.info("Extracción de índices: %s", result)
         return result
+    except requests.RequestException as e:
+        logging.error("Error HTTP en query_llm: %s", e)
+        return []
+    except ValueError as e:
+        logging.error("No se pudo decodificar JSON de LM Studio: %s", e)
+        return []
     except Exception as e:
-        logging.error("Error al extraer números de LM Studio: %s", e)
-        return []  # En caso de error, lista vacía
+        logging.exception("Error inesperado en query_llm:")
+        return []
 
 # — Política de team build basada en MCTS+LLM —
 class MCTSTeamBuildPolicy(TeamBuildPolicy):
@@ -105,11 +115,15 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
 
     def call_llm(self, state):
         prompt = self.build_prompt(state)
-        indices = query_llm(prompt)
-        if not indices:
-            # aleatorio si falla y va al mcts
+        try:
+            indices = query_llm(prompt)
+            if not indices or len(indices) != state.max_team_size:
+                raise ValueError(f"indices inválidos: {indices}")
+            return indices
+        except Exception as e:
+            logging.exception("Fallo en call_llm, usando fallback aleatorio:")
+            #usamos el aleatorio
             return random.sample(range(len(state.roster)), state.max_team_size)
-        return indices
 
     def build_prompt(self, roster: list, current_team: list[int], veredict: int) -> str:
         roster_items = [
@@ -211,7 +225,7 @@ if __name__ == "__main__":
     meta = {"current_team": [0, 1, 2], "log": "Registro de prueba"}
     max_team_size = 3
     max_pkm_moves = 4
-    competitor = LLM_MCTSCompetitor("MiAgenteLLM_MCTS")
+    competitor = LLM_Competitor("MiAgenteLLM_MCTS")
     decision_command = competitor.team_build_policy.decision(
         roster, meta, max_team_size, max_pkm_moves, n_active=2
     )

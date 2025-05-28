@@ -1,226 +1,83 @@
 ============================================
-Ejecución iniciada el: 2025-05-19 19:12:44
+Ejecución iniciada el: 2025-05-28 02:36:29
 Competidores: 20 (LLM en ID=1)
 --------------------------------------------
-Example 0 wins the tournament!
-ELO 1258.2236855884348
+ 1. Example 16            ELO 1341.51
+ 2. Example 2             ELO 1330.31
+ 3. Example 0             ELO 1323.22
+ 4. Example 8             ELO 1299.38
+ 5. Example 6             ELO 1281.96
+ 6. Example 12            ELO 1255.81
+ 7. Example 14            ELO 1238.10
+ 8. Example 11            ELO 1237.11
+ 9. Example 19            ELO 1209.92
+10. Example 5             ELO 1208.32
+11. Example 4             ELO 1191.68
+12. Example 18            ELO 1190.08
+13. Example 10            ELO 1162.89
+14. Example 15            ELO 1161.90
+15. Example 13            ELO 1144.19
+16. Example 7             ELO 1118.04
+17. Example 9             ELO 1100.62
+18. LLM_Competitor 1      ELO 1076.78
+19. Example 3             ELO 1069.69
+20. Example 17            ELO 1058.49
 
-Finalizado : 2025-05-19 19:18:04
-Duración   : 5.42 minutos
+Finalizado : 2025-05-28 02:43:06
+Duración   : 6.72 minutos
 
 ============================================
-Ejecución iniciada el: 2025-05-19 19:20:30
+Ejecución iniciada el: 2025-05-28 03:05:23
 Competidores: 20 (LLM en ID=1)
 --------------------------------------------
-LLM_Competitor 1 wins the tournament!
-ELO 1374.8813390917135
+ 1. Example 18            ELO 1331.71
+ 2. Example 15            ELO 1310.63
+ 3. LLM_Competitor 1      ELO 1298.34
+ 4. Example 13            ELO 1293.02
+ 5. Example 6             ELO 1254.86
+ 6. Example 2             ELO 1241.37
+ 7. Example 17            ELO 1231.40
+ 8. Example 5             ELO 1228.73
+ 9. Example 10            ELO 1218.13
+10. Example 9             ELO 1207.15
+11. Example 8             ELO 1192.85
+12. Example 11            ELO 1181.87
+13. Example 4             ELO 1171.27
+14. Example 16            ELO 1168.60
+15. Example 3             ELO 1158.63
+16. Example 7             ELO 1145.14
+17. Example 12            ELO 1106.98
+18. Example 0             ELO 1101.66
+19. Example 14            ELO 1089.37
+20. Example 19            ELO 1068.29
 
-Finalizado : 2025-05-19 19:31:00
-Duración   : 10.58 minutos
+Finalizado : 2025-05-28 03:18:44
+Duración   : 13.43 minutos
 
 ============================================
-Ejecución iniciada el: 2025-05-19 19:42:46
+Ejecución iniciada el: 2025-05-28 03:18:49
 Competidores: 20 (LLM en ID=1)
 --------------------------------------------
-Example 6 wins the tournament!
-ELO 1293.214628502482
+ 1. Example 13            ELO 1333.65
+ 2. Example 0             ELO 1319.55
+ 3. Example 19            ELO 1308.73
+ 4. Example 9             ELO 1301.71
+ 5. Example 3             ELO 1275.06
+ 6. Example 4             ELO 1267.11
+ 7. Example 17            ELO 1258.27
+ 8. Example 6             ELO 1249.29
+ 9. Example 15            ELO 1217.02
+10. Example 10            ELO 1213.20
+11. Example 11            ELO 1186.80
+12. Example 14            ELO 1182.98
+13. Example 7             ELO 1150.71
+14. Example 16            ELO 1141.73
+15. Example 5             ELO 1132.89
+16. Example 2             ELO 1124.94
+17. Example 8             ELO 1098.29
+18. Example 18            ELO 1091.27
+19. LLM_Competitor 1      ELO 1080.45
+20. Example 12            ELO 1066.35
 
-Finalizado : 2025-05-19 19:51:10
-Duración   : 8.48 minutos
-
-============================================
-Ejecución iniciada el: 2025-05-19 20:38:17
-Competidores: 20 (LLM en ID=1)
---------------------------------------------
-LLM_Competitor 1 wins the tournament!
-ELO 1380.4352321771335
-
-Finalizado : 2025-05-19 20:46:19
-Duración   : 8.12 minutos
-
-============================================
-Ejecución iniciada el: 2025-05-19 21:23:34
-Competidores: 2 (LLM en ID=1)
---------------------------------------------
-Traceback (most recent call last):
-  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 46, in <module>
-    main(args)
-  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 25, in main
-    championship.run()
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/ecosystem.py", line 63, in run
-    self._build_teams()
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/ecosystem.py", line 70, in _build_teams
-    cm.team = build_team(cm.competitor.team_build_policy.decision(
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/net/client.py", line 49, in decision
-    return self.conn.recv()
-           ^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 250, in recv
-    buf = self._recv_bytes()
-          ^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 430, in _recv_bytes
-    buf = self._recv(4)
-          ^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 399, in _recv
-    raise EOFError
-EOFError
-============================================
-Ejecución iniciada el: 2025-05-19 21:24:06
-Competidores: 2 (LLM en ID=1)
---------------------------------------------
-LLM_Competitor 1 wins the tournament!
-ELO 1251.9587497839718
-
-Finalizado : 2025-05-19 21:24:23
-Duración   : 0.37 minutos
-
-============================================
-Ejecución iniciada el: 2025-05-19 21:26:18
-Competidores: 2 (LLM en ID=1)
---------------------------------------------
-Traceback (most recent call last):
-  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 46, in <module>
-    main(args)
-  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 25, in main
-    championship.run()
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/ecosystem.py", line 63, in run
-    self._build_teams()
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/ecosystem.py", line 70, in _build_teams
-    cm.team = build_team(cm.competitor.team_build_policy.decision(
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/net/client.py", line 49, in decision
-    return self.conn.recv()
-           ^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 250, in recv
-    buf = self._recv_bytes()
-          ^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 430, in _recv_bytes
-    buf = self._recv(4)
-          ^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 399, in _recv
-    raise EOFError
-EOFError
-============================================
-Ejecución iniciada el: 2025-05-19 21:26:43
-Competidores: 2 (LLM en ID=1)
---------------------------------------------
-LLM_Competitor 1 wins the tournament!
-ELO 1210.0440203589746
-
-Finalizado : 2025-05-19 21:27:05
-Duración   : 0.45 minutos
-
-============================================
-Ejecución iniciada el: 2025-05-19 21:38:50
-Competidores: 2 (LLM en ID=1)
---------------------------------------------
-Traceback (most recent call last):
-  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 46, in <module>
-    main(args)
-  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 25, in main
-    championship.run()
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/ecosystem.py", line 63, in run
-    self._build_teams()
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/ecosystem.py", line 70, in _build_teams
-    cm.team = build_team(cm.competitor.team_build_policy.decision(
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/net/client.py", line 49, in decision
-    return self.conn.recv()
-           ^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 250, in recv
-    buf = self._recv_bytes()
-          ^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 430, in _recv_bytes
-    buf = self._recv(4)
-          ^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 399, in _recv
-    raise EOFError
-EOFError
-============================================
-Ejecución iniciada el: 2025-05-19 21:39:14
-Competidores: 2 (LLM en ID=1)
---------------------------------------------
-Traceback (most recent call last):
-  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 46, in <module>
-    main(args)
-  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 25, in main
-    championship.run()
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/ecosystem.py", line 63, in run
-    self._build_teams()
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/ecosystem.py", line 70, in _build_teams
-    cm.team = build_team(cm.competitor.team_build_policy.decision(
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/net/client.py", line 49, in decision
-    return self.conn.recv()
-           ^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 250, in recv
-    buf = self._recv_bytes()
-          ^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 430, in _recv_bytes
-    buf = self._recv(4)
-          ^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 399, in _recv
-    raise EOFError
-EOFError
-============================================
-Ejecución iniciada el: 2025-05-19 21:39:46
-Competidores: 2 (LLM en ID=1)
---------------------------------------------
-Traceback (most recent call last):
-  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 46, in <module>
-    main(args)
-  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 25, in main
-    championship.run()
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/ecosystem.py", line 63, in run
-    self._build_teams()
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/ecosystem.py", line 70, in _build_teams
-    cm.team = build_team(cm.competitor.team_build_policy.decision(
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/net/client.py", line 49, in decision
-    return self.conn.recv()
-           ^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 250, in recv
-    buf = self._recv_bytes()
-          ^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 430, in _recv_bytes
-    buf = self._recv(4)
-          ^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 399, in _recv
-    raise EOFError
-EOFError
-============================================
-Ejecución iniciada el: 2025-05-19 21:44:56
-Competidores: 2 (LLM en ID=1)
---------------------------------------------
-Traceback (most recent call last):
-  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 46, in <module>
-    main(args)
-  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track.py", line 25, in main
-    championship.run()
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/ecosystem.py", line 63, in run
-    self._build_teams()
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/ecosystem.py", line 70, in _build_teams
-    cm.team = build_team(cm.competitor.team_build_policy.decision(
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/net/client.py", line 49, in decision
-    return self.conn.recv()
-           ^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 250, in recv
-    buf = self._recv_bytes()
-          ^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 430, in _recv_bytes
-    buf = self._recv(4)
-          ^^^^^^^^^^^^^
-  File "/usr/lib/python3.12/multiprocessing/connection.py", line 399, in _recv
-    raise EOFError
-EOFError
-============================================
-Ejecución iniciada el: 2025-05-19 21:46:33
-Competidores: 2 (LLM en ID=1)
---------------------------------------------
-LLM_Competitor 1 wins the tournament!
-ELO 1368.9649501865938
-
-Finalizado : 2025-05-19 21:46:55
-Duración   : 0.45 minutos
-
+Finalizado : 2025-05-28 03:29:39
+Duración   : 10.92 minutos

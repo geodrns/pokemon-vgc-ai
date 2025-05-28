@@ -4,7 +4,7 @@
 set -euo pipefail
 
 # Número total de agentes y puerto base
-NUM_AGENTS=2
+NUM_AGENTS=20
 BASE_PORT=5000
 # El ID que ejecutará tu agente LLM
 LLM_ID=1
