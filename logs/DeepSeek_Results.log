@@ -1,0 +1,168 @@
+============================================
+Ejecución iniciada el: 2025-05-30 05:27:06
+Competidores: 20 (LLM ID=1)
+--------------------------------------------
+ 1. Example 8             ELO 1326.48
+ 2. Example 4             ELO 1277.67
+ 3. Example 11            ELO 1254.85
+ 4. LLM_Competitor 1      ELO 1247.02
+ 5. Example 3             ELO 1243.95
+ 6. Example 6             ELO 1238.10
+ 7. Example 15            ELO 1234.99
+ 8. Example 16            ELO 1232.64
+ 9. Example 13            ELO 1228.26
+10. Example 18            ELO 1207.15
+11. Example 19            ELO 1192.85
+12. Example 12            ELO 1171.74
+13. Example 17            ELO 1167.36
+14. Example 14            ELO 1165.01
+15. Example 7             ELO 1161.90
+16. Example 2             ELO 1156.05
+17. Example 0             ELO 1152.98
+18. Example 10            ELO 1145.15
+19. Example 5             ELO 1122.33
+20. Example 9             ELO 1073.52
+
+Finalizado : 2025-05-30 05:56:53
+Duración   : 29.87 minutos
+
+============================================
+Ejecución iniciada el: 2025-05-30 06:35:41
+Competidores: 20 (LLM ID=1)
+--------------------------------------------
+ 1. Example 10            ELO 1326.48
+ 2. Example 12            ELO 1309.22
+ 3. Example 17            ELO 1290.60
+ 4. Example 8             ELO 1286.74
+ 5. Example 18            ELO 1284.32
+ 6. Example 2             ELO 1284.10
+ 7. LLM_Competitor 1      ELO 1250.84
+ 8. Example 14            ELO 1238.27
+ 9. Example 5             ELO 1228.35
+10. Example 6             ELO 1219.10
+11. Example 7             ELO 1180.90
+12. Example 4             ELO 1171.65
+13. Example 15            ELO 1161.73
+14. Example 0             ELO 1149.16
+15. Example 3             ELO 1115.90
+16. Example 19            ELO 1115.68
+17. Example 9             ELO 1113.26
+18. Example 16            ELO 1109.40
+19. Example 13            ELO 1090.78
+20. Example 11            ELO 1073.52
+
+Finalizado : 2025-05-30 07:05:51
+Duración   : 30.25 minutos
+
+============================================
+Ejecución iniciada el: 2025-05-30 07:05:56
+Competidores: 20 (LLM ID=1)
+--------------------------------------------
+ 1. LLM_Competitor 1      ELO 1377.14
+ 2. Example 5             ELO 1329.53
+ 3. Example 19            ELO 1302.19
+ 4. Example 10            ELO 1274.06
+ 5. Example 15            ELO 1260.12
+ 6. Example 6             ELO 1246.33
+ 7. Example 9             ELO 1246.33
+ 8. Example 3             ELO 1245.24
+ 9. Example 12            ELO 1223.35
+10. Example 16            ELO 1213.20
+11. Example 17            ELO 1186.80
+12. Example 13            ELO 1176.65
+13. Example 2             ELO 1154.76
+14. Example 7             ELO 1153.67
+15. Example 8             ELO 1153.67
+16. Example 14            ELO 1139.88
+17. Example 11            ELO 1125.94
+18. Example 18            ELO 1097.81
+19. Example 4             ELO 1070.47
+20. Example 0             ELO 1022.86
+
+Finalizado : 2025-05-30 07:40:03
+Duración   : 34.20 minutos
+
+============================================
+Ejecución iniciada el: 2025-05-30 07:55:08
+Competidores: 20 (LLM ID=1)
+--------------------------------------------
+ 1. Example 16            ELO 1350.44
+ 2. Example 11            ELO 1295.05
+ 3. Example 2             ELO 1266.68
+ 4. LLM_Competitor 1      ELO 1262.83
+ 5. Example 18            ELO 1249.29
+ 6. Example 6             ELO 1236.06
+ 7. Example 9             ELO 1223.35
+ 8. Example 15            ELO 1219.29
+ 9. Example 4             ELO 1212.49
+10. Example 12            ELO 1202.41
+11. Example 13            ELO 1197.59
+12. Example 5             ELO 1187.51
+13. Example 14            ELO 1180.71
+14. Example 8             ELO 1176.65
+15. Example 7             ELO 1163.94
+16. Example 19            ELO 1150.71
+17. Example 0             ELO 1137.17
+18. Example 3             ELO 1133.32
+19. Example 10            ELO 1104.95
+20. Example 17            ELO 1049.56
+
+Finalizado : 2025-05-30 08:32:02
+Duración   : 36.98 minutos
+
+============================================
+Ejecución iniciada el: 2025-05-30 08:32:07
+Competidores: 20 (LLM ID=1)
+--------------------------------------------
+ 1. Example 0             ELO 1378.98
+ 2. Example 9             ELO 1372.16
+ 3. Example 19            ELO 1342.16
+ 4. Example 7             ELO 1311.98
+ 5. Example 12            ELO 1295.97
+ 6. Example 10            ELO 1294.95
+ 7. Example 17            ELO 1269.75
+ 8. Example 2             ELO 1244.83
+ 9. Example 14            ELO 1227.17
+10. Example 5             ELO 1220.79
+11. Example 4             ELO 1179.21
+12. Example 15            ELO 1172.83
+13. Example 3             ELO 1155.17
+14. Example 16            ELO 1130.25
+15. Example 11            ELO 1105.05
+16. Example 13            ELO 1104.03
+17. Example 6             ELO 1088.02
+18. Example 18            ELO 1057.84
+19. Example 8             ELO 1027.84
+20. LLM_Competitor 1      ELO 1021.02
+
+Finalizado : 2025-05-30 09:07:32
+Duración   : 35.50 minutos
+
+============================================
+Ejecución iniciada el: 2025-05-30 09:07:37
+Competidores: 20 (LLM ID=1)
+--------------------------------------------
+ 1. Example 13            ELO 1331.71
+ 2. Example 15            ELO 1310.63
+ 3. Example 18            ELO 1303.65
+ 4. Example 0             ELO 1301.84
+ 5. Example 7             ELO 1251.96
+ 6. Example 3             ELO 1246.56
+ 7. Example 10            ELO 1225.34
+ 8. Example 17            ELO 1212.25
+ 9. Example 4             ELO 1212.01
+10. Example 8             ELO 1206.18
+11. Example 9             ELO 1193.82
+12. Example 5             ELO 1187.99
+13. Example 16            ELO 1187.75
+14. Example 11            ELO 1174.66
+15. Example 2             ELO 1153.44
+16. Example 6             ELO 1148.04
+17. LLM_Competitor 1      ELO 1098.16
+18. Example 19            ELO 1096.35
+19. Example 14            ELO 1089.37
+20. Example 12            ELO 1068.29
+
+Finalizado : 2025-05-30 09:37:51
+Duración   : 30.32 minutos
+

@@ -1,16 +1,17 @@
 #!/bin/bash
-# run_three_times.sh
+# run_bucle.sh
 
 set -euo pipefail
 
 SCRIPT="./run_BIS.sh"
+TOTAL=100
 
-for i in 1 2 3; do
+for i in $(seq 1 $TOTAL); do
   echo "======================================"
-  echo "  Ejecución número $i de 3"
+  echo "  Ejecución número $i de $TOTAL"
   echo "======================================"
   $SCRIPT
   echo
 done
 
-echo "Las 3 ejecuciones han finalizado."
+echo "Las $TOTAL ejecuciones han finalizado."

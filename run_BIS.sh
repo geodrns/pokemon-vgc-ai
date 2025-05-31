@@ -27,7 +27,7 @@ for ID in $(seq 0 $((NUM_AGENTS-1))); do
       > "../logs/main_llm.log" 2>&1 &
   else
     echo "ID=$ID → main.py en puerto $PORT"
-    python3 main.py --id "$ID" \
+    python3 main2.py --id "$ID" \
       > /dev/null 2>&1 &
   fi
 
@@ -45,7 +45,7 @@ RESULTS_LOG="logs/LLM_Results.log"
 {
   echo "============================================"
   echo "Ejecución iniciada el: $(date '+%Y-%m-%d %H:%M:%S')"
-  echo "Competidores: $NUM_AGENTS (LLM ID=$LLM_ID, MCTS ID=$MCTS_ID)"
+  echo "Competidores: $NUM_AGENTS (LLM ID=$LLM_ID)"
   echo "--------------------------------------------"
 } >> "$RESULTS_LOG"
 
