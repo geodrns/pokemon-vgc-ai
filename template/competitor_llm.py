@@ -194,11 +194,9 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
             side, winner, elos, team_ids = last_participation
             match_outcome = "won" if winner == side else "lost"
             new_elo = elos[side]
-            # Si ganamos, añadimos ese equipo a la historia de equipos ganadores
+            # Si ganamos, añadimos ese equipo a la historia de equipos ganadores (incluso si se repite)
             if winner == side:
-                # Evitamos duplicados consecutivos
-                if not self.winning_teams_history or self.winning_teams_history[-1] != team_ids:
-                    self.winning_teams_history.append(team_ids)
+                self.winning_teams_history.append(team_ids)
 
         # 3) Determinar qué equipo mostrar como “actual”
         if self.last_team is None:

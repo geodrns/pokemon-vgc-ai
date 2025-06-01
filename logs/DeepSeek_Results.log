@@ -306,7 +306,6 @@ Competidores: 20 (LLM ID=1)
 Finalizado : 2025-06-01 05:04:59
 Duración   : 16.05 minutos
 
-
 ============================================
 Ejecución iniciada el: 2025-06-01 05:19:01
 Competidores: 20 (LLM ID=1)
@@ -334,7 +333,6 @@ Competidores: 20 (LLM ID=1)
 
 Finalizado : 2025-06-01 05:34:12
 Duración   : 15.27 minutos
-
 
 ============================================
 Ejecución iniciada el: 2025-06-01 08:07:01
@@ -419,4 +417,60 @@ Competidores: 20 (LLM ID=1)
 
 Finalizado : 2025-06-01 08:55:02
 Duración   : 16.55 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-01 08:57:31
+Competidores: 20 (LLM ID=1)
+--------------------------------------------
+ 1. Example 11            ELO 1347.52
+ 2. Example 19            ELO 1327.09
+ 3. LLM_Competitor 1      ELO 1295.05
+ 4. Example 15            ELO 1290.12
+ 5. Example 9             ELO 1272.19
+ 6. Example 17            ELO 1263.67
+ 7. Example 6             ELO 1260.36
+ 8. Example 4             ELO 1257.68
+ 9. Example 12            ELO 1206.06
+10. Example 2             ELO 1200.32
+11. Example 3             ELO 1199.68
+12. Example 13            ELO 1193.94
+13. Example 5             ELO 1142.32
+14. Example 7             ELO 1139.64
+15. Example 16            ELO 1136.33
+16. Example 8             ELO 1127.81
+17. Example 14            ELO 1109.88
+18. Example 0             ELO 1104.95
+19. Example 18            ELO 1072.91
+20. Example 10            ELO 1052.48
+
+Finalizado : 2025-06-01 09:10:23
+Duración   : 12.95 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-01 09:10:28
+Competidores: 20 (LLM ID=1)
+--------------------------------------------
+ 1. Example 0             ELO 1411.56
+ 2. Example 11            ELO 1298.82
+ 3. Example 17            ELO 1292.68
+ 4. Example 14            ELO 1266.98
+ 5. Example 5             ELO 1238.10
+ 6. Example 3             ELO 1232.64
+ 7. Example 18            ELO 1215.24
+ 8. Example 13            ELO 1212.01
+ 9. Example 7             ELO 1204.31
+10. Example 8             ELO 1200.70
+11. Example 9             ELO 1199.30
+12. Example 6             ELO 1195.69
+13. Example 12            ELO 1187.99
+14. Example 19            ELO 1184.76
+15. Example 2             ELO 1167.36
+16. Example 4             ELO 1161.90
+17. Example 15            ELO 1133.02
+18. Example 16            ELO 1107.32
+19. Example 10            ELO 1101.18
+20. LLM_Competitor 1      ELO 988.44
+
+Finalizado : 2025-06-01 09:21:45
+Duración   : 11.37 minutos
 
