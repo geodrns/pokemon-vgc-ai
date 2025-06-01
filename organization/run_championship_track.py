@@ -33,14 +33,14 @@ def main(_args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--epochs', type=int, default=10) #default 100
+    parser.add_argument('--epochs', type=int, default=10) #rondas
     parser.add_argument('--n_moves', type=int, default=100)
-    parser.add_argument('--roster_size', type=int, default=50)
-    parser.add_argument('--n_agents', type=int, default=2)
+    parser.add_argument('--roster_size', type=int, default=50)#lista de pkkm
+    parser.add_argument('--n_agents', type=int, default=20)#num competidores
     parser.add_argument('--max_team_size', type=int, default=3)
-    parser.add_argument('--n_active', type=int, default=2)
+    parser.add_argument('--n_active', type=int, default=2) #num pkkm luchando simult.
     parser.add_argument('--max_pkm_moves', type=int, default=4)
-    parser.add_argument('--n_battles', type=int, default=3) #default 3
-    parser.add_argument('--base_port', type=int, default=BASE_PORT)
+    parser.add_argument('--n_battles', type=int, default=3) #batallas por ronda
+    parser.add_argument('--base_port', type=int, default=BASE_PORT)#5000...5019
     args = parser.parse_args()
     main(args)

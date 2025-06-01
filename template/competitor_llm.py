@@ -75,6 +75,8 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
         self.last_team: list[int] | None = None
         # Aquí guardamos todos los equipos ganadores a lo largo de la competición
         self.winning_teams_history: list[list[int]] = []
+        # Aquí guardamos todos los equipos perdedores a lo largo de la competición
+        self.losing_teams_history: list[list[int]] = []
 
     class MCTSState:
         def __init__(self, current_team, roster, log: str = "", max_team_size: int = 3, depth: int = 0):
@@ -115,7 +117,8 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
                      current_team: list[int],
                      match_outcome: str,
                      new_elo: float | None,
-                     winning_indices: list[list[int]]) -> str:
+                     winning_indices: list[list[int]],
+                     losing_indices: list[list[int]]) -> str:
         # 1) Cabecera de resultado anterior
         if "first battle" in match_outcome:
             header = "This is your first battle; no prior result.\n"
@@ -137,13 +140,23 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
         else:
             wins_line = "No past winning-team data available.\n"
 
-        # 3) Roster formateado
+        # 3) Lista de índices perdedores de cada partida previa
+        if losing_indices:
+            loses_lines = "\n".join(
+                "[" + ", ".join(str(i) for i in lose_list) + "]"
+                for lose_list in losing_indices
+            )
+            loses_line = f"Losing team indexes in past matches:\n{loses_lines}\n"
+        else:
+            loses_line = "No past losing-team data available.\n"
+
+        # 4) Roster formateado
         roster_lines = "\n".join(
             f"  {i}: {fmt_pokemon_species(sp)}"
             for i, sp in enumerate(roster)
         )
 
-        # 4) Si es la primera batalla, no incluimos “Previous team indices”
+        # 5) Si es la primera batalla, no incluimos “Previous team indices”
         if "first battle" in match_outcome:
             prev_line = ""
         else:
@@ -153,17 +166,18 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
         return (
             header
             + wins_line
+            + loses_line
             + "Now, given the following:\n"
             + "Roster:\n"
             + roster_lines + "\n"
             + prev_line
-            + "Please return exactly the new team indices for example: ---14, 30, 49---"
+            + "Please return exactly the new team indices following this format: ---id1, id2, id3---"
         )
 
     def decision(self, roster, meta, max_team_size: int, max_pkm_moves: int, n_active: int):
         """
         1) Buscamos la última partida en que nuestro equipo jugó (self.last_team).  
-           Si la ganamos, añadimos ese equipo a winning_teams_history.  
+           Si la ganamos, añadimos ese equipo a winning_teams_history; si la perdemos, a losing_teams_history.  
         2) Determinamos el resultado de esa última partida (won/lost) y el nuevo Elo.  
         3) Si nunca participamos, asumimos “first battle”.  
         """
@@ -194,9 +208,12 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
             side, winner, elos, team_ids = last_participation
             match_outcome = "won" if winner == side else "lost"
             new_elo = elos[side]
-            # Si ganamos, añadimos ese equipo a la historia de equipos ganadores (incluso si se repite)
+            # Si ganamos, añadimos ese equipo a la historia de equipos ganadores
             if winner == side:
                 self.winning_teams_history.append(team_ids)
+            else:
+                # Si perdemos, añadimos ese equipo a la historia de equipos perdedores
+                self.losing_teams_history.append(team_ids)
 
         # 3) Determinar qué equipo mostrar como “actual”
         if self.last_team is None:
@@ -207,7 +224,14 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
         logging.info("decision(): last match %s, new Elo %s", match_outcome, new_elo)
 
         # 4) Construir prompt completo
-        prompt = self.build_prompt(roster, current_team, match_outcome, new_elo, self.winning_teams_history)
+        prompt = self.build_prompt(
+            roster,
+            current_team,
+            match_outcome,
+            new_elo,
+            self.winning_teams_history,
+            self.losing_teams_history
+        )
         indices = query_llm(prompt)
 
         # 5) Filtrar índices inválidos y fallback si hace falta

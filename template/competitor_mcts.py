@@ -49,26 +49,26 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
             return exploitation + exploration
 
     def choose_team(self, roster, current_team, log, max_team_size):
-        # Creamos nodo raíz
+        # creamos el nodo raiz
         root = self.MCTSNode()
-        # Generamos todas las acciones posibles
+        # y generamos todas las acciones posibles
         actions = self.MCTSState(roster, max_team_size).get_possible_actions()
-        # Expandimos hijos del root
+        # expandimos hijos del nodo raiz
         for act in actions:
             root.children.append(self.MCTSNode(move=act, parent=root))
 
         # MCTS
         for _ in range(self.mcts_iterations):
-            # Selección
+            # seleccion
             node = max(root.children, key=lambda n: n.uct_score(root.visits + 1))
-            # Simulación (rollout aleatorio)
+            # simulacion (aleatorio)
             reward = self.simulate_rollout()
             # Backpropagation
             node.visits += 1
             node.wins += reward
             root.visits += 1
 
-        # Elegimos el movimiento con mayor ratio wins/visits
+        # elegimos el movimiento con mayor ratio wins/visits
         best = max(
             root.children,
             key=lambda n: (n.wins / n.visits) if n.visits > 0 else 0
