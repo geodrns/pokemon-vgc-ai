@@ -32,12 +32,6 @@ def fmt_pokemon_species(sp):
     moves = ", ".join(str(m) for m in sp.moves)
     return f"PkmTemplate(Type={types}, Max_HP={hp}, Moves=[{moves}])"
 
-def fmt_pokemon(p):
-    types = "/".join(t.name for t in p.constants.species.types)
-    hp = p.hp
-    moves = ", ".join(str(m) for m in p.battling_moves)
-    return f"Pkm(Type={types}, HP={hp}, Moves=[{moves}])"
-
 # — Conexión a LM Studio —
 def strip_think_tags(text: str) -> str:
     if re.search(r'(?is)<think>.*?</think>', text):
@@ -45,7 +39,7 @@ def strip_think_tags(text: str) -> str:
     else:
         return text
 
-def query_llm(prompt, model_name="meta-llama-3.1-8b-instruct"):
+def query_llm(prompt, model_name="deepseek-r1-distill-llama-8b"):
     url = "http://192.168.1.131:1234/v1/chat/completions"
     headers = {"Content-Type": "application/json"}
     data = {
@@ -69,7 +63,7 @@ def query_llm(prompt, model_name="meta-llama-3.1-8b-instruct"):
         result = [int(n) for n in numbers]
         logging.info("Extracción de índices: %s", result)
         return result
-    except Exception as e:
+    except Exception:
         logging.exception("Error en query_llm:")
         return []
 
@@ -77,6 +71,7 @@ def query_llm(prompt, model_name="meta-llama-3.1-8b-instruct"):
 class MCTSTeamBuildPolicy(TeamBuildPolicy):
     def __init__(self, mcts_iterations=50):
         self.mcts_iterations = mcts_iterations
+        # “last_team” almacenará siempre el último equipo que el LLM devolvió
         self.last_team: list[int] | None = None
 
     class MCTSState:
@@ -113,9 +108,13 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
             logging.exception("Fallback aleatorio en call_llm:")
             return random.sample(range(len(state.roster)), state.max_team_size)
 
-    def build_prompt(self, roster: list, current_team: list[int],
-                     match_outcome: str, new_elo: float | None) -> str:
-        # Cabecera
+    def build_prompt(self,
+                     roster: list,
+                     current_team: list[int],
+                     match_outcome: str,
+                     new_elo: float | None,
+                     winning_indices: list[list[int]]) -> str:
+        # 1) Cabecera de resultado anterior
         if "first battle" in match_outcome:
             header = "This is your first battle; no prior result.\n"
         elif "unknown" in match_outcome:
@@ -126,6 +125,17 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
                 header += f" Your new Elo is {new_elo:.2f}."
             header += "\n"
 
+        # 2) Lista de índices ganadores de cada partida previa
+        if winning_indices:
+            wins_str = "; ".join(
+                "[" + ", ".join(str(i) for i in win_list) + "]"
+                for win_list in winning_indices
+            )
+            wins_line = f"Winning team indexes in past matches: {wins_str}\n"
+        else:
+            wins_line = "No past winning-team data available.\n"
+
+        # 3) Roster formateado
         roster_lines = "\n".join(
             f"  {i}: {fmt_pokemon_species(sp)}"
             for i, sp in enumerate(roster)
@@ -134,37 +144,66 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
 
         return (
             header
+            + wins_line
             + "Now, given the following:\n"
             + "Roster:\n"
             + roster_lines + "\n"
             + f"Previous team indices: [{prev_team_str}]\n"
-            + "Please return exactly the new team indices for example: ---14, 30, 50---"
+            + "Please return exactly the new team indices for example: ---14, 30, 49---"
         )
 
     def decision(self, roster, meta, max_team_size: int, max_pkm_moves: int, n_active: int):
-        # 1) Último registro de partido
-        if getattr(meta, "record", []):
-            teams, winner, elos = meta.record[-1]
+        """
+        1) Recorremos meta.record EN ORDEN cronológico, manteniendo sólo aquellas partidas
+           en las que nuestro equipo (self.last_team) coincidía con uno de los dos equipos.
+           De cada partida válida extraemos la lista de índices ganadores y la guardamos en
+           'winning_indices'.
+        2) Determinamos el último match que nos afectó (el más reciente) para sacar match_outcome
+           (“won”/“lost”) y new_elo.
+        3) Si nunca participamos, asumimos “first battle”.
+        """
+
+        # 1) Construir lista de índices ganadores de todas las partidas en las que participamos
+        winning_indices: list[list[int]] = []
+        last_participation = None  # aquí guardaremos (side, winner, elos) de la última vez que participamos
+
+        # Recorremos meta.record de principio a fin
+        for teams, winner, elos in getattr(meta, "record", []):
             ids0 = sorted(p.species.id for p in teams[0].members)
             ids1 = sorted(p.species.id for p in teams[1].members)
-            prev = sorted(self.last_team) if self.last_team is not None else None
+
+            if self.last_team is not None:
+                prev = sorted(self.last_team)
+            else:
+                prev = None
+
+            # Comprobamos si 'prev' coincide con el equipo 0 o el 1
             if prev == ids0:
-                side = 0
+                # Participamos como “lado 0”
+                winning_indices.append(sorted(p.species.id for p in teams[winner].members))
+                last_participation = (0, winner, elos)
+                # Actualizamos “prev” para la siguiente partida, porque nuestro equipo cambió
+                # (self.last_team se actualiza tras cada call_llm)
+                # Pero en este loop no lo hacemos, porque aquí sólo reconstruimos historia.
+
             elif prev == ids1:
-                side = 1
-            else:
-                side = None
-            if side is None:
-                match_outcome = "result unknown"
-                new_elo = None
-            else:
-                match_outcome = "won" if winner == side else "lost"
-                new_elo = elos[side]
-        else:
+                # Participamos como “lado 1”
+                winning_indices.append(sorted(p.species.id for p in teams[winner].members))
+                last_participation = (1, winner, elos)
+
+            # Si no coincidía con ninguno de los dos, ignoramos esa partida.
+
+        # 2) Determinar resultado de la última participación
+        if last_participation is None:
+            # Nunca participamos
             match_outcome = "first battle (no prior result)"
             new_elo = None
+        else:
+            side, winner, elos = last_participation
+            match_outcome = "won" if winner == side else "lost"
+            new_elo = elos[side]
 
-        # 2) Equipo previo
+        # 3) Determinar qué equipo mostrar como “actual”
         if self.last_team is None:
             current_team = list(range(max_team_size))
         else:
@@ -172,13 +211,13 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
 
         logging.info("decision(): last match %s, new Elo %s", match_outcome, new_elo)
 
-        # 3) Prompt y llamada LLM
-        prompt = self.build_prompt(roster, current_team, match_outcome, new_elo)
-        logging.info("Sending prompt:\n%s", prompt)
+        # 4) Construir prompt completo
+        prompt = self.build_prompt(roster, current_team, match_outcome, new_elo, winning_indices)
+        #logging.info("Sending prompt:\n%s", prompt)
         indices = query_llm(prompt)
-        logging.info("Raw indices: %s", indices)
+        #logging.info("Raw indices: %s", indices)
 
-        # 4) Limpieza
+        # 5) Filtrar índices inválidos y fallback si hace falta
         valid = [i for i in indices if 0 <= i < len(roster)]
         if len(valid) < max_team_size:
             pool = [i for i in range(len(roster)) if i not in valid]
@@ -188,15 +227,16 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
         elif len(valid) > max_team_size:
             valid = valid[:max_team_size]
 
+        # 6) Guardar el equipo definitivo
         self.last_team = valid
 
-        # 5) Construcción de comandos
+        # 7) Construir el TeamBuildCommand final
         ivs = (31,) * 6
         cmds = []
         for idx in valid:
             sp = roster[idx]
             mv = list(range(len(sp.moves)))[:max_pkm_moves]
-            ev = tuple(multinomial(510, [1/6]*6, size=1)[0])
+            ev = tuple(multinomial(510, [1/6] * 6, size=1)[0])
             nat = Nature(random.randrange(len(Nature)))
             cmds.append((idx, ev, ivs, nat, mv))
 
@@ -230,7 +270,7 @@ class LLM_Competitor(Competitor):
 
 if __name__ == "__main__":
     from vgc2.util.generator import gen_move_set, gen_pkm_roster
-    move_set = gen_move_set(100)
+    move_set = gen_move_set(50)
     roster = gen_pkm_roster(50, move_set)
     max_team_size = 3
     max_pkm_moves = 4

@@ -166,3 +166,86 @@ Competidores: 20 (LLM ID=1)
 Finalizado : 2025-05-30 09:37:51
 Duración   : 30.32 minutos
 
+============================================
+Ejecución iniciada el: 2025-06-01 02:20:50
+Competidores: 20 (LLM ID=1)
+--------------------------------------------
+ 1. Example 11            ELO 1338.96
+ 2. Example 19            ELO 1311.10
+ 3. Example 0             ELO 1262.68
+ 4. Example 2             ELO 1239.59
+ 5. Example 15            ELO 1237.01
+ 6. Example 7             ELO 1236.06
+ 7. Example 5             ELO 1233.86
+ 8. Example 12            ELO 1219.75
+ 9. Example 17            ELO 1217.75
+10. Example 8             ELO 1203.06
+11. Example 9             ELO 1196.94
+12. Example 16            ELO 1182.25
+13. Example 13            ELO 1180.25
+14. Example 4             ELO 1166.14
+15. Example 6             ELO 1163.94
+16. Example 14            ELO 1162.99
+17. Example 3             ELO 1160.41
+18. LLM_Competitor 1      ELO 1137.32
+19. Example 18            ELO 1088.90
+20. Example 10            ELO 1061.04
+
+Finalizado : 2025-06-01 02:34:43
+Duración   : 13.97 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-01 02:55:29
+Competidores: 20 (LLM ID=1)
+--------------------------------------------
+ 1. LLM_Competitor 1      ELO 1327.50
+ 2. Example 12            ELO 1275.40
+ 3. Example 15            ELO 1271.15
+ 4. Example 18            ELO 1250.44
+ 5. Example 17            ELO 1247.02
+ 6. Example 7             ELO 1240.04
+ 7. Example 4             ELO 1236.98
+ 8. Example 9             ELO 1223.55
+ 9. Example 11            ELO 1214.95
+10. Example 3             ELO 1201.65
+11. Example 2             ELO 1198.35
+12. Example 10            ELO 1185.05
+13. Example 8             ELO 1176.45
+14. Example 5             ELO 1163.02
+15. Example 6             ELO 1159.96
+16. Example 16            ELO 1152.98
+17. Example 19            ELO 1149.56
+18. Example 14            ELO 1128.85
+19. Example 13            ELO 1124.60
+20. Example 0             ELO 1072.50
+
+Finalizado : 2025-06-01 03:09:42
+Duración   : 14.30 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-01 03:13:42
+Competidores: 20 (LLM ID=1)
+--------------------------------------------
+Traceback (most recent call last):
+  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track_BIS.py", line 58, in <module>
+    main(args)
+  File "/home/geo/pokemon-vgc-ai/pokemon-vgc-engine/organization/run_championship_track_BIS.py", line 34, in main
+    champ.run()
+  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/ecosystem.py", line 63, in run
+    self._build_teams()
+  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/competition/ecosystem.py", line 70, in _build_teams
+    cm.team = build_team(cm.competitor.team_build_policy.decision(
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/geo/pokemon-vgc-ai/venv/lib/python3.12/site-packages/vgc2/net/client.py", line 49, in decision
+    return self.conn.recv()
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/multiprocessing/connection.py", line 250, in recv
+    buf = self._recv_bytes()
+          ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/multiprocessing/connection.py", line 430, in _recv_bytes
+    buf = self._recv(4)
+          ^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/multiprocessing/connection.py", line 395, in _recv
+    chunk = read(handle, remaining)
+            ^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

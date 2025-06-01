@@ -27,7 +27,7 @@ for ID in $(seq 0 $((NUM_AGENTS-1))); do
       > "../logs/main_llm.log" 2>&1 &
   else
     echo "ID=$ID → main.py en puerto $PORT"
-    python3 main2.py --id "$ID" \
+    python3 main.py --id "$ID" \
       > /dev/null 2>&1 &
   fi
 
@@ -41,7 +41,7 @@ sleep 5
 
 # 2) Lanzamos el Championship Track (BIS)
 echo "Arrancando Championship Track…"
-RESULTS_LOG="logs/LLM_Results.log"
+RESULTS_LOG="logs/DeepSeek_Results.log"
 {
   echo "============================================"
   echo "Ejecución iniciada el: $(date '+%Y-%m-%d %H:%M:%S')"
