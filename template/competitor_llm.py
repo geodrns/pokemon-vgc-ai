@@ -73,6 +73,8 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
         self.mcts_iterations = mcts_iterations
         # “last_team” almacenará siempre el último equipo que el LLM devolvió
         self.last_team: list[int] | None = None
+        # Aquí guardamos todos los equipos ganadores a lo largo de la competición
+        self.winning_teams_history: list[list[int]] = []
 
     class MCTSState:
         def __init__(self, current_team, roster, log: str = "", max_team_size: int = 3, depth: int = 0):
@@ -127,11 +129,11 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
 
         # 2) Lista de índices ganadores de cada partida previa
         if winning_indices:
-            wins_str = "; ".join(
+            wins_lines = "\n".join(
                 "[" + ", ".join(str(i) for i in win_list) + "]"
                 for win_list in winning_indices
             )
-            wins_line = f"Winning team indexes in past matches: {wins_str}\n"
+            wins_line = f"Winning team indexes in past matches:\n{wins_lines}\n"
         else:
             wins_line = "No past winning-team data available.\n"
 
@@ -140,7 +142,13 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
             f"  {i}: {fmt_pokemon_species(sp)}"
             for i, sp in enumerate(roster)
         )
-        prev_team_str = ", ".join(str(i) for i in current_team)
+
+        # 4) Si es la primera batalla, no incluimos “Previous team indices”
+        if "first battle" in match_outcome:
+            prev_line = ""
+        else:
+            prev_team_str = ", ".join(str(i) for i in current_team)
+            prev_line = f"Previous team indices: [{prev_team_str}]\n"
 
         return (
             header
@@ -148,60 +156,49 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
             + "Now, given the following:\n"
             + "Roster:\n"
             + roster_lines + "\n"
-            + f"Previous team indices: [{prev_team_str}]\n"
+            + prev_line
             + "Please return exactly the new team indices for example: ---14, 30, 49---"
         )
 
     def decision(self, roster, meta, max_team_size: int, max_pkm_moves: int, n_active: int):
         """
-        1) Recorremos meta.record EN ORDEN cronológico, manteniendo sólo aquellas partidas
-           en las que nuestro equipo (self.last_team) coincidía con uno de los dos equipos.
-           De cada partida válida extraemos la lista de índices ganadores y la guardamos en
-           'winning_indices'.
-        2) Determinamos el último match que nos afectó (el más reciente) para sacar match_outcome
-           (“won”/“lost”) y new_elo.
-        3) Si nunca participamos, asumimos “first battle”.
+        1) Buscamos la última partida en que nuestro equipo jugó (self.last_team).  
+           Si la ganamos, añadimos ese equipo a winning_teams_history.  
+        2) Determinamos el resultado de esa última partida (won/lost) y el nuevo Elo.  
+        3) Si nunca participamos, asumimos “first battle”.  
         """
 
-        # 1) Construir lista de índices ganadores de todas las partidas en las que participamos
-        winning_indices: list[list[int]] = []
-        last_participation = None  # aquí guardaremos (side, winner, elos) de la última vez que participamos
+        # 1) Verificar meta.record y self.last_team para ver la última participación concreta
+        last_participation = None  # aquí guardaremos (side, winner, elos, team_ids) de la última vez que participamos
 
-        # Recorremos meta.record de principio a fin
-        for teams, winner, elos in getattr(meta, "record", []):
-            ids0 = sorted(p.species.id for p in teams[0].members)
-            ids1 = sorted(p.species.id for p in teams[1].members)
-
-            if self.last_team is not None:
-                prev = sorted(self.last_team)
-            else:
-                prev = None
-
-            # Comprobamos si 'prev' coincide con el equipo 0 o el 1
-            if prev == ids0:
-                # Participamos como “lado 0”
-                winning_indices.append(sorted(p.species.id for p in teams[winner].members))
-                last_participation = (0, winner, elos)
-                # Actualizamos “prev” para la siguiente partida, porque nuestro equipo cambió
-                # (self.last_team se actualiza tras cada call_llm)
-                # Pero en este loop no lo hacemos, porque aquí sólo reconstruimos historia.
-
-            elif prev == ids1:
-                # Participamos como “lado 1”
-                winning_indices.append(sorted(p.species.id for p in teams[winner].members))
-                last_participation = (1, winner, elos)
-
-            # Si no coincidía con ninguno de los dos, ignoramos esa partida.
+        # Si tenemos algún registro y ya habíamos enviado equipo la vez anterior:
+        if getattr(meta, "record", []) and self.last_team is not None:
+            # Recorremos meta.record de atrás hacia adelante hasta encontrar la primera coincidencia
+            for teams, winner, elos in reversed(meta.record):
+                ids0 = sorted(p.species.id for p in teams[0].members)
+                ids1 = sorted(p.species.id for p in teams[1].members)
+                prev_sorted = sorted(self.last_team)
+                if prev_sorted == ids0:
+                    last_participation = (0, winner, elos, ids0)
+                    break
+                elif prev_sorted == ids1:
+                    last_participation = (1, winner, elos, ids1)
+                    break
 
         # 2) Determinar resultado de la última participación
         if last_participation is None:
-            # Nunca participamos
+            # Nunca participamos → “first battle”
             match_outcome = "first battle (no prior result)"
             new_elo = None
         else:
-            side, winner, elos = last_participation
+            side, winner, elos, team_ids = last_participation
             match_outcome = "won" if winner == side else "lost"
             new_elo = elos[side]
+            # Si ganamos, añadimos ese equipo a la historia de equipos ganadores
+            if winner == side:
+                # Evitamos duplicados consecutivos
+                if not self.winning_teams_history or self.winning_teams_history[-1] != team_ids:
+                    self.winning_teams_history.append(team_ids)
 
         # 3) Determinar qué equipo mostrar como “actual”
         if self.last_team is None:
@@ -212,10 +209,8 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
         logging.info("decision(): last match %s, new Elo %s", match_outcome, new_elo)
 
         # 4) Construir prompt completo
-        prompt = self.build_prompt(roster, current_team, match_outcome, new_elo, winning_indices)
-        #logging.info("Sending prompt:\n%s", prompt)
+        prompt = self.build_prompt(roster, current_team, match_outcome, new_elo, self.winning_teams_history)
         indices = query_llm(prompt)
-        #logging.info("Raw indices: %s", indices)
 
         # 5) Filtrar índices inválidos y fallback si hace falta
         valid = [i for i in indices if 0 <= i < len(roster)]
