@@ -3021,3 +3021,480 @@ Competidores: 20 (MCTS ID=1)
 
 Finalizado : 2025-05-31 01:18:00
 Duración   : 8.55 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-02 01:28:45
+Competidores: 20 (MCTS ID=1)
+--------------------------------------------
+ 1. Example 17            ELO 1335.46
+ 2. Example 2             ELO 1253.44
+ 3. Example 19            ELO 1253.05
+ 4. Example 5             ELO 1237.01
+ 5. Example 10            ELO 1228.26
+ 6. Example 7             ELO 1228.22
+ 7. MCTSCompetitor 1      ELO 1227.59
+ 8. Example 13            ELO 1218.79
+ 9. Example 14            ELO 1209.01
+10. Example 9             ELO 1203.42
+11. Example 8             ELO 1196.58
+12. Example 15            ELO 1190.99
+13. Example 12            ELO 1181.21
+14. Example 0             ELO 1172.41
+15. Example 6             ELO 1171.78
+16. Example 11            ELO 1171.74
+17. Example 4             ELO 1162.99
+18. Example 18            ELO 1146.95
+19. Example 3             ELO 1146.56
+20. Example 16            ELO 1064.54
+
+Finalizado : 2025-06-02 01:34:49
+Duración   : 6.15 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-02 01:34:54
+Competidores: 20 (MCTS ID=1)
+--------------------------------------------
+ 1. MCTSCompetitor 1      ELO 1377.14
+ 2. Example 14            ELO 1345.67
+ 3. Example 18            ELO 1294.95
+ 4. Example 10            ELO 1264.03
+ 5. Example 12            ELO 1253.44
+ 6. Example 8             ELO 1243.20
+ 7. Example 4             ELO 1237.11
+ 8. Example 7             ELO 1210.74
+ 9. Example 17            ELO 1205.69
+10. Example 2             ELO 1200.32
+11. Example 3             ELO 1199.68
+12. Example 16            ELO 1194.31
+13. Example 6             ELO 1189.26
+14. Example 5             ELO 1162.89
+15. Example 9             ELO 1156.80
+16. Example 13            ELO 1146.56
+17. Example 11            ELO 1135.97
+18. Example 19            ELO 1105.05
+19. Example 15            ELO 1054.33
+20. Example 0             ELO 1022.86
+
+Finalizado : 2025-06-02 01:43:48
+Duración   : 8.98 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-02 01:43:53
+Competidores: 20 (MCTS ID=1)
+--------------------------------------------
+ 1. Example 2             ELO 1343.38
+ 2. Example 17            ELO 1292.18
+ 3. Example 8             ELO 1288.88
+ 4. Example 5             ELO 1282.74
+ 5. Example 10            ELO 1278.19
+ 6. Example 15            ELO 1253.34
+ 7. Example 7             ELO 1231.95
+ 8. MCTSCompetitor 1      ELO 1229.30
+ 9. Example 19            ELO 1224.36
+10. Example 12            ELO 1218.13
+11. Example 13            ELO 1181.87
+12. Example 18            ELO 1175.64
+13. Example 0             ELO 1170.70
+14. Example 6             ELO 1168.05
+15. Example 14            ELO 1146.66
+16. Example 11            ELO 1121.81
+17. Example 4             ELO 1117.26
+18. Example 9             ELO 1111.12
+19. Example 16            ELO 1107.82
+20. Example 3             ELO 1056.62
+
+Finalizado : 2025-06-02 01:50:34
+Duración   : 6.77 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-02 01:50:43
+Competidores: 20 (MCTS ID=1)
+--------------------------------------------
+ 1. Example 3             ELO 1343.82
+ 2. Example 0             ELO 1331.18
+ 3. Example 18            ELO 1291.17
+ 4. Example 9             ELO 1280.55
+ 5. Example 6             ELO 1269.49
+ 6. Example 17            ELO 1259.90
+ 7. Example 5             ELO 1255.00
+ 8. Example 13            ELO 1240.74
+ 9. Example 14            ELO 1238.27
+10. Example 10            ELO 1226.38
+11. Example 11            ELO 1173.62
+12. Example 15            ELO 1161.73
+13. Example 12            ELO 1159.26
+14. Example 4             ELO 1145.00
+15. Example 16            ELO 1140.10
+16. Example 7             ELO 1130.51
+17. Example 8             ELO 1119.45
+18. Example 19            ELO 1108.83
+19. MCTSCompetitor 1      ELO 1068.82
+20. Example 2             ELO 1056.18
+
+Finalizado : 2025-06-02 01:54:53
+Duración   : 4.32 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-02 01:54:58
+Competidores: 20 (MCTS ID=1)
+--------------------------------------------
+ 1. Example 10            ELO 1327.09
+ 2. Example 3             ELO 1294.93
+ 3. Example 14            ELO 1259.27
+ 4. Example 5             ELO 1229.99
+ 5. Example 6             ELO 1227.55
+ 6. Example 17            ELO 1227.52
+ 7. Example 12            ELO 1222.47
+ 8. MCTSCompetitor 1      ELO 1220.79
+ 9. Example 9             ELO 1217.61
+10. Example 18            ELO 1207.01
+11. Example 19            ELO 1192.99
+12. Example 8             ELO 1182.39
+13. Example 0             ELO 1179.21
+14. Example 13            ELO 1177.53
+15. Example 16            ELO 1172.48
+16. Example 7             ELO 1172.45
+17. Example 4             ELO 1170.01
+18. Example 15            ELO 1140.73
+19. Example 2             ELO 1105.07
+20. Example 11            ELO 1072.91
+
+Finalizado : 2025-06-02 01:59:39
+Duración   : 4.77 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-02 01:59:44
+Competidores: 20 (MCTS ID=1)
+--------------------------------------------
+ 1. Example 8             ELO 1308.73
+ 2. Example 13            ELO 1299.53
+ 3. Example 0             ELO 1295.49
+ 4. Example 10            ELO 1289.90
+ 5. Example 18            ELO 1282.15
+ 6. Example 16            ELO 1265.97
+ 7. Example 14            ELO 1222.38
+ 8. Example 7             ELO 1215.05
+ 9. Example 4             ELO 1213.76
+10. Example 3             ELO 1212.25
+11. Example 2             ELO 1187.75
+12. Example 5             ELO 1186.24
+13. Example 6             ELO 1184.95
+14. Example 15            ELO 1177.62
+15. Example 17            ELO 1134.03
+16. Example 19            ELO 1117.85
+17. Example 11            ELO 1110.10
+18. MCTSCompetitor 1      ELO 1104.51
+19. Example 12            ELO 1100.47
+20. Example 9             ELO 1091.27
+
+Finalizado : 2025-06-02 02:05:07
+Duración   : 5.47 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-02 02:05:13
+Competidores: 20 (MCTS ID=1)
+--------------------------------------------
+ 1. Example 11            ELO 1299.53
+ 2. Example 0             ELO 1274.49
+ 3. Example 15            ELO 1260.89
+ 4. Example 17            ELO 1255.00
+ 5. Example 7             ELO 1245.24
+ 6. Example 18            ELO 1244.44
+ 7. Example 13            ELO 1229.19
+ 8. Example 4             ELO 1221.83
+ 9. Example 9             ELO 1213.76
+10. Example 3             ELO 1204.49
+11. Example 2             ELO 1195.51
+12. Example 8             ELO 1186.24
+13. Example 5             ELO 1178.17
+14. Example 12            ELO 1170.81
+15. Example 19            ELO 1155.56
+16. Example 6             ELO 1154.76
+17. Example 16            ELO 1145.00
+18. Example 14            ELO 1139.11
+19. MCTSCompetitor 1      ELO 1125.51
+20. Example 10            ELO 1100.47
+
+Finalizado : 2025-06-02 02:11:29
+Duración   : 6.35 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-02 02:11:37
+Competidores: 20 (MCTS ID=1)
+--------------------------------------------
+ 1. Example 0             ELO 1378.98
+ 2. Example 9             ELO 1333.10
+ 3. Example 18            ELO 1329.53
+ 4. Example 12            ELO 1265.08
+ 5. Example 2             ELO 1261.71
+ 6. Example 7             ELO 1253.05
+ 7. Example 4             ELO 1224.36
+ 8. Example 11            ELO 1216.33
+ 9. Example 16            ELO 1213.20
+10. Example 14            ELO 1207.47
+11. Example 15            ELO 1192.53
+12. Example 17            ELO 1186.80
+13. Example 10            ELO 1183.67
+14. Example 5             ELO 1175.64
+15. Example 6             ELO 1146.95
+16. Example 3             ELO 1138.29
+17. Example 13            ELO 1134.92
+18. Example 19            ELO 1070.47
+19. Example 8             ELO 1066.90
+20. MCTSCompetitor 1      ELO 1021.02
+
+Finalizado : 2025-06-02 02:19:40
+Duración   : 8.18 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-02 02:19:45
+Competidores: 20 (MCTS ID=1)
+--------------------------------------------
+ 1. Example 13            ELO 1372.16
+ 2. Example 0             ELO 1338.96
+ 3. Example 11            ELO 1308.73
+ 4. Example 6             ELO 1299.53
+ 5. Example 9             ELO 1287.43
+ 6. Example 4             ELO 1260.12
+ 7. Example 19            ELO 1254.85
+ 8. Example 3             ELO 1243.95
+ 9. Example 17            ELO 1239.59
+10. Example 14            ELO 1231.18
+11. Example 15            ELO 1168.82
+12. Example 16            ELO 1160.41
+13. Example 2             ELO 1156.05
+14. Example 18            ELO 1145.15
+15. Example 5             ELO 1139.88
+16. Example 8             ELO 1112.57
+17. Example 7             ELO 1100.47
+18. Example 10            ELO 1091.27
+19. MCTSCompetitor 1      ELO 1061.04
+20. Example 12            ELO 1027.84
+
+Finalizado : 2025-06-02 02:29:02
+Duración   : 9.37 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-02 02:29:07
+Competidores: 20 (MCTS ID=1)
+--------------------------------------------
+ 1. MCTSCompetitor 1      ELO 1411.56
+ 2. Example 8             ELO 1333.65
+ 3. Example 3             ELO 1289.90
+ 4. Example 18            ELO 1259.90
+ 5. Example 11            ELO 1244.06
+ 6. Example 7             ELO 1238.10
+ 7. Example 17            ELO 1237.11
+ 8. Example 4             ELO 1226.40
+ 9. Example 12            ELO 1223.34
+10. Example 14            ELO 1200.81
+11. Example 15            ELO 1199.19
+12. Example 13            ELO 1176.66
+13. Example 5             ELO 1173.60
+14. Example 16            ELO 1162.89
+15. Example 6             ELO 1161.90
+16. Example 10            ELO 1155.94
+17. Example 19            ELO 1140.10
+18. Example 2             ELO 1110.10
+19. Example 9             ELO 1066.35
+20. Example 0             ELO 988.44
+
+Finalizado : 2025-06-02 02:36:25
+Duración   : 7.38 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-02 02:36:30
+Competidores: 20 (MCTS ID=1)
+--------------------------------------------
+ 1. Example 15            ELO 1377.14
+ 2. Example 4             ELO 1372.16
+ 3. Example 18            ELO 1343.38
+ 4. Example 12            ELO 1329.53
+ 5. Example 0             ELO 1282.74
+ 6. Example 9             ELO 1271.15
+ 7. Example 11            ELO 1267.11
+ 8. Example 17            ELO 1256.79
+ 9. Example 2             ELO 1244.12
+10. Example 6             ELO 1206.18
+11. Example 7             ELO 1193.82
+12. Example 3             ELO 1155.88
+13. Example 16            ELO 1143.21
+14. Example 10            ELO 1132.89
+15. Example 8             ELO 1128.85
+16. MCTSCompetitor 1      ELO 1117.26
+17. Example 13            ELO 1070.47
+18. Example 19            ELO 1056.62
+19. Example 5             ELO 1027.84
+20. Example 14            ELO 1022.86
+
+Finalizado : 2025-06-02 02:41:13
+Duración   : 4.80 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-02 02:41:18
+Competidores: 20 (MCTS ID=1)
+--------------------------------------------
+ 1. Example 14            ELO 1374.88
+ 2. MCTSCompetitor 1      ELO 1331.18
+ 3. Example 12            ELO 1319.55
+ 4. Example 10            ELO 1299.38
+ 5. Example 6             ELO 1292.18
+ 6. Example 4             ELO 1284.10
+ 7. Example 17            ELO 1263.21
+ 8. Example 18            ELO 1248.93
+ 9. Example 3             ELO 1230.75
+10. Example 9             ELO 1214.83
+11. Example 8             ELO 1185.17
+12. Example 2             ELO 1169.25
+13. Example 19            ELO 1151.07
+14. Example 16            ELO 1136.79
+15. Example 5             ELO 1115.90
+16. Example 7             ELO 1107.82
+17. Example 11            ELO 1100.62
+18. Example 13            ELO 1080.45
+19. Example 0             ELO 1068.82
+20. Example 15            ELO 1025.12
+
+Finalizado : 2025-06-02 02:53:18
+Duración   : 12.08 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-02 02:53:27
+Competidores: 20 (MCTS ID=1)
+--------------------------------------------
+ 1. Example 17            ELO 1341.51
+ 2. Example 11            ELO 1338.73
+ 3. Example 0             ELO 1320.35
+ 4. Example 9             ELO 1270.24
+ 5. Example 13            ELO 1254.85
+ 6. Example 7             ELO 1245.24
+ 7. Example 3             ELO 1240.28
+ 8. Example 19            ELO 1222.32
+ 9. Example 14            ELO 1213.78
+10. Example 4             ELO 1206.18
+11. Example 5             ELO 1193.82
+12. Example 15            ELO 1186.22
+13. Example 18            ELO 1177.68
+14. Example 2             ELO 1159.72
+15. Example 6             ELO 1154.76
+16. Example 12            ELO 1145.15
+17. Example 8             ELO 1129.76
+18. MCTSCompetitor 1      ELO 1079.65
+19. Example 10            ELO 1061.27
+20. Example 16            ELO 1058.49
+
+Finalizado : 2025-06-02 03:00:58
+Duración   : 7.67 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-02 03:01:03
+Competidores: 20 (MCTS ID=1)
+--------------------------------------------
+ 1. Example 13            ELO 1276.84
+ 2. Example 11            ELO 1244.83
+ 3. Example 2             ELO 1243.95
+ 4. MCTSCompetitor 1      ELO 1234.49
+ 5. Example 6             ELO 1225.43
+ 6. Example 4             ELO 1222.61
+ 7. Example 15            ELO 1222.47
+ 8. Example 16            ELO 1219.29
+ 9. Example 9             ELO 1217.75
+10. Example 18            ELO 1216.33
+11. Example 19            ELO 1183.67
+12. Example 8             ELO 1182.25
+13. Example 17            ELO 1180.71
+14. Example 14            ELO 1177.53
+15. Example 5             ELO 1177.39
+16. Example 7             ELO 1174.57
+17. Example 0             ELO 1165.51
+18. Example 3             ELO 1156.05
+19. Example 10            ELO 1155.17
+20. Example 12            ELO 1123.16
+
+Finalizado : 2025-06-02 03:08:06
+Duración   : 7.13 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-02 03:08:11
+Competidores: 20 (MCTS ID=1)
+--------------------------------------------
+ 1. MCTSCompetitor 1      ELO 1411.56
+ 2. Example 14            ELO 1380.44
+ 3. Example 4             ELO 1298.82
+ 4. Example 7             ELO 1262.68
+ 5. Example 3             ELO 1258.27
+ 6. Example 12            ELO 1254.86
+ 7. Example 17            ELO 1248.19
+ 8. Example 9             ELO 1218.79
+ 9. Example 19            ELO 1218.28
+10. Example 11            ELO 1200.32
+11. Example 10            ELO 1199.68
+12. Example 18            ELO 1181.72
+13. Example 8             ELO 1181.21
+14. Example 16            ELO 1151.81
+15. Example 13            ELO 1145.14
+16. Example 2             ELO 1141.73
+17. Example 6             ELO 1137.32
+18. Example 5             ELO 1101.18
+19. Example 15            ELO 1019.56
+20. Example 0             ELO 988.44
+
+Finalizado : 2025-06-02 03:20:54
+Duración   : 12.80 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-02 03:20:59
+Competidores: 20 (MCTS ID=1)
+--------------------------------------------
+ 1. Example 10            ELO 1299.53
+ 2. Example 16            ELO 1295.97
+ 3. Example 18            ELO 1242.95
+ 4. Example 14            ELO 1238.10
+ 5. Example 7             ELO 1229.73
+ 6. Example 0             ELO 1225.07
+ 7. Example 13            ELO 1222.47
+ 8. Example 4             ELO 1220.44
+ 9. Example 8             ELO 1215.83
+10. Example 3             ELO 1209.92
+11. Example 2             ELO 1190.08
+12. Example 9             ELO 1184.17
+13. Example 5             ELO 1179.56
+14. Example 12            ELO 1177.53
+15. MCTSCompetitor 1      ELO 1174.93
+16. Example 6             ELO 1170.27
+17. Example 15            ELO 1161.90
+18. Example 19            ELO 1157.05
+19. Example 17            ELO 1104.03
+20. Example 11            ELO 1100.47
+
+Finalizado : 2025-06-02 03:25:21
+Duración   : 4.45 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-02 03:25:26
+Competidores: 20 (MCTS ID=1)
+--------------------------------------------
+ 1. Example 17            ELO 1291.17
+ 2. Example 6             ELO 1277.34
+ 3. Example 10            ELO 1249.75
+ 4. Example 5             ELO 1235.64
+ 5. Example 18            ELO 1233.86
+ 6. Example 12            ELO 1224.31
+ 7. Example 14            ELO 1222.53
+ 8. Example 3             ELO 1221.21
+ 9. Example 9             ELO 1218.28
+10. MCTSCompetitor 1      ELO 1200.81
+11. Example 0             ELO 1199.19
+12. Example 8             ELO 1181.72
+13. Example 2             ELO 1178.79
+14. Example 15            ELO 1177.47
+15. Example 13            ELO 1175.69
+16. Example 19            ELO 1166.14
+17. Example 4             ELO 1164.36
+18. Example 11            ELO 1150.25
+19. Example 7             ELO 1122.66
+20. Example 16            ELO 1108.83
+
+Finalizado : 2025-06-02 03:34:49
+Duración   : 9.47 minutos
+

@@ -19,7 +19,7 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s: %(message)s"
 )
 
-# — Politica de team build basada en MCTS local —
+# — Política de team build basada en MCTS mejorado —
 class MCTSTeamBuildPolicy(TeamBuildPolicy):
     def __init__(self, mcts_iterations=100):
         self.mcts_iterations = mcts_iterations
@@ -30,12 +30,12 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
             self.max_team_size = max_team_size
 
         def get_possible_actions(self):
-            # Todas las combinaciones posibles de indices de tamaño max_team_size
+            # Todas las combinaciones posibles de índices de tamaño max_team_size
             return list(combinations(range(len(self.roster)), self.max_team_size))
 
     class MCTSNode:
         def __init__(self, move=None, parent=None):
-            self.move = move            # Tupla de indices
+            self.move = move            # Tupla de índices
             self.parent = parent
             self.children = []
             self.visits = 0
@@ -49,48 +49,83 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
             return exploitation + exploration
 
     def choose_team(self, roster, current_team, log, max_team_size):
-        # creamos el nodo raiz
+        # nodo raiz
         root = self.MCTSNode()
-        # y generamos todas las acciones posibles
+
+        # acciones posibles y expandimos hijos
         actions = self.MCTSState(roster, max_team_size).get_possible_actions()
-        # expandimos hijos del nodo raiz
         for act in actions:
             root.children.append(self.MCTSNode(move=act, parent=root))
 
-        # MCTS
+        # si no hay hijos validos aleatorio
+        if not root.children:
+            # Seleccionamos max_team_size ind distintos de manera aleatoria
+            return random.sample(range(len(roster)), max_team_size)
+
+        # el MCTS
         for _ in range(self.mcts_iterations):
-            # seleccion
-            node = max(root.children, key=lambda n: n.uct_score(root.visits + 1))
-            # simulacion (aleatorio)
-            reward = self.simulate_rollout()
+            # Seleccion y desempate aleatorio 
+            total_visits = root.visits + 1  # para evitar division entre cero edel UCT
+            uct_values = [child.uct_score(total_visits) for child in root.children]
+            best_score = max(uct_values)
+
+            # recolectamos todos los indices que empatan
+            best_indices = [i for i, v in enumerate(uct_values) if abs(v - best_score) < 1e-9]
+
+            # Si best_indices queda vacio, aleatorio
+            if not best_indices:
+                node = random.choice(root.children)
+            else:
+                chosen_index = random.choice(best_indices)
+                node = root.children[chosen_index]
+
+            # Simulacion con desempate aleatorio
+            reward = self.simulate_rollout(node.move, roster, max_team_size)
+
             # Backpropagation
             node.visits += 1
             node.wins += reward
             root.visits += 1
 
-        # elegimos el movimiento con mayor ratio wins/visits
-        best = max(
+        # elegimos hijo con mayor ratio wins/visits
+        best_child = max(
             root.children,
             key=lambda n: (n.wins / n.visits) if n.visits > 0 else 0
         )
-        return list(best.move)
+        return list(best_child.move)
 
-    def simulate_rollout(self):
-        # Simulación simplificada: recompensa aleatoria [0,1]
-        return random.choice([0, 1])
+    def simulate_rollout(self, team_indices, roster, max_team_size):
+        # Construimos equipo rival aleatorio
+        all_indices = set(range(len(roster)))
+        pool = list(all_indices - set(team_indices))
+        if len(pool) < max_team_size:
+            opponent = random.sample(range(len(roster)), max_team_size)
+        else:
+            opponent = random.sample(pool, max_team_size)
 
-    def decision(self,
-                 roster,
-                 meta,
-                 max_team_size: int,
-                 max_pkm_moves: int,
-                 n_active: int):
+        # Calculamos resultado sumando todas las estats base
+        def team_score(indices):
+            return sum(sum(roster[i].base_stats) for i in indices)
+
+        score_A = team_score(team_indices)
+        score_B = team_score(opponent)
+
+        # vemos quien gana o si es empate pues random
+        if score_A > score_B:
+            return 1
+        elif score_A < score_B:
+            return 0
+        else:
+            return random.choice([0, 1])
+
+    def decision(self, roster, meta, max_team_size: int, max_pkm_moves: int, n_active: int):
         logging.info("Iniciando MCTS con %d iteraciones", self.mcts_iterations)
-        # Obtenemos índices del equipo mediante MCTS
-        indices = self.choose_team(roster, None, "", max_team_size)
-        logging.info("Índices elegidos por MCTS: %s", indices)
 
-        # el TeamBuildCommand:
+        # indices del equipo mediante MCTS
+        indices = self.choose_team(roster, None, "", max_team_size)
+        logging.info("Indices elegidos por MCTS: %s", indices)
+
+        # el TeamBuildCommand
         ivs = (31,) * 6
         cmds = []
         for idx in indices:
@@ -103,6 +138,7 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
 
         logging.info("TeamBuildCommand final: %s", cmds)
         return cmds
+
 
 class MCTSCompetitor(Competitor):
     def __init__(self, name: str = "MCTSCompetitor"):
@@ -126,6 +162,7 @@ class MCTSCompetitor(Competitor):
     @property
     def name(self) -> str:
         return self.__name
+
 
 # — Bloque de prueba —
 if __name__ == "__main__":

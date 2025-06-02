@@ -25,28 +25,28 @@ logging.basicConfig(
 )
 ##---fin log---
 
-# — Auxiliares de formateo —
+# — Aux de formateo —
 def fmt_pokemon_species(sp):
     hp = sp.base_stats[0]
     types = "/".join(t.name for t in sp.types)
     moves = ", ".join(str(m) for m in sp.moves)
     return f"PkmTemplate(Type={types}, Max_HP={hp}, Moves=[{moves}])"
 
-# — Conexión a LM Studio —
+# — Conexion a LM Studio —
 def strip_think_tags(text: str) -> str:
     if re.search(r'(?is)<think>.*?</think>', text):
         return re.sub(r'(?is)<think>.*?</think>', '', text).strip()
     else:
         return text
 
-def query_llm(prompt, model_name="deepseek-r1-distill-llama-8b"):
-    url = "http://192.168.1.131:1234/v1/chat/completions"
+def query_llm(prompt, model_name="deepseek-r1-distill-llama-8b"): # meta-llama-3.1-8b-instruct
+    url = "http://192.168.1.131:1234/v1/chat/completions" #ajustar dependiendo del puerto
     headers = {"Content-Type": "application/json"}
     data = {
         "model": model_name,
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.7,
-        "max_tokens": 10000
+        "max_tokens": 8000
     }
     logging.info("Enviando prompt a LM Studio (%s):\n%s", model_name, prompt)
     try:
@@ -56,18 +56,18 @@ def query_llm(prompt, model_name="deepseek-r1-distill-llama-8b"):
             logging.error("Respuesta inesperada de %s: %s", model_name, resp_json)
             return []
         content = resp_json["choices"][0]["message"]["content"]
-        logging.info("%s respondió (crudo): %s", model_name, content)
-        content = strip_think_tags(content)
-        logging.info("Contenido limpio: %s", content)
-        numbers = re.findall(r'\d+', content)
+        logging.info("%s respondio: %s", model_name, content)
+        content = strip_think_tags(content) # para deepseek
+        logging.info("Contenido limpio: %s", content) # cuando se proporcionan indices de más
+        numbers = re.findall(r'\d+', content) # aqui se dedica a encontrar todos los numeros
         result = [int(n) for n in numbers]
-        logging.info("Extracción de índices: %s", result)
+        logging.info("Extracción de índices: %s", result)# despues de los filtros deben ser 3
         return result
     except Exception:
         logging.exception("Error en query_llm:")
         return []
 
-# — Política de team build basada en MCTS+LLM —
+# — Politica de team build basada en MCTS+LLM —
 class MCTSTeamBuildPolicy(TeamBuildPolicy):
     def __init__(self, mcts_iterations=50):
         self.mcts_iterations = mcts_iterations
@@ -119,7 +119,7 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
                      new_elo: float | None,
                      winning_indices: list[list[int]],
                      losing_indices: list[list[int]]) -> str:
-        # 1) Cabecera de resultado anterior
+        # Cabecera de resultado anterior
         if "first battle" in match_outcome:
             header = "This is your first battle; no prior result.\n"
         elif "unknown" in match_outcome:
@@ -130,7 +130,7 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
                 header += f" Your new Elo is {new_elo:.2f}."
             header += "\n"
 
-        # 2) Lista de índices ganadores de cada partida previa
+        # Lista de indices ganadores previos
         if winning_indices:
             wins_lines = "\n".join(
                 "[" + ", ".join(str(i) for i in win_list) + "]"
@@ -138,9 +138,9 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
             )
             wins_line = f"Winning team indexes in past matches:\n{wins_lines}\n"
         else:
-            wins_line = "No past winning-team data available.\n"
+            wins_line = "No past winning-team data available\n"
 
-        # 3) Lista de índices perdedores de cada partida previa
+        # Lista de idices perdedores previos
         if losing_indices:
             loses_lines = "\n".join(
                 "[" + ", ".join(str(i) for i in lose_list) + "]"
@@ -148,15 +148,15 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
             )
             loses_line = f"Losing team indexes in past matches:\n{loses_lines}\n"
         else:
-            loses_line = "No past losing-team data available.\n"
+            loses_line = "No past losing-team data available\n"
 
-        # 4) Roster formateado
+        # roster formateado
         roster_lines = "\n".join(
             f"  {i}: {fmt_pokemon_species(sp)}"
             for i, sp in enumerate(roster)
         )
 
-        # 5) Si es la primera batalla, no incluimos “Previous team indices”
+        # Si es la primera batalla no incluimos los equipos previos ya q no hay
         if "first battle" in match_outcome:
             prev_line = ""
         else:
@@ -171,23 +171,19 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
             + "Roster:\n"
             + roster_lines + "\n"
             + prev_line
-            + "Please return exactly the new team indices following this format: ---id1, id2, id3---"
+            + "Please return exactly the new team indices following this format: ---id1, id2, id3---" #repetimos el formato para asegurarnos q se respondera asi
         )
 
     def decision(self, roster, meta, max_team_size: int, max_pkm_moves: int, n_active: int):
-        """
-        1) Buscamos la última partida en que nuestro equipo jugó (self.last_team).  
-           Si la ganamos, añadimos ese equipo a winning_teams_history; si la perdemos, a losing_teams_history.  
-        2) Determinamos el resultado de esa última partida (won/lost) y el nuevo Elo.  
-        3) Si nunca participamos, asumimos “first battle”.  
-        """
+        #en decision buscaremos la ult partida que el equipo jugo y si ganamos lo añadimos al history de winning teams
+        #si perdemos viceversa. Luego se tertermina si se ha ganado o perdido y el nuevo elo
+       
+        # PRIEMRO: vemos meta.record y self.last_team para ver la ult participacion concreta
+        last_participation = None  # aqui guardamos (side, winner, elos, team_ids) de la ult vez que participamos
 
-        # 1) Verificar meta.record y self.last_team para ver la última participación concreta
-        last_participation = None  # aquí guardaremos (side, winner, elos, team_ids) de la última vez que participamos
-
-        # Si tenemos algún registro y ya habíamos enviado equipo la vez anterior:
+        # Si tenemos algun registro y ya enviamos el equipo la otr avez
         if getattr(meta, "record", []) and self.last_team is not None:
-            # Recorremos meta.record de atrás hacia adelante hasta encontrar la primera coincidencia
+            # Recorremos meta.record hasta encontrar la primera coincidencia
             for teams, winner, elos in reversed(meta.record):
                 ids0 = sorted(p.species.id for p in teams[0].members)
                 ids1 = sorted(p.species.id for p in teams[1].members)
@@ -199,23 +195,23 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
                     last_participation = (1, winner, elos, ids1)
                     break
 
-        # 2) Determinar resultado de la última participación
+        # det el resultado de la ult participacion
         if last_participation is None:
-            # Nunca participamos → “first battle”
+            # Nunca participamos por lo q es la first 
             match_outcome = "first battle (no prior result)"
             new_elo = None
         else:
             side, winner, elos, team_ids = last_participation
             match_outcome = "won" if winner == side else "lost"
             new_elo = elos[side]
-            # Si ganamos, añadimos ese equipo a la historia de equipos ganadores
+            # Si ganamos, se añadde a los equipos ganadores
             if winner == side:
                 self.winning_teams_history.append(team_ids)
             else:
-                # Si perdemos, añadimos ese equipo a la historia de equipos perdedores
+                # Si perdemos, al otro
                 self.losing_teams_history.append(team_ids)
 
-        # 3) Determinar qué equipo mostrar como “actual”
+        # determinamos q equipo mostrar como el actual
         if self.last_team is None:
             current_team = list(range(max_team_size))
         else:
@@ -223,7 +219,7 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
 
         logging.info("decision(): last match %s, new Elo %s", match_outcome, new_elo)
 
-        # 4) Construir prompt completo
+        # aqui construimos el prompt al completo
         prompt = self.build_prompt(
             roster,
             current_team,
@@ -232,9 +228,9 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
             self.winning_teams_history,
             self.losing_teams_history
         )
-        indices = query_llm(prompt)
+        indices = query_llm(prompt) #enviamos finalmente el prompt al LLM
 
-        # 5) Filtrar índices inválidos y fallback si hace falta
+        # filtramos los indices y si no son validos aplicamos el randomizer
         valid = [i for i in indices if 0 <= i < len(roster)]
         if len(valid) < max_team_size:
             pool = [i for i in range(len(roster)) if i not in valid]
@@ -244,10 +240,10 @@ class MCTSTeamBuildPolicy(TeamBuildPolicy):
         elif len(valid) > max_team_size:
             valid = valid[:max_team_size]
 
-        # 6) Guardar el equipo definitivo
+        # finalmente el equipo
         self.last_team = valid
 
-        # 7) Construir el TeamBuildCommand final
+        # el TeamBuildCommand final:
         ivs = (31,) * 6
         cmds = []
         for idx in valid:
