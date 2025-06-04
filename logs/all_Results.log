@@ -1,14 +1,14 @@
 _____________MCTS_____________
 ------------------------------
-Total Championships: 125
-Win Rate: 8.00%
+Total Championships: 139
+Win Rate: 10.07%
 Best ELO: 1411.56
-Worst ELO: 1021.02
-Mean ELO: 1190.83
-Mean ELO Diff to Winner: 145.12
-ELO Std Dev: 93.19
-Mean Position: 11.34
-Position Std Dev: 6.64
+Worst ELO: 988.44
+Mean ELO: 1197.37
+Mean ELO Diff to Winner: 139.93
+ELO Std Dev: 97.83
+Mean Position: 10.94
+Position Std Dev: 6.77
 -------------------------------
 ___________LLAMA 3.1___________
 -------------------------------
@@ -24,12 +24,12 @@ Position Std Dev: 7.24
 -------------------------------
 __________DEEPSEEK-R1__________
 -------------------------------
-Total Championships: 220
-Win Rate: 38.64%
+Total Championships: 222
+Win Rate: 39.19%
 Best ELO: 1411.56
 Worst ELO: 1018.44
-Mean ELO: 1267.70
-Mean ELO Diff to Winner: 84.19
-ELO Std Dev: 110.04
-Mean Position: 6.72
-Position Std Dev: 6.80
+Mean ELO: 1268.61
+Mean ELO Diff to Winner: 83.43
+ELO Std Dev: 109.95
+Mean Position: 6.67
+Position Std Dev: 6.79

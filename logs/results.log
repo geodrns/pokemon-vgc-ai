@@ -6157,3 +6157,59 @@ Competidores: 20 (LLM ID=1)
 
 Finalizado : 2025-06-04 04:47:20
 Duración   : 17.62 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-04 04:47:25
+Competidores: 20 (LLM ID=1)
+--------------------------------------------
+ 1. LLM_Competitor 1      ELO 1378.98
+ 2. Example 7             ELO 1374.88
+ 3. Example 14            ELO 1307.34
+ 4. Example 10            ELO 1289.27
+ 5. Example 2             ELO 1269.38
+ 6. Example 12            ELO 1258.26
+ 7. Example 8             ELO 1248.13
+ 8. Example 17            ELO 1243.08
+ 9. Example 4             ELO 1222.53
+10. Example 18            ELO 1213.27
+11. Example 19            ELO 1186.73
+12. Example 5             ELO 1177.47
+13. Example 16            ELO 1156.92
+14. Example 9             ELO 1151.87
+15. Example 13            ELO 1141.74
+16. Example 3             ELO 1130.62
+17. Example 11            ELO 1110.73
+18. Example 15            ELO 1092.66
+19. Example 6             ELO 1025.12
+20. Example 0             ELO 1021.02
+
+Finalizado : 2025-06-04 05:03:17
+Duración   : 15.95 minutos
+
+============================================
+Ejecución iniciada el: 2025-06-04 05:03:22
+Competidores: 20 (LLM ID=1)
+--------------------------------------------
+ 1. LLM_Competitor 1      ELO 1356.63
+ 2. Example 16            ELO 1343.82
+ 3. Example 10            ELO 1335.30
+ 4. Example 9             ELO 1299.31
+ 5. Example 4             ELO 1281.47
+ 6. Example 13            ELO 1242.74
+ 7. Example 19            ELO 1240.87
+ 8. Example 2             ELO 1216.73
+ 9. Example 14            ELO 1215.05
+10. Example 7             ELO 1212.25
+11. Example 6             ELO 1187.75
+12. Example 15            ELO 1184.95
+13. Example 3             ELO 1183.27
+14. Example 18            ELO 1159.13
+15. Example 12            ELO 1157.26
+16. Example 5             ELO 1118.53
+17. Example 8             ELO 1100.69
+18. Example 11            ELO 1064.70
+19. Example 17            ELO 1056.18
+20. Example 0             ELO 1043.37
+
+Finalizado : 2025-06-04 05:21:29
+Duración   : 18.20 minutos
