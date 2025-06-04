@@ -41,7 +41,7 @@ sleep 5
 
 # 2) Lanzamos el Championship Track (BIS)
 echo "Arrancando Championship Track…"
-RESULTS_LOG="logs/MCTS2_Results.log"
+RESULTS_LOG="logs/MCTS_Results.log"
 {
   echo "============================================"
   echo "Ejecución iniciada el: $(date '+%Y-%m-%d %H:%M:%S')"

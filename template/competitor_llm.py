@@ -50,7 +50,7 @@ def query_llm(prompt, model_name="deepseek-r1-distill-llama-8b"): # meta-llama-3
     }
     logging.info("Enviando prompt a LM Studio (%s):\n%s", model_name, prompt)
     try:
-        response = requests.post(url, headers=headers, json=data)
+        response = requests.post(url, headers=headers, json=data, timeout=400)
         resp_json = response.json()
         if not response.ok or "choices" not in resp_json:
             logging.error("Respuesta inesperada de %s: %s", model_name, resp_json)
